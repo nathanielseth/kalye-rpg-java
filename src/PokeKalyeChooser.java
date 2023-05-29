@@ -13,7 +13,7 @@ public class PokeKalyeChooser extends JFrame {
     private JLabel selectedPokeKalyeLabel;
 
     public PokeKalyeChooser() {
-        setTitle("PokeKalye");
+        setTitle("KalyeRPG");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(600, 400);
         setLayout(null);
@@ -59,7 +59,7 @@ public class PokeKalyeChooser extends JFrame {
             public void mouseEntered(MouseEvent e) {
                 if (puspinRadioButton.isSelected() || askalRadioButton.isSelected()
                         || langgamRadioButton.isSelected()) {
-                    startButton.setBackground(Color.GREEN);
+                    startButton.setBackground(new Color(102, 255, 51));
                 }
             }
 
@@ -165,15 +165,15 @@ public class PokeKalyeChooser extends JFrame {
 
         if (selectedRadioButton == puspinRadioButton) {
             puspinLabel.setOpaque(true);
-            puspinLabel.setBackground(Color.GREEN);
+            puspinLabel.setBackground(new Color(102, 255, 51));
             puspinLabel.setForeground(Color.BLACK);
         } else if (selectedRadioButton == askalRadioButton) {
             askalLabel.setOpaque(true);
-            askalLabel.setBackground(Color.GREEN);
+            askalLabel.setBackground(new Color(102, 255, 51));
             askalLabel.setForeground(Color.BLACK);
         } else if (selectedRadioButton == langgamRadioButton) {
             langgamLabel.setOpaque(true);
-            langgamLabel.setBackground(Color.GREEN);
+            langgamLabel.setBackground(new Color(102, 255, 51));
             langgamLabel.setForeground(Color.BLACK);
         }
     }

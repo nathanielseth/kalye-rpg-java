@@ -25,7 +25,7 @@ public class SplashScreen {
     public SplashScreen() throws IOException {
         JFrame splashFrame = createSplashFrame("images/PokeKalye.png", 300, 300);
         Timer timer = new Timer(7000, e -> {
-            splashFrame.dispose();
+            splashFrame.dispose(); // 7000 pag final na
             showSecondSplash();
         });
         timer.setRepeats(false);

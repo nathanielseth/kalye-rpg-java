@@ -13,13 +13,13 @@ public class Professor extends JFrame {
     private JButton continueButton;
     private int dialogueIndex = 0;
     private JTextField nameTextField;
-    private String playerName;
+    public String playerName;
     private Timer typingTimer;
     private String currentDialogue;
     private int currentCharIndex;
 
     public Professor() {
-        setTitle("PokeKalye");
+        setTitle("KalyeRPG");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(600, 400);
         setLayout(new BorderLayout());
@@ -62,7 +62,7 @@ public class Professor extends JFrame {
 
         continueButton.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                continueButton.setBackground(Color.GREEN);
+                continueButton.setBackground(new Color(102, 255, 51));
             }
 
             public void mouseExited(java.awt.event.MouseEvent evt) {

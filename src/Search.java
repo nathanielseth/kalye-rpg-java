@@ -1,14 +1,20 @@
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class Search {
     private GamePanel gamePanel;
-    private boolean inBattle;
+    boolean currentlySearching;
+    private Timer animationTimer;
+    private int dotsCount = 0;
+    private String searchingText = "Searching";
 
     public Search(GamePanel gamePanel) {
         this.gamePanel = gamePanel;
-        inBattle = false;
+        currentlySearching = false;
     }
 
     public void performSearch() {
@@ -20,23 +26,56 @@ public class Search {
         SwingWorker<Void, Void> searchWorker = new SwingWorker<>() {
             @Override
             protected Void doInBackground() throws Exception {
-                gamePanel.setInBattle(true);
                 gamePanel.enableSearchButton(false);
+                currentlySearching = true;
 
-                String enemyPokeKalye = getRandomEnemyPokeKalye();
+                gamePanel.setSearchLabelText("SEARCHING...");
+                gamePanel.showSearchingLabel(true);
 
-                SwingUtilities.invokeLater(() -> gamePanel.setEnemyImage(enemyPokeKalye));
+                animationTimer = new Timer(500, e -> {
+                    animateDots();
+                    gamePanel.setSearchLabelText(searchingText);
+                });
+                animationTimer.setInitialDelay(0);
+                animationTimer.start();
 
-                String dialogue = " " + enemyPokeKalye + " has appeared!\n What will " + gamePanel.getPokeKalyeName()
-                        + " do?";
-                SwingUtilities.invokeLater(() -> gamePanel.setDialogueText(dialogue));
+                JLabel loadingLabel = new JLabel(new ImageIcon("images/searching.gif"));
+                loadingLabel.setBounds(70, 10, 100, 100);
+                gamePanel.add(loadingLabel);
+                gamePanel.revalidate();
+                gamePanel.repaint();
 
-                // Check if battle is over
-                if (enemyHealthIsZero() || playerHealthIsZero()) {
-                    gamePanel.enableSearchButton(true);
-                }
+                int searchTime = (int) (Math.random() * 6000) + 1000;
 
-                gamePanel.setInBattle(false);
+                Timer timer = new Timer(searchTime, new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        gamePanel.remove(loadingLabel);
+                        gamePanel.revalidate();
+                        gamePanel.repaint();
+                        gamePanel.showSearchingLabel(false);
+                        animationTimer.stop();
+
+                        String enemyPokeKalye = getRandomEnemyPokeKalye();
+                        gamePanel.setEnemyImage(enemyPokeKalye);
+
+                        String dialogue = " " + enemyPokeKalye + " has appeared!\n What will "
+                                + gamePanel.getPokeKalyeName()
+                                + " do?";
+                        gamePanel.setDialogueText(dialogue);
+
+                        // Check if battle is over
+                        if (enemyHealthIsZero() || playerHealthIsZero()) {
+                            gamePanel.enableSearchButton(true);
+                        }
+
+                        currentlySearching = false;
+                        gamePanel.setInBattle(true);
+                    }
+                });
+                timer.setRepeats(false);
+                timer.start();
+
                 return null;
             }
         };
@@ -45,7 +84,7 @@ public class Search {
     }
 
     public boolean isInBattle() {
-        return inBattle;
+        return gamePanel.isInBattle() || currentlySearching;
     }
 
     private String getRandomEnemyPokeKalye() {
@@ -87,5 +126,18 @@ public class Search {
     private boolean playerHealthIsZero() {
         int playerCurrentHealth = gamePanel.getPlayerCurrentHealth();
         return playerCurrentHealth <= 0;
+    }
+
+    private void animateDots() {
+        dotsCount++;
+        if (dotsCount > 3) {
+            dotsCount = 0;
+        }
+
+        StringBuilder dots = new StringBuilder();
+        for (int i = 0; i < dotsCount; i++) {
+            dots.append(".");
+        }
+        searchingText = "SEARCHING" + dots;
     }
 }

@@ -31,6 +31,7 @@ public class GamePanel extends JPanel {
     private JLabel enemyImageLabel;
     private List<JButton> moveButtons;
     private JPanel buttonsPanel;
+    private JLabel searchingLabel;
 
     void showIntroScreen() {
         this.setBackground(Color.BLACK);
@@ -109,10 +110,19 @@ public class GamePanel extends JPanel {
         enemyLabel.setForeground(Color.WHITE);
         enemyHealthBar = new JProgressBar();
         enemyHealthBar.setForeground(new Color(102, 255, 51));
+        searchingLabel = new JLabel("Searching...");
+        searchingLabel.setForeground(Color.WHITE);
+        searchingLabel.setVisible(false);
+
+        enemyPanel.add(searchingLabel);
 
         enemyPanel.setBackground(new Color(255, 51, 102));
         enemyPanel.add(enemyHealthBar);
         enemyPanel.add(enemyLabel);
+
+        enemyLabel.setVisible(inBattle);
+        enemyHealthBar.setVisible(inBattle);
+        enemyImageLabel.setVisible(inBattle);
 
         battlePanel.add(playerPanel, BorderLayout.NORTH);
         battlePanel.add(imagePanel, BorderLayout.CENTER);
@@ -291,7 +301,9 @@ public class GamePanel extends JPanel {
     public void setEnemyImage(String enemyPokeKalye) {
         enemyLabel.setText(enemyPokeKalye.toUpperCase());
         enemyHealthBar.setMaximum(getMaxHealth(enemyLevel));
-        ImageIcon enemyImage = new ImageIcon("images/" + enemyPokeKalye + "2.png");
+        ImageIcon enemyImage;
+        enemyImage = new ImageIcon("images/" + enemyPokeKalye + "2.png");
+
         enemyImageLabel.setIcon(enemyImage);
     }
 
@@ -326,6 +338,9 @@ public class GamePanel extends JPanel {
     public void setInBattle(boolean inBattle) {
         this.inBattle = inBattle;
         movesButton.setEnabled(true);
+        enemyLabel.setVisible(inBattle);
+        enemyHealthBar.setVisible(inBattle);
+        enemyImageLabel.setVisible(inBattle);
     }
 
     public JButton getSearchButton() {
@@ -341,5 +356,13 @@ public class GamePanel extends JPanel {
     private void openSettingsPanel() {
         SettingsPanel settingsPanel = new SettingsPanel();
         settingsPanel.setVisible(true);
+    }
+
+    public void setSearchLabelText(String text) {
+        searchingLabel.setText(text);
+    }
+
+    public void showSearchingLabel(boolean show) {
+        searchingLabel.setVisible(show);
     }
 }

@@ -32,6 +32,10 @@ public class ShopPanel extends JFrame {
         shopLabel.setForeground(Color.WHITE);
         topPanel.add(shopLabel, BorderLayout.WEST);
 
+        ImageIcon shopIcon = new ImageIcon("images/gcash.png");
+        JLabel shopImageLabel = new JLabel(shopIcon);
+        topPanel.add(shopImageLabel);
+
         JPanel imagePanel = new JPanel();
         imagePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
         imagePanel.setOpaque(false); // Make the panel transparent

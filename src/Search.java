@@ -52,7 +52,7 @@ public class Search {
         int level = gamePanel.getLevel();
         if (level >= 1 && level <= 5) {
             String[] enemies = { "Ipis", "Daga", "Butiki", "Lamok", "Langaw", "Askal", "Ibon" };
-            String[] rareEnemies = { "Langgam", "Puspin", "Salagubang" };
+            String[] rareEnemies = { "Langgam", "Puspin", "Salagubs" };
 
             if (Math.random() < 0.1) {
                 return getRandomArrayElement(rareEnemies);
@@ -60,7 +60,7 @@ public class Search {
                 return getRandomArrayElement(enemies);
             }
         } else if (level >= 6 && level <= 10) {
-            String[] enemies = { "Flying ipis", "Dagang Kanal", "Tuko", "Batang Kalye", "Salagubang", "Langaw" };
+            String[] enemies = { "Flying ipis", "Dagang Kanal", "Tuko", "Batang Kalye", "Salagubs", "Langaw" };
             String[] rareShiny = { "Shiny Daga", "Shiny Ipis", "Shiny Langaw" };
 
             if (Math.random() < 0.05) {

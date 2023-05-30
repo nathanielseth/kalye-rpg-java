@@ -202,6 +202,11 @@ public class GamePanel extends JPanel {
         add(dialogueScrollPane, BorderLayout.WEST);
         add(buttonsPanel, BorderLayout.SOUTH);
 
+        dialogueArea
+                .append("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n " + selectedPokeKalye + " Level: " + playerLevel
+                        + "\n GCash: " + pesos);
+        dialogueArea.setCaretPosition(dialogueArea.getDocument().getLength());
+
         // action listeners
         movesButton.addActionListener(e -> showMovesDialog());
 

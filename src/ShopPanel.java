@@ -27,7 +27,7 @@ public class ShopPanel extends JFrame {
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setOpaque(false); // Make the panel transparent
 
-        JLabel shopLabel = new JLabel("Queen's Row Sari-Sari Store");
+        JLabel shopLabel = new JLabel("            Manggo Lloyd's Sari-Sari Store");
         shopLabel.setFont(new Font("Courier New", Font.BOLD, 17));
         shopLabel.setForeground(Color.WHITE);
         topPanel.add(shopLabel, BorderLayout.WEST);

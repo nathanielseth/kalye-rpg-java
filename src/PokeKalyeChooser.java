@@ -24,7 +24,7 @@ public class PokeKalyeChooser extends JFrame {
                 "<html><p style='text-align:center; font-family:\"Impact\"; font-size:22px; color:white; letter-spacing:800em;'>CHOOSE YOUR POKEKALYE !</p></html>",
                 JLabel.CENTER);
 
-        pokeKalyeChooserLabel.setFont(new Font("Courier New", Font.BOLD, 24));
+        pokeKalyeChooserLabel.setFont(new Font("Courier New", Font.PLAIN, 24));
         pokeKalyeChooserLabel.setForeground(Color.WHITE);
         pokeKalyeChooserLabel.setHorizontalAlignment(SwingConstants.CENTER);
 

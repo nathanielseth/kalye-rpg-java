@@ -13,7 +13,7 @@ public class Professor extends JFrame {
     private JButton continueButton;
     private int dialogueIndex = 0;
     private JTextField nameTextField;
-    public String playerName;
+    private String playerName;
     private Timer typingTimer;
     private String currentDialogue;
     private int currentCharIndex;
@@ -53,12 +53,7 @@ public class Professor extends JFrame {
         continueButton.setEnabled(false);
         add(continueButton, BorderLayout.SOUTH);
 
-        continueButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                advanceDialogue();
-            }
-        });
+        continueButton.addActionListener(e -> advanceDialogue());
 
         continueButton.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
@@ -90,12 +85,12 @@ public class Professor extends JFrame {
             finishTypingAnimation();
         } else {
             dialogueIndex++;
-            if (dialogueIndex < 3) {
+            if (dialogueIndex < 5) {
                 displayDialogue();
-            } else if (dialogueIndex == 3) {
+            } else if (dialogueIndex == 5) {
                 promptForName();
                 dialogueIndex++;
-            } else if (dialogueIndex == 4) {
+            } else if (dialogueIndex == 6) {
                 if (isNameValid()) {
                     displayFinalDialogue();
                     continueButton.setEnabled(true);
@@ -106,7 +101,7 @@ public class Professor extends JFrame {
                             "Prof RP: Ano?!", "What?!",
                             JOptionPane.PLAIN_MESSAGE);
                 }
-            } else if (dialogueIndex >= 5) {
+            } else if (dialogueIndex >= 7) {
                 if (isNameValid()) {
                     dispose();
                     PokeKalyeChooser.main(null);
@@ -118,9 +113,10 @@ public class Professor extends JFrame {
     }
 
     private void displayDialogue() {
-        String[] dialogues = {
+        String[] dialogues = { "...",
                 "Hoy! Ikaw! Huwag ka lumabas! Deliks dito! May mga WILD na PokeKalye dito sa gedli! Kailangan mo ng sarili mong PokeKalye para sa proteksyon mo...",
                 "Ako nga pala si PROF RP! Tinatawag nila ako bilang PROFESSOR KALYE! Mapapansin mo na lately napakaraming hayup na paligoy-ligoy rito sa Queensrow...",
+                "Bilang professor, napaimbestiga ako rito dahil may mga kakaibang kaganapan talaga dito sa kalyeng to.. Kailangan mahuli na ang mga ito agad agad..",
                 "Teka muna, ano ang iyong pangalan?"
         };
         currentDialogue = dialogues[dialogueIndex];
@@ -130,8 +126,8 @@ public class Professor extends JFrame {
 
     private void displayFinalDialogue() {
         if (isNameValid()) {
-            String dialogue = "Kailangan ko ng tulong mo, " + playerName.toUpperCase()
-                    + "! Papipiliin na kita ng iyong PokeKalye... alagaan mo ito, "
+            String dialogue = playerName.toUpperCase() + ", kailangan ko ng tulong mo! "
+                    + "Papipiliin na kita ng iyong PokeKalye... alagaan mo ito, "
                     + playerName.toUpperCase() + ", ang buong Queensrow ay nakasalalay sayo...!";
             currentDialogue = dialogue;
             startTypingAnimation();
@@ -146,7 +142,7 @@ public class Professor extends JFrame {
         JPanel namePanel = new JPanel();
         nameTextField = new JTextField();
         nameTextField.setColumns(20);
-        nameTextField.setFont(new java.awt.Font("Courier New", 1, 24)); // NOI18N
+        nameTextField.setFont(new Font("Courier New", Font.BOLD, 24));
         nameTextField.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
         nameTextField.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent evt) {
@@ -163,12 +159,7 @@ public class Professor extends JFrame {
 
         nameTextField.setBounds(300, 25, 250, 30);
 
-        ActionListener continueActionListener = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                advanceDialogue();
-            }
-        };
+        ActionListener continueActionListener = e -> advanceDialogue();
 
         nameTextField.addActionListener(continueActionListener);
 
@@ -190,7 +181,7 @@ public class Professor extends JFrame {
                         }
                     } else {
                         JOptionPane.showMessageDialog(Professor.this,
-                                "Ha..? Pakiulit nga...", "Professor Kalye Asks",
+                                "                   Ha..? Pakiulit nga...", "Professor Kalye Asks",
                                 JOptionPane.PLAIN_MESSAGE);
                     }
                 }
@@ -207,29 +198,24 @@ public class Professor extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                Professor professor = new Professor();
-                professor.setLocationRelativeTo(null);
-                professor.setResizable(false);
-                professor.setVisible(true);
-            }
+        SwingUtilities.invokeLater(() -> {
+            Professor professor = new Professor();
+            professor.setLocationRelativeTo(null);
+            professor.setResizable(false);
+            professor.setVisible(true);
         });
     }
 
     private void startTypingAnimation() {
         currentCharIndex = 0;
-        int typingSpeed = 45; // Adjust typing speed
-        typingTimer = new Timer(typingSpeed, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (currentCharIndex <= currentDialogue.length()) {
-                    dialoguePanel.setDialogue(currentDialogue.substring(0, currentCharIndex));
-                    dialoguePanel.repaint();
-                    currentCharIndex++;
-                } else {
-                    finishTypingAnimation();
-                }
+        int typingSpeed = 50;
+        typingTimer = new Timer(typingSpeed, e -> {
+            if (currentCharIndex <= currentDialogue.length()) {
+                dialoguePanel.setDialogue(currentDialogue.substring(0, currentCharIndex));
+                dialoguePanel.repaint();
+                currentCharIndex++;
+            } else {
+                finishTypingAnimation();
             }
         });
         typingTimer.start();

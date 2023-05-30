@@ -10,7 +10,7 @@ public class Game {
         String playerName = professor.getPlayerName();
         String selectedPokeKalye = PokeKalyeChooser.getSelectedPokeKalye();
 
-        JFrame frame = new JFrame("PokeKalye");
+        JFrame frame = new JFrame("KalyeRPG");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setResizable(false);
 

@@ -13,38 +13,30 @@ public class Search {
 
     public void performSearch() {
         if (gamePanel.isInBattle()) {
-            // Display a message that the player is already in battle
             JOptionPane.showMessageDialog(gamePanel, "You are already in battle!");
             return;
         }
 
-        // Start the search in a separate thread
         SwingWorker<Void, Void> searchWorker = new SwingWorker<>() {
             @Override
             protected Void doInBackground() throws Exception {
                 gamePanel.setInBattle(true);
                 gamePanel.enableSearchButton(false);
 
-                // Randomly select an enemy PokeKalye
                 String enemyPokeKalye = getRandomEnemyPokeKalye();
 
-                // Set the enemy's image based on the selected PokeKalye
                 SwingUtilities.invokeLater(() -> gamePanel.setEnemyImage(enemyPokeKalye));
 
-                // Display the enemy's appearance in the dialogue area
                 String dialogue = " " + enemyPokeKalye + " has appeared!\n What will " + gamePanel.getPokeKalyeName()
                         + " do?";
                 SwingUtilities.invokeLater(() -> gamePanel.setDialogueText(dialogue));
 
-                // Rest of the battle logic remains the same...
-
-                // Check if the battle is over (enemy defeated or player defeated)
+                // Check if battle is over
                 if (enemyHealthIsZero() || playerHealthIsZero()) {
-                    // Enable the search button if the battle is over
                     gamePanel.enableSearchButton(true);
                 }
 
-                gamePanel.setInBattle(false); // Set inBattle to false when the battle loop ends
+                gamePanel.setInBattle(false);
                 return null;
             }
         };
@@ -57,18 +49,28 @@ public class Search {
     }
 
     private String getRandomEnemyPokeKalye() {
-        // Randomly select an enemy PokeKalye based on level
         int level = gamePanel.getLevel();
         if (level >= 1 && level <= 5) {
-            String[] enemies = { "Ipis", "Daga", "Askal", "Butiki", "Lamok", "Langaw", "Langgam", "Puspin",
-                    "Salagubang" };
-            return getRandomArrayElement(enemies);
+            String[] enemies = { "Ipis", "Daga", "Butiki", "Lamok", "Langaw", "Askal", "Ibon" };
+            String[] rareEnemies = { "Langgam", "Puspin", "Salagubang" };
+
+            if (Math.random() < 0.1) {
+                return getRandomArrayElement(rareEnemies);
+            } else {
+                return getRandomArrayElement(enemies);
+            }
         } else if (level >= 6 && level <= 10) {
             String[] enemies = { "Flying ipis", "Dagang Kanal", "Tuko", "Batang Kalye", "Salagubang", "Langaw" };
-            return getRandomArrayElement(enemies);
+            String[] rareShiny = { "Shiny Daga", "Shiny Ipis", "Shiny Langaw" };
+
+            if (Math.random() < 0.05) {
+                return getRandomArrayElement(rareShiny);
+            } else {
+                return getRandomArrayElement(enemies);
+            }
         }
 
-        // Default case (should not happen)
+        // (should not happen)
         return "ipis";
     }
 
@@ -78,13 +80,11 @@ public class Search {
     }
 
     private boolean enemyHealthIsZero() {
-        // Check if the enemy's health reaches 0
         int enemyCurrentHealth = gamePanel.getEnemyCurrentHealth();
         return enemyCurrentHealth <= 0;
     }
 
     private boolean playerHealthIsZero() {
-        // Check if the player's health reaches 0
         int playerCurrentHealth = gamePanel.getPlayerCurrentHealth();
         return playerCurrentHealth <= 0;
     }

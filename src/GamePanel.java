@@ -2,6 +2,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.Timer;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GamePanel extends JPanel {
     private int playerLevel;
@@ -13,7 +16,7 @@ public class GamePanel extends JPanel {
     private JTextArea dialogueArea;
     private JButton movesButton;
     private JButton searchButton;
-    private JButton healButton;
+    private JButton settingsButton;
     private JButton sariSariButton;
     private String selectedPokeKalye;
     private String playerName;
@@ -26,6 +29,34 @@ public class GamePanel extends JPanel {
     private int pesos;
     private Search search;
     private JLabel enemyImageLabel;
+    private List<JButton> moveButtons;
+    private JPanel buttonsPanel;
+
+    void showIntroScreen() {
+        this.setBackground(Color.BLACK);
+        JFrame introFrame = new JFrame();
+        introFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        introFrame.setUndecorated(true);
+        introFrame.getContentPane().setBackground(new Color(255, 51, 102));
+        introFrame.setBackground(new Color(255, 51, 102));
+        introFrame.setLayout(new BorderLayout());
+
+        JLabel introLabel = new JLabel("PokeKalye", SwingConstants.CENTER);
+        introLabel.setFont(new Font("Courier New", Font.BOLD, 90));
+        introLabel.setForeground(Color.black);
+
+        introFrame.add(introLabel, BorderLayout.CENTER);
+        introFrame.pack();
+        introFrame.setLocationRelativeTo(null);
+        introFrame.setVisible(true);
+
+        Timer timer = new Timer(2000, e -> {
+            introFrame.dispose();
+            enableButtons();
+        });
+        timer.setRepeats(false);
+        timer.start();
+    }
 
     public GamePanel(String playerName, String selectedPokeKalye) {
         search = new Search(this);
@@ -33,12 +64,11 @@ public class GamePanel extends JPanel {
         this.selectedPokeKalye = selectedPokeKalye;
         playerLevel = 1;
         inBattle = false;
+        moveButtons = new ArrayList<>();
 
-        // Set layout manager for the panel
         setLayout(new BorderLayout());
         setPreferredSize(new Dimension(600, 400));
 
-        // Create and add GUI components
         JPanel battlePanel = new JPanel();
         battlePanel.setLayout(new BorderLayout());
         battlePanel.setBackground(new Color(82, 113, 255));
@@ -48,24 +78,24 @@ public class GamePanel extends JPanel {
         playerPanel.setBackground(new Color(82, 113, 255));
         playerPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        playerLabel = new JLabel(selectedPokeKalye);
-        playerLabel.setForeground(Color.WHITE); // Set label text color to white
+        playerLabel = new JLabel(selectedPokeKalye.toUpperCase());
+        playerLabel.setForeground(Color.WHITE);
         playerHealthBar = new JProgressBar(0, getMaxHealth(playerLevel));
         playerHealthBar.setValue(10);
-        playerHealthBar.setForeground(new Color(102, 255, 51)); // Set HP bar color to #66ff33
+        playerHealthBar.setForeground(new Color(102, 255, 51));
 
         playerPanel.add(playerLabel);
         playerPanel.add(playerHealthBar);
 
         JPanel imagePanel = new JPanel();
-        imagePanel.setLayout(null); // Set null layout for absolute positioning
+        imagePanel.setLayout(null);
         imagePanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         enemyImageLabel = new JLabel(new ImageIcon("images/empty.png"));
-        enemyImageLabel.setBounds(260, 120, 100, 100);
+        enemyImageLabel.setBounds(240, 120, 100, 100);
         imagePanel.add(enemyImageLabel);
 
-        JLabel yourPokeKalyeImage = new JLabel(new ImageIcon("images/" + selectedPokeKalye + "2.png"));
+        JLabel yourPokeKalyeImage = new JLabel(new ImageIcon("images/" + selectedPokeKalye + "User.png"));
         yourPokeKalyeImage.setBounds(70, 10, 100, 100);
 
         imagePanel.add(yourPokeKalyeImage);
@@ -78,7 +108,7 @@ public class GamePanel extends JPanel {
         enemyLabel = new JLabel("Enemy");
         enemyLabel.setForeground(Color.WHITE);
         enemyHealthBar = new JProgressBar();
-        enemyHealthBar.setForeground(new Color(102, 255, 51)); // Set HP bar color to #66ff33
+        enemyHealthBar.setForeground(new Color(102, 255, 51));
 
         enemyPanel.setBackground(new Color(255, 51, 102));
         enemyPanel.add(enemyHealthBar);
@@ -95,26 +125,32 @@ public class GamePanel extends JPanel {
         JScrollPane dialogueScrollPane = new JScrollPane(dialogueArea);
         dialogueScrollPane.setPreferredSize(new Dimension(170, getHeight()));
 
-        JPanel buttonsPanel = new JPanel();
-        buttonsPanel.setLayout(new GridLayout(1, 4, 10, 0)); // Updated grid layout to accommodate the new button
+        this.buttonsPanel = new JPanel();
+        buttonsPanel.setLayout(new GridLayout(1, 4, 10, 0));
         buttonsPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         buttonsPanel.setBackground(Color.DARK_GRAY);
 
         movesButton = new JButton("Moves");
         searchButton = new JButton("Search");
-        healButton = new JButton("Heal");
-        sariSariButton = new JButton("Sari-Sari"); // Updated button name
+        sariSariButton = new JButton("Sari-Sari");
+        settingsButton = new JButton("Settings");
 
-        // Set button colors
         movesButton.setBackground(Color.WHITE);
         searchButton.setBackground(Color.WHITE);
-        healButton.setBackground(Color.WHITE);
+        settingsButton.setBackground(Color.WHITE);
         sariSariButton.setBackground(Color.WHITE);
 
-        // Set hover colors
+        searchButton.setEnabled(false);
+        settingsButton.setEnabled(false);
+        sariSariButton.setEnabled(false);
+
+        movesButton.setEnabled(inBattle);
+
         movesButton.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                movesButton.setBackground(new Color(102, 255, 51));
+                if (movesButton.isEnabled()) {
+                    movesButton.setBackground(new Color(102, 255, 51));
+                }
             }
 
             public void mouseExited(java.awt.event.MouseEvent evt) {
@@ -124,7 +160,9 @@ public class GamePanel extends JPanel {
 
         searchButton.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                searchButton.setBackground(new Color(102, 255, 51));
+                if (searchButton.isEnabled()) {
+                    searchButton.setBackground(new Color(102, 255, 51));
+                }
             }
 
             public void mouseExited(java.awt.event.MouseEvent evt) {
@@ -132,19 +170,11 @@ public class GamePanel extends JPanel {
             }
         });
 
-        healButton.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                healButton.setBackground(new Color(102, 255, 51));
-            }
-
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                healButton.setBackground(Color.WHITE);
-            }
-        });
-
         sariSariButton.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                sariSariButton.setBackground(new Color(102, 255, 51));
+                if (sariSariButton.isEnabled()) {
+                    sariSariButton.setBackground(new Color(102, 255, 51));
+                }
             }
 
             public void mouseExited(java.awt.event.MouseEvent evt) {
@@ -152,47 +182,40 @@ public class GamePanel extends JPanel {
             }
         });
 
+        settingsButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                if (settingsButton.isEnabled()) {
+                    settingsButton.setBackground(new Color(102, 255, 51));
+                }
+            }
+
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                settingsButton.setBackground(Color.WHITE);
+            }
+        });
         buttonsPanel.add(movesButton);
         buttonsPanel.add(searchButton);
-        buttonsPanel.add(healButton);
-        buttonsPanel.add(sariSariButton); // Add sariSariButton to the panel
+        buttonsPanel.add(sariSariButton);
+        buttonsPanel.add(settingsButton);
 
         add(battlePanel, BorderLayout.CENTER);
         add(dialogueScrollPane, BorderLayout.WEST);
         add(buttonsPanel, BorderLayout.SOUTH);
 
-        // Add action listeners to buttons
-        movesButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                showMovesDialog();
-            }
-        });
+        // action listeners
+        movesButton.addActionListener(e -> showMovesDialog());
 
         search = new Search(this);
-        searchButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                search.performSearch();
-            }
-        });
+        searchButton.addActionListener(e -> search.performSearch());
 
-        healButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                healPokeKalye();
-            }
-        });
+        settingsButton.addActionListener(e -> openSettingsPanel());
 
-        sariSariButton.addActionListener(new ActionListener() { // Add ActionListener for sariSariButton
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                openShopPanel(); // Call the method to open the shop panel
-            }
-        });
+        sariSariButton.addActionListener(e -> openShopPanel());
+        buttonsPanel.revalidate();
+        buttonsPanel.repaint();
+        showIntroScreen();
     }
 
-    // Helper method to calculate the maximum health based on the player's level
     private int getMaxHealth(int level) {
         if (level >= 5) {
             return 5 + (level - 5) * 20;
@@ -204,72 +227,75 @@ public class GamePanel extends JPanel {
         return playerLevel;
     }
 
-    // Method to handle the "Moves" button click
     private void showMovesDialog() {
-        // Implement the moves dialog and move logic here
-    }
+        buttonsPanel.removeAll();
+        moveButtons.clear();
+        for (JButton button : moveButtons) {
+            buttonsPanel.remove(button);
+        }
+        moveButtons.clear();
 
-    // Method to handle the "Search" button click
-    private void searchForPokeKalye() {
-        if (inBattle == true) {
-            // Display a message that the player is already in battle
-            JOptionPane.showMessageDialog(this, "You are already in battle!");
-            return;
+        int numMoves = Math.min(playerLevel < 5 ? 2 : playerLevel < 10 ? 3 : 4, 4);
+
+        for (int i = 0; i < numMoves; i++) {
+            JButton moveButton = new JButton("Move " + (i + 1));
+            moveButton.setBackground(Color.WHITE);
+
+            moveButton.addMouseListener(new java.awt.event.MouseAdapter() {
+                public void mouseEntered(java.awt.event.MouseEvent evt) {
+                    moveButton.setBackground(new Color(102, 255, 51));
+                }
+
+                public void mouseExited(java.awt.event.MouseEvent evt) {
+                    moveButton.setBackground(Color.WHITE);
+                }
+            });
+
+            moveButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    // implement moves logic in the future
+                    System.out.println("Move button " + moveButton.getText() + " clicked");
+                }
+            });
+
+            moveButtons.add(moveButton);
+            buttonsPanel.add(moveButton);
         }
 
-        // Start the search in a separate thread
-        SwingWorker<Void, Void> searchWorker = new SwingWorker<>() {
-            @Override
-            protected Void doInBackground() throws Exception {
-                inBattle = true; // Set inBattle to true before starting the search
-                searchButton.setEnabled(false); // Disable the search button
-                search.performSearch();
-                return null;
-            }
-
-            @Override
-            protected void done() {
-                inBattle = false; // Set inBattle to false after the search is finished
-                searchButton.setEnabled(true); // Enable the search button
-            }
-        };
-
-        searchWorker.execute();
+        buttonsPanel.revalidate();
+        buttonsPanel.repaint();
     }
 
     public void enableSearchButton(boolean enable) {
         SwingUtilities.invokeLater(() -> searchButton.setEnabled(enable));
     }
 
-    // Method to handle the "Heal" button click
     private void healPokeKalye() {
-        // Implement the heal logic here
     }
 
-    // Method to open the shop panel
     private void openShopPanel() {
         ShopPanel shopPanel = new ShopPanel();
         shopPanel.setVisible(true);
     }
 
     public void goBackToMainPanel() {
-        // Switch back to the main panel
         ((CardLayout) getParent().getLayout()).show(getParent(), "GamePanel");
     }
 
     public void setEnemyImage(String enemyPokeKalye) {
-        enemyLabel.setText(enemyPokeKalye);
+        enemyLabel.setText(enemyPokeKalye.toUpperCase());
         enemyHealthBar.setMaximum(getMaxHealth(enemyLevel));
         ImageIcon enemyImage = new ImageIcon("images/" + enemyPokeKalye + "2.png");
-        enemyImageLabel.setIcon(enemyImage); // Update the enemy image label
+        enemyImageLabel.setIcon(enemyImage);
     }
 
     public void setDialogueText(String dialogue) {
-        dialogueArea.setText(dialogue); // Update the dialogue area text
+        dialogueArea.setText(dialogue);
     }
 
     public void displayBattleResult(String result) {
-        battleStatusLabel.setText(result); // Set the battle result label
+        battleStatusLabel.setText(result);
     }
 
     public int getEnemyCurrentHealth() {
@@ -294,9 +320,21 @@ public class GamePanel extends JPanel {
 
     public void setInBattle(boolean inBattle) {
         this.inBattle = inBattle;
+        movesButton.setEnabled(true);
     }
 
     public JButton getSearchButton() {
         return searchButton;
+    }
+
+    private void enableButtons() {
+        searchButton.setEnabled(true);
+        settingsButton.setEnabled(true);
+        sariSariButton.setEnabled(true);
+    }
+
+    private void openSettingsPanel() {
+        SettingsPanel settingsPanel = new SettingsPanel();
+        settingsPanel.setVisible(true);
     }
 }

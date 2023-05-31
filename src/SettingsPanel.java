@@ -1,4 +1,10 @@
 import javax.swing.*;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DocumentFilter;
+import javax.swing.text.PlainDocument;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,6 +15,7 @@ public class SettingsPanel extends JFrame {
     private JButton backButton;
     private JToggleButton musicToggle;
     private JToggleButton sfxToggle;
+    private JTextField cheatCodesTextField;
 
     public SettingsPanel() {
         setTitle("Settings");
@@ -42,11 +49,12 @@ public class SettingsPanel extends JFrame {
         sfxToggle.addActionListener(new ToggleButtonListener(sfxToggle));
         sfxToggle.setBackground(new Color(102, 255, 51));
 
-        JLabel animationSpeedLabel = new JLabel("Animation Speed");
-        JComboBox<String> animationSpeedComboBox = new JComboBox<>(new String[] { "Normal", "2x", "4x" });
-
         JLabel graphicsLabel = new JLabel("Graphics");
         JComboBox<String> graphicsComboBox = new JComboBox<>(new String[] { "Normal", "Sprite" });
+
+        JLabel cheatCodesLabel = new JLabel("Cheat Codes");
+        cheatCodesTextField = new JTextField();
+        cheatCodesTextField.setDocument(new JTextFieldLimit(10));
 
         // Set font and color for labels
         Font labelFont = new Font("Courier New", Font.PLAIN, 16);
@@ -58,10 +66,10 @@ public class SettingsPanel extends JFrame {
         musicLabel.setForeground(labelColor);
         sfxLabel.setFont(labelFont);
         sfxLabel.setForeground(labelColor);
-        animationSpeedLabel.setFont(labelFont);
-        animationSpeedLabel.setForeground(labelColor);
         graphicsLabel.setFont(labelFont);
         graphicsLabel.setForeground(labelColor);
+        cheatCodesLabel.setFont(labelFont);
+        cheatCodesLabel.setForeground(labelColor);
 
         // Add the components to the settings panel
         GridBagConstraints gbc = new GridBagConstraints();
@@ -94,23 +102,24 @@ public class SettingsPanel extends JFrame {
         gbc.gridx = 0;
         gbc.gridy = 3;
         gbc.anchor = GridBagConstraints.WEST;
-        settingsPanel.add(animationSpeedLabel, gbc);
-
-        gbc.gridx = 1;
-        gbc.anchor = GridBagConstraints.EAST;
-        settingsPanel.add(animationSpeedComboBox, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 4;
-        gbc.anchor = GridBagConstraints.WEST;
         settingsPanel.add(graphicsLabel, gbc);
 
         gbc.gridx = 1;
         gbc.anchor = GridBagConstraints.EAST;
         settingsPanel.add(graphicsComboBox, gbc);
 
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        gbc.anchor = GridBagConstraints.WEST;
+        settingsPanel.add(cheatCodesLabel, gbc);
+
+        gbc.gridx = 1;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        settingsPanel.add(cheatCodesTextField, gbc);
+
         // Create the back button
-        backButton = new JButton("Back");
+        backButton = new JButton("OK");
         backButton.addActionListener(e -> dispose());
         backButton.setBackground(Color.WHITE);
         backButton.addMouseListener(new ButtonHoverAdapter());
@@ -167,5 +176,23 @@ public class SettingsPanel extends JFrame {
             SettingsPanel settingsPanel = new SettingsPanel();
             settingsPanel.setVisible(true);
         });
+    }
+
+    private static class JTextFieldLimit extends PlainDocument {
+        private final int limit;
+
+        JTextFieldLimit(int limit) {
+            super();
+            this.limit = limit;
+        }
+
+        public void insertString(int offset, String str, AttributeSet attr) throws BadLocationException {
+            if (str == null)
+                return;
+
+            if ((getLength() + str.length()) <= limit) {
+                super.insertString(offset, str, attr);
+            }
+        }
     }
 }

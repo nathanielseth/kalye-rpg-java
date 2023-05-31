@@ -45,7 +45,7 @@ public class Search {
                 gamePanel.revalidate();
                 gamePanel.repaint();
 
-                int searchTime = (int) (Math.random() * 6000) + 1000;
+                int searchTime = (int) (Math.random() * 7000) + 1000;
 
                 Timer timer = new Timer(searchTime, new ActionListener() {
                     @Override
@@ -63,11 +63,6 @@ public class Search {
                                 + gamePanel.getPokeKalyeName()
                                 + " do?";
                         gamePanel.setDialogueText(dialogue);
-
-                        // Check if battle is over
-                        if (enemyHealthIsZero() || playerHealthIsZero()) {
-                            gamePanel.enableSearchButton(true);
-                        }
 
                         currentlySearching = false;
                         gamePanel.setInBattle(true);
@@ -118,15 +113,15 @@ public class Search {
         return array[index];
     }
 
-    private boolean enemyHealthIsZero() {
-        int enemyCurrentHealth = gamePanel.getEnemyCurrentHealth();
-        return enemyCurrentHealth <= 0;
-    }
+    // private boolean enemyHealthIsZero() {
+    // int enemyCurrentHealth = gamePanel.getEnemyCurrentHealth();
+    // return enemyCurrentHealth <= 0;
+    // }
 
-    private boolean playerHealthIsZero() {
-        int playerCurrentHealth = gamePanel.getPlayerCurrentHealth();
-        return playerCurrentHealth <= 0;
-    }
+    // private boolean playerHealthIsZero() {
+    // int playerCurrentHealth = gamePanel.getPlayerCurrentHealth();
+    // return playerCurrentHealth <= 0;
+    // }
 
     private void animateDots() {
         dotsCount++;

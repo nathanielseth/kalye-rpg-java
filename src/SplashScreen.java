@@ -67,7 +67,7 @@ public class SplashScreen {
     private Image createImage(String imagePath, int width, int height) throws IOException {
         File file = new File(imagePath);
         if (!file.exists()) {
-            throw new IllegalArgumentException("Image file not found: " + imagePath);
+            throw new IllegalArgumentException("Image null: " + imagePath);
         }
         BufferedImage img = ImageIO.read(file);
         return img.getScaledInstance(width, height, Image.SCALE_SMOOTH);

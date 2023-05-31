@@ -305,6 +305,20 @@ public class GamePanel extends JPanel {
         return playerLevel;
     }
 
+    private void checkBattleResult() {
+        if (enemyCurrentHealth <= 0) {
+            Timer timer = new Timer(2000, new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    setInBattle(false);
+                    searchButton.setEnabled(true);
+                }
+            });
+            timer.setRepeats(false);
+            timer.start();
+        }
+    }
+
     private void showMovesDialog() {
         buttonsPanel.removeAll();
         moveButtons.clear();
@@ -450,6 +464,8 @@ public class GamePanel extends JPanel {
         System.out.println("Enemy HP: " + enemyCurrentHealth + "/" + enemyMaxHealth);
         System.out.println("Player HP: " + playerCurrentHealth + "/" +
                 playerMaxHealth);
+
+        checkBattleResult();
     }
 
     public int getEnemyCurrentHealth() {
@@ -584,7 +600,7 @@ public class GamePanel extends JPanel {
         double playerHealthPercentage = (double) playerCurrentHealth / playerMaxHealth;
 
         // Set the color based on the percentage
-        if (playerHealthPercentage >= 0.8) {
+        if (playerHealthPercentage >= 0.5) {
             playerBar.setForeground(new Color(102, 255, 51)); // Green
         } else if (playerHealthPercentage >= 0.4) {
             playerBar.setForeground(Color.YELLOW); // Yellow
@@ -596,9 +612,9 @@ public class GamePanel extends JPanel {
         double enemyHealthPercentage = (double) enemyCurrentHealth / enemyMaxHealth;
 
         // Set the color based on the percentage
-        if (enemyHealthPercentage >= 0.8) {
+        if (enemyHealthPercentage >= 0.6) {
             enemyBar.setForeground(new Color(102, 255, 51)); // Green
-        } else if (enemyHealthPercentage >= 0.4) {
+        } else if (enemyHealthPercentage >= 0.3) {
             enemyBar.setForeground(Color.YELLOW); // Yellow
         } else {
             enemyBar.setForeground(Color.RED); // Red

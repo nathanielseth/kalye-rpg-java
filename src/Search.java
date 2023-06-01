@@ -1,9 +1,6 @@
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 public class Search {
     private GamePanel gamePanel;
@@ -84,28 +81,42 @@ public class Search {
 
     private String getRandomEnemyPokeKalye() {
         int level = gamePanel.getLevel();
-        if (level >= 1 && level <= 5) {
-            String[] enemies = { "Ipis", "Daga", "Butiki", "Lamok", "Langaw", "Askal", "Ibon" };
-            String[] rareEnemies = { "Langgam", "Puspin", "Salagubs" };
+        if (level < 10) {
+            String[] veryCommonEnemies = { "Ipis", "Daga" };
+            String[] commonEnemies = { "Lamok", "Langaw", "Tuta", "Ibon" };
+            String[] moderateEnemies = { "Kuting", "Manok", "Gagamba", "Butiki", "Kuto", "Paro-paro" };
+            String[] rareEnemies = { "Salagubang", "Langgam", "Tambay", "Palaka", "Ahas", "Higad", "Tipaklong" };
 
-            if (Math.random() < 0.1) {
+            double random = Math.random();
+            if (random < 0.1) {
                 return getRandomArrayElement(rareEnemies);
+            } else if (random < 0.4) {
+                return getRandomArrayElement(moderateEnemies);
+            } else if (random < 0.7) {
+                return getRandomArrayElement(commonEnemies);
             } else {
-                return getRandomArrayElement(enemies);
+                return getRandomArrayElement(veryCommonEnemies);
             }
-        } else if (level >= 6 && level <= 10) {
-            String[] enemies = { "Flying ipis", "Dagang Kanal", "Tuko", "Batang Kalye", "Salagubs", "Langaw" };
-            String[] rareShiny = { "Shiny Daga", "Shiny Ipis", "Shiny Langaw" };
+        } else if (level >= 10 && level <= 19) {
+            String[] veryCommonEnemies = { "Askal", "Palaka" };
+            String[] commonEnemies = { "Flying ipis", "Dagang Kanal", "Bangaw",
+                    "Puspin", "Tutubi", "Paro-paro" };
+            String[] moderateEnemies = { "Paniki", "Antik", "Higad", "Salagubang", "Manok", "Ahas", "Tipaklong",
+                    "Colored Sisiw", "Tuko" };
+            String[] rareEnemies = { "Kambing", "Jejemonster", "Kabayo" };
 
-            if (Math.random() < 0.05) {
-                return getRandomArrayElement(rareShiny);
+            double random = Math.random();
+            if (random < 0.2) {
+                return getRandomArrayElement(rareEnemies);
+            } else if (random < 0.5) {
+                return getRandomArrayElement(moderateEnemies);
+            } else if (random < 0.8) {
+                return getRandomArrayElement(commonEnemies);
             } else {
-                return getRandomArrayElement(enemies);
+                return getRandomArrayElement(veryCommonEnemies);
             }
         }
-
-        // (should not happen)
-        return "ipis";
+        return "Splinter";
     }
 
     private String getRandomArrayElement(String[] array) {
@@ -113,19 +124,9 @@ public class Search {
         return array[index];
     }
 
-    // private boolean enemyHealthIsZero() {
-    // int enemyCurrentHealth = gamePanel.getEnemyCurrentHealth();
-    // return enemyCurrentHealth <= 0;
-    // }
-
-    // private boolean playerHealthIsZero() {
-    // int playerCurrentHealth = gamePanel.getPlayerCurrentHealth();
-    // return playerCurrentHealth <= 0;
-    // }
-
     private void animateDots() {
         dotsCount++;
-        if (dotsCount > 3) {
+        if (dotsCount > 4) {
             dotsCount = 0;
         }
 

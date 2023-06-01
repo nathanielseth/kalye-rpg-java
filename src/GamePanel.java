@@ -2,6 +2,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseListener;
+
 import javax.swing.Timer;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,10 +22,8 @@ public class GamePanel extends JPanel {
     private JButton settingsButton;
     private JButton sariSariButton;
     private String selectedPokeKalye;
-    private String playerName;
     private boolean inBattle;
     private String enemyPokeKalye = "";
-    private int enemyLevel;
     private int enemyMaxHealth;
     private int enemyCurrentHealth;
     private JLabel battleStatusLabel;
@@ -33,8 +33,9 @@ public class GamePanel extends JPanel {
     private List<JButton> moveButtons;
     private JPanel buttonsPanel;
     private JLabel searchingLabel;
-    private PokeKalyeData.Pokemon playerData;
-    private PokeKalyeData.Pokemon enemyData;
+    private PokeKalyeData.PokeKalye playerData;
+    private PokeKalyeData.PokeKalye enemyData;
+    private boolean playerTurn = true;
 
     void showIntroScreen() {
         this.setBackground(Color.BLACK);
@@ -67,13 +68,11 @@ public class GamePanel extends JPanel {
 
     public GamePanel(String playerName, String selectedPokeKalye) {
         playerLevel = 1;
-        PokeKalyeData pokeKalyeData = new PokeKalyeData();
         this.enemyPokeKalye = "";
         search = new Search(this);
-        this.playerName = playerName;
         this.selectedPokeKalye = selectedPokeKalye;
-        this.playerData = new PokeKalyeData.Pokemon(selectedPokeKalye, 0);
-        this.enemyData = new PokeKalyeData.Pokemon(enemyPokeKalye, 0);
+        this.playerData = new PokeKalyeData.PokeKalye(selectedPokeKalye, 0, MovePool.getMoves(selectedPokeKalye));
+        this.enemyData = new PokeKalyeData.PokeKalye(enemyPokeKalye, 0, MovePool.getMoves(enemyPokeKalye));
         this.enemyCurrentHealth = getMaxHealth(enemyData);
         this.playerCurrentHealth = getMaxHealth(playerData);
 
@@ -168,57 +167,25 @@ public class GamePanel extends JPanel {
 
         updateHealthBars();
 
-        movesButton.addMouseListener(new java.awt.event.MouseAdapter() {
+        MouseListener buttonMouseListener = new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                if (movesButton.isEnabled()) {
-                    movesButton.setBackground(new Color(102, 255, 51));
+                JButton button = (JButton) evt.getSource();
+                if (button.isEnabled()) {
+                    button.setBackground(new Color(102, 255, 51));
                 }
             }
 
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                movesButton.setBackground(Color.WHITE);
+                JButton button = (JButton) evt.getSource();
+                button.setBackground(Color.WHITE);
             }
-        });
+        };
 
-        searchButton.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                if (searchButton.isEnabled()) {
-                    searchButton.setBackground(new Color(102, 255, 51));
-                }
-            }
+        movesButton.addMouseListener(buttonMouseListener);
+        searchButton.addMouseListener(buttonMouseListener);
+        sariSariButton.addMouseListener(buttonMouseListener);
+        settingsButton.addMouseListener(buttonMouseListener);
 
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                searchButton.setBackground(Color.WHITE);
-            }
-        });
-
-        sariSariButton.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                if (sariSariButton.isEnabled()) {
-                    sariSariButton.setBackground(new Color(102, 255, 51));
-                }
-            }
-
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                sariSariButton.setBackground(Color.WHITE);
-            }
-        });
-
-        settingsButton.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                if (settingsButton.isEnabled()) {
-                    settingsButton.setBackground(new Color(102, 255, 51));
-                    // added for testing / debugging
-                    enemyCurrentHealth--;
-                    System.out.println("Enemy HP: " + enemyCurrentHealth + "/" + enemyMaxHealth);
-                    updateHealthBars();
-                }
-            }
-
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                settingsButton.setBackground(Color.WHITE);
-            }
-        });
         buttonsPanel.add(movesButton);
         buttonsPanel.add(searchButton);
         buttonsPanel.add(sariSariButton);
@@ -247,19 +214,34 @@ public class GamePanel extends JPanel {
         showIntroScreen();
     }
 
-    private int getMaxHealth(PokeKalyeData.Pokemon pokemon) {
+    private int getMaxHealth(PokeKalyeData.PokeKalye pokekalye) {
         int maxHealth = 0;
 
-        if (pokemon != null) {
-            switch (pokemon.getName()) {
+        if (pokekalye != null) {
+            switch (pokekalye.getName()) {
+                case "Kuting":
+                    maxHealth = PokeKalyeData.KUTING.getMaxHealth();
+                    break;
                 case "Puspin":
                     maxHealth = PokeKalyeData.PUSPIN.getMaxHealth();
                     break;
+                case "Puspin Boots":
+                    maxHealth = PokeKalyeData.PUSPIN_BOOTS.getMaxHealth();
+                    break;
+                case "Tuta":
+                    maxHealth = PokeKalyeData.TUTA.getMaxHealth();
+                    break;
                 case "Askal":
                     maxHealth = PokeKalyeData.ASKAL.getMaxHealth();
+                case "Big Dog":
+                    maxHealth = PokeKalyeData.BIG_DOG.getMaxHealth();
                     break;
                 case "Langgam":
                     maxHealth = PokeKalyeData.LANGGAM.getMaxHealth();
+                case "Antik":
+                    maxHealth = PokeKalyeData.ANTIK.getMaxHealth();
+                case "Ant-Man":
+                    maxHealth = PokeKalyeData.ANTMAN.getMaxHealth();
                     break;
                 case "Ipis":
                     maxHealth = PokeKalyeData.IPIS.getMaxHealth();
@@ -279,6 +261,9 @@ public class GamePanel extends JPanel {
                 case "Ibon":
                     maxHealth = PokeKalyeData.IBON.getMaxHealth();
                     break;
+                case "Colored Sisiw":
+                    maxHealth = PokeKalyeData.COLORED_SISIW.getMaxHealth();
+                    break;
                 case "Salagubang":
                     maxHealth = PokeKalyeData.SALAGUBANG.getMaxHealth();
                     break;
@@ -288,8 +273,44 @@ public class GamePanel extends JPanel {
                 case "Langaw":
                     maxHealth = PokeKalyeData.LANGAW.getMaxHealth();
                     break;
-                case "Batang Kalye":
-                    maxHealth = PokeKalyeData.BATANG_KALYE.getMaxHealth();
+                case "Manok":
+                    maxHealth = PokeKalyeData.MANOK.getMaxHealth();
+                    break;
+                case "Gagamba":
+                    maxHealth = PokeKalyeData.GAGAMBA.getMaxHealth();
+                    break;
+                case "Tuko":
+                    maxHealth = PokeKalyeData.TUKO.getMaxHealth();
+                    break;
+                case "Bangaw":
+                    maxHealth = PokeKalyeData.BANGAW.getMaxHealth();
+                    break;
+                case "Paniki":
+                    maxHealth = PokeKalyeData.PANIKI.getMaxHealth();
+                    break;
+                case "Palaka":
+                    maxHealth = PokeKalyeData.PALAKA.getMaxHealth();
+                    break;
+                case "Kuto":
+                    maxHealth = PokeKalyeData.KUTO.getMaxHealth();
+                    break;
+                case "Tutubi":
+                    maxHealth = PokeKalyeData.TUTUBI.getMaxHealth();
+                    break;
+                case "Ahas":
+                    maxHealth = PokeKalyeData.AHAS.getMaxHealth();
+                    break;
+                case "Paro-paro":
+                    maxHealth = PokeKalyeData.PARO_PARO.getMaxHealth();
+                    break;
+                case "Higad":
+                    maxHealth = PokeKalyeData.HIGAD.getMaxHealth();
+                    break;
+                case "Tipaklong":
+                    maxHealth = PokeKalyeData.TIPAKLONG.getMaxHealth();
+                    break;
+                case "Kabayo":
+                    maxHealth = PokeKalyeData.KABAYO.getMaxHealth();
                     break;
                 case "Master Splinter":
                     maxHealth = PokeKalyeData.MASTER_SPLINTER.getMaxHealth();
@@ -312,6 +333,7 @@ public class GamePanel extends JPanel {
                 public void actionPerformed(ActionEvent e) {
                     setInBattle(false);
                     searchButton.setEnabled(true);
+                    restoreButtons();
                 }
             });
             timer.setRepeats(false);
@@ -323,10 +345,12 @@ public class GamePanel extends JPanel {
         buttonsPanel.removeAll();
         moveButtons.clear();
 
+        MovePool.Move[] moves = playerData.getMoves();
         int numMoves = Math.min(playerLevel < 5 ? 2 : playerLevel < 10 ? 3 : 4, 4);
 
         for (int i = 0; i < numMoves; i++) {
-            JButton moveButton = new JButton("Move " + (i + 1));
+            MovePool.Move move = moves[i];
+            JButton moveButton = new JButton(move.getName());
             moveButton.setBackground(Color.WHITE);
 
             moveButton.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -342,8 +366,9 @@ public class GamePanel extends JPanel {
             moveButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    // Implement moves logic in the future
-                    System.out.println("Move button " + moveButton.getText() + " clicked");
+                    if (playerTurn) {
+                        performMove(move);
+                    }
                 }
             });
 
@@ -370,6 +395,7 @@ public class GamePanel extends JPanel {
 
     public void setEnemyImage(String enemyPokeKalye) {
         this.enemyPokeKalye = enemyPokeKalye;
+        System.out.println(enemyPokeKalye);
         initializeEnemyData(enemyPokeKalye);
         setEnemyData(enemyData);
         updateHealthBars();
@@ -437,7 +463,7 @@ public class GamePanel extends JPanel {
         searchingLabel.setVisible(show);
     }
 
-    public void setEnemyData(PokeKalyeData.Pokemon enemyData) {
+    public void setEnemyData(PokeKalyeData.PokeKalye enemyData) {
         this.enemyData = enemyData;
         this.enemyMaxHealth = getMaxHealth(enemyData);
         this.enemyCurrentHealth = enemyMaxHealth;
@@ -451,15 +477,12 @@ public class GamePanel extends JPanel {
         int enemyMaxHealth = getMaxHealth(enemyData);
         int enemyCurrentHealth = this.enemyCurrentHealth;
 
-        // Update player health bar
         playerHealthBar.setMaximum(playerMaxHealth);
         playerHealthBar.setValue(playerCurrentHealth);
 
-        // Update enemy health bar
         enemyHealthBar.setMaximum(enemyMaxHealth);
         enemyHealthBar.setValue(enemyCurrentHealth);
         updateBarColor(playerHealthBar, enemyHealthBar);
-        // Set player health bar color
 
         System.out.println("Enemy HP: " + enemyCurrentHealth + "/" + enemyMaxHealth);
         System.out.println("Player HP: " + playerCurrentHealth + "/" +
@@ -474,71 +497,6 @@ public class GamePanel extends JPanel {
 
     public int getPlayerCurrentHealth() {
         return playerData.getCurrentHealth();
-    }
-
-    private PokeKalyeData.Pokemon getEnemyPokemonData(String enemyPokeKalye) {
-        PokeKalyeData.Pokemon enemyPokemonData = null;
-
-        switch (enemyPokeKalye) {
-            case "Puspin":
-                enemyPokemonData = PokeKalyeData.PUSPIN;
-                break;
-            case "Askal":
-                enemyPokemonData = PokeKalyeData.ASKAL;
-                break;
-            case "Langgam":
-                enemyPokemonData = PokeKalyeData.LANGGAM;
-                break;
-            case "Ipis":
-                enemyPokemonData = PokeKalyeData.IPIS;
-                break;
-            case "Flying Ipis":
-                enemyPokemonData = PokeKalyeData.FLYING_IPIS;
-                break;
-            case "Daga":
-                enemyPokemonData = PokeKalyeData.DAGA;
-                break;
-            case "Lamok":
-                enemyPokemonData = PokeKalyeData.LAMOK;
-                break;
-            case "Butiki":
-                enemyPokemonData = PokeKalyeData.BUTIKI;
-                break;
-            case "Ibon":
-                enemyPokemonData = PokeKalyeData.IBON;
-                break;
-            case "Salagubs":
-                enemyPokemonData = PokeKalyeData.SALAGUBANG;
-                break;
-            // Add more cases for other enemy Pokemons if needed
-
-            default:
-                // Handle the case when the enemy Pokemon is not found
-                System.out.println("Enemy Pokemon not found: " + enemyPokeKalye);
-                break;
-        }
-
-        return enemyPokemonData;
-    }
-
-    private PokeKalyeData.Pokemon getPlayerPokemonData(String selectedPokeKalye) {
-        PokeKalyeData.Pokemon playerPokemonData = null;
-
-        switch (selectedPokeKalye) {
-            case "Puspin":
-                playerPokemonData = PokeKalyeData.PUSPIN;
-                break;
-            case "Askal":
-                playerPokemonData = PokeKalyeData.ASKAL;
-                break;
-            case "Langgam":
-                playerPokemonData = PokeKalyeData.LANGGAM;
-                break;
-            default:
-                break;
-        }
-
-        return playerPokemonData;
     }
 
     private void initializeEnemyData(String enemyPokeKalye) {
@@ -570,7 +528,7 @@ public class GamePanel extends JPanel {
             case "Ibon":
                 enemyData = PokeKalyeData.IBON;
                 break;
-            case "Salagubs":
+            case "Salagubang":
                 enemyData = PokeKalyeData.SALAGUBANG;
                 break;
             case "Dagang Kanal":
@@ -579,11 +537,68 @@ public class GamePanel extends JPanel {
             case "Langaw":
                 enemyData = PokeKalyeData.LANGAW;
                 break;
-            case "Batang Kalye":
-                enemyData = PokeKalyeData.BATANG_KALYE;
-                break;
             case "Master Splinter":
                 enemyData = PokeKalyeData.MASTER_SPLINTER;
+                break;
+            case "Kuting":
+                enemyData = PokeKalyeData.KUTING;
+                break;
+            case "Puspin Boots":
+                enemyData = PokeKalyeData.PUSPIN_BOOTS;
+                break;
+            case "Tuta":
+                enemyData = PokeKalyeData.TUTA;
+                break;
+            case "Big Dog":
+                enemyData = PokeKalyeData.BIG_DOG;
+                break;
+            case "Antik":
+                enemyData = PokeKalyeData.ANTIK;
+                break;
+            case "Ant-Man":
+                enemyData = PokeKalyeData.ANTMAN;
+                break;
+            case "Colored Sisiw":
+                enemyData = PokeKalyeData.COLORED_SISIW;
+                break;
+            case "Manok":
+                enemyData = PokeKalyeData.MANOK;
+                break;
+            case "Gagamba":
+                enemyData = PokeKalyeData.GAGAMBA;
+                break;
+            case "Tuko":
+                enemyData = PokeKalyeData.TUKO;
+                break;
+            case "Bangaw":
+                enemyData = PokeKalyeData.BANGAW;
+                break;
+            case "Paniki":
+                enemyData = PokeKalyeData.PANIKI;
+                break;
+            case "Palaka":
+                enemyData = PokeKalyeData.PALAKA;
+                break;
+            case "Kuto":
+                enemyData = PokeKalyeData.KUTO;
+                break;
+            case "Tutubi":
+                enemyData = PokeKalyeData.TUTUBI;
+                break;
+            case "Ahas":
+                enemyData = PokeKalyeData.AHAS;
+                break;
+            case "Paro-paro":
+                enemyData = PokeKalyeData.PARO_PARO;
+                break;
+            case "Higad":
+                enemyData = PokeKalyeData.HIGAD;
+                break;
+            case "Tipaklong":
+                enemyData = PokeKalyeData.TIPAKLONG;
+                break;
+            case "Kabayo":
+                enemyData = PokeKalyeData.KABAYO;
                 break;
             default:
                 enemyData = null;
@@ -596,10 +611,8 @@ public class GamePanel extends JPanel {
         int playerMaxHealth = playerBar.getMaximum();
         int playerCurrentHealth = playerBar.getValue();
 
-        // Update player health bar color
         double playerHealthPercentage = (double) playerCurrentHealth / playerMaxHealth;
 
-        // Set the color based on the percentage
         if (playerHealthPercentage >= 0.5) {
             playerBar.setForeground(new Color(102, 255, 51)); // Green
         } else if (playerHealthPercentage >= 0.4) {
@@ -608,10 +621,8 @@ public class GamePanel extends JPanel {
             playerBar.setForeground(Color.RED); // Red
         }
 
-        // Update enemy health bar color
         double enemyHealthPercentage = (double) enemyCurrentHealth / enemyMaxHealth;
 
-        // Set the color based on the percentage
         if (enemyHealthPercentage >= 0.6) {
             enemyBar.setForeground(new Color(102, 255, 51)); // Green
         } else if (enemyHealthPercentage >= 0.3) {
@@ -619,5 +630,62 @@ public class GamePanel extends JPanel {
         } else {
             enemyBar.setForeground(Color.RED); // Red
         }
+    }
+
+    private void performMove(MovePool.Move move) {
+        int damage = move.getDamage();
+        double chance = move.getChance();
+
+        if (Math.random() <= chance) {
+            enemyCurrentHealth -= damage;
+            System.out.println("Enemy HP: " + enemyCurrentHealth + "/" + enemyMaxHealth);
+        } else {
+            System.out.println("Move missed!");
+        }
+
+        enemyTurn();
+        updateHealthBars();
+        checkBattleResult();
+    }
+
+    private void enemyTurn() {
+        if (enemyCurrentHealth > 0) {
+            MovePool.Move[] enemyMoves = enemyData.getMoves();
+            int randomIndex = (int) (Math.random() * enemyMoves.length);
+            MovePool.Move enemyMove = enemyMoves[randomIndex];
+            int damage = enemyMove.getDamage();
+            double chance = enemyMove.getChance();
+
+            if (Math.random() <= chance) {
+                playerCurrentHealth -= damage;
+                System.out.println("Player HP: " + playerCurrentHealth + "/" + getMaxHealth(playerData));
+            } else {
+                System.out.println("Enemy's move missed!");
+            }
+
+        }
+    }
+
+    private void restoreButtons() {
+        buttonsPanel.removeAll();
+        moveButtons.clear();
+
+        movesButton.setEnabled(inBattle);
+        searchButton.setEnabled(true);
+        settingsButton.setEnabled(true);
+        sariSariButton.setEnabled(true);
+
+        movesButton.setBackground(Color.WHITE);
+        searchButton.setBackground(Color.WHITE);
+        settingsButton.setBackground(Color.WHITE);
+        sariSariButton.setBackground(Color.WHITE);
+
+        buttonsPanel.add(movesButton);
+        buttonsPanel.add(searchButton);
+        buttonsPanel.add(sariSariButton);
+        buttonsPanel.add(settingsButton);
+
+        buttonsPanel.revalidate();
+        buttonsPanel.repaint();
     }
 }

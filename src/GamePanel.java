@@ -36,6 +36,7 @@ public class GamePanel extends JPanel {
     private PokeKalyeData.PokeKalye playerData;
     private PokeKalyeData.PokeKalye enemyData;
     private boolean playerTurn = true;
+    private boolean gameOver = false;
 
     void showIntroScreen() {
         this.setBackground(Color.BLACK);
@@ -338,6 +339,15 @@ public class GamePanel extends JPanel {
             });
             timer.setRepeats(false);
             timer.start();
+        } else if (playerCurrentHealth <= 0 && !gameOver) {
+            gameOver = true;
+            GameOverPanel gameOverScreen = new GameOverPanel();
+            JFrame currentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
+            currentFrame.getContentPane().removeAll(); // Remove all components from the current frame
+            currentFrame.setContentPane(gameOverScreen); // Set the GameOverPanel as the new content pane
+            currentFrame.pack(); // Adjust the frame size
+            currentFrame.revalidate(); // Revalidate the frame to update the layout
+            currentFrame.repaint(); // Repaint the frame to display the GameOverPanel
         }
     }
 
@@ -471,26 +481,6 @@ public class GamePanel extends JPanel {
         enemyHealthBar.setValue(enemyCurrentHealth);
     }
 
-    private void updateHealthBars() {
-        int playerMaxHealth = getMaxHealth(playerData);
-        int playerCurrentHealth = this.playerCurrentHealth;
-        int enemyMaxHealth = getMaxHealth(enemyData);
-        int enemyCurrentHealth = this.enemyCurrentHealth;
-
-        playerHealthBar.setMaximum(playerMaxHealth);
-        playerHealthBar.setValue(playerCurrentHealth);
-
-        enemyHealthBar.setMaximum(enemyMaxHealth);
-        enemyHealthBar.setValue(enemyCurrentHealth);
-        updateBarColor(playerHealthBar, enemyHealthBar);
-
-        System.out.println("Enemy HP: " + enemyCurrentHealth + "/" + enemyMaxHealth);
-        System.out.println("Player HP: " + playerCurrentHealth + "/" +
-                playerMaxHealth);
-
-        checkBattleResult();
-    }
-
     public int getEnemyCurrentHealth() {
         return enemyData.getCurrentHealth();
     }
@@ -605,30 +595,70 @@ public class GamePanel extends JPanel {
         }
     }
 
-    private void updateBarColor(JProgressBar playerBar, JProgressBar enemyBar) {
-        int enemyMaxHealth = enemyBar.getMaximum();
-        int enemyCurrentHealth = enemyBar.getValue();
-        int playerMaxHealth = playerBar.getMaximum();
-        int playerCurrentHealth = playerBar.getValue();
+    private void updateHealthBars() {
+        int playerMaxHealth = getMaxHealth(playerData);
+        int playerCurrentHealth = this.playerCurrentHealth;
+        int enemyMaxHealth = getMaxHealth(enemyData);
+        int enemyCurrentHealth = this.enemyCurrentHealth;
 
-        double playerHealthPercentage = (double) playerCurrentHealth / playerMaxHealth;
+        animateHealthBar(playerHealthBar, playerCurrentHealth, playerMaxHealth, 300);
+        animateHealthBar(enemyHealthBar, enemyCurrentHealth, enemyMaxHealth, 300);
 
-        if (playerHealthPercentage >= 0.5) {
-            playerBar.setForeground(new Color(102, 255, 51)); // Green
-        } else if (playerHealthPercentage >= 0.4) {
-            playerBar.setForeground(Color.YELLOW); // Yellow
+        System.out.println("Enemy HP: " + enemyCurrentHealth + "/" + enemyMaxHealth);
+        System.out.println("Player HP: " + playerCurrentHealth + "/" + playerMaxHealth);
+
+        this.playerCurrentHealth = playerCurrentHealth; // Update the current health values
+        this.enemyCurrentHealth = enemyCurrentHealth;
+
+        checkBattleResult();
+    }
+
+    private void animateHealthBar(JProgressBar healthBar, int currentHealth, int maxHealth, int duration) {
+        int startValue = healthBar.getValue();
+        int endValue = currentHealth;
+        int totalFrames = duration / 50; // Total frames based on the update interval
+        double increment = (double) (endValue - startValue) / totalFrames;
+
+        int delay = duration / totalFrames;
+
+        Timer timer = new Timer(delay, new ActionListener() {
+            int frameCount = 0;
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                double value = startValue + increment * frameCount;
+                healthBar.setValue((int) value);
+                updateBarColor(healthBar);
+
+                frameCount++;
+                if (frameCount >= totalFrames) {
+                    healthBar.setValue(endValue);
+                    ((Timer) e.getSource()).stop();
+                    SwingUtilities.invokeLater(() -> {
+                        updateBarColor(healthBar); // Update color after animation completes
+                        healthBar.repaint();
+                    });
+                } else {
+                    healthBar.repaint(); // Repaint the health bar during animation
+                }
+            }
+        });
+
+        timer.setInitialDelay(0); // Start the timer immediately
+        timer.start();
+    }
+
+    private void updateBarColor(JProgressBar healthBar) {
+        int maxHealth = healthBar.getMaximum();
+        int currentHealth = healthBar.getValue();
+        double healthPercentage = (double) currentHealth / maxHealth;
+
+        if (healthPercentage >= 0.6) {
+            healthBar.setForeground(new Color(102, 255, 51)); // Green
+        } else if (healthPercentage >= 0.3) {
+            healthBar.setForeground(Color.YELLOW); // Yellow
         } else {
-            playerBar.setForeground(Color.RED); // Red
-        }
-
-        double enemyHealthPercentage = (double) enemyCurrentHealth / enemyMaxHealth;
-
-        if (enemyHealthPercentage >= 0.6) {
-            enemyBar.setForeground(new Color(102, 255, 51)); // Green
-        } else if (enemyHealthPercentage >= 0.3) {
-            enemyBar.setForeground(Color.YELLOW); // Yellow
-        } else {
-            enemyBar.setForeground(Color.RED); // Red
+            healthBar.setForeground(Color.RED); // Red
         }
     }
 
@@ -638,14 +668,19 @@ public class GamePanel extends JPanel {
 
         if (Math.random() <= chance) {
             enemyCurrentHealth -= damage;
+            updateHealthBars();
             System.out.println("Enemy HP: " + enemyCurrentHealth + "/" + enemyMaxHealth);
         } else {
             System.out.println("Move missed!");
         }
-
-        enemyTurn();
-        updateHealthBars();
-        checkBattleResult();
+        setMoveButtonsEnabled(false);
+        Timer timer = new Timer(2000, e -> {
+            enemyTurn();
+            checkBattleResult();
+            setMoveButtonsEnabled(true);
+        });
+        timer.setRepeats(false);
+        timer.start();
     }
 
     private void enemyTurn() {
@@ -658,11 +693,17 @@ public class GamePanel extends JPanel {
 
             if (Math.random() <= chance) {
                 playerCurrentHealth -= damage;
+                updateHealthBars();
                 System.out.println("Player HP: " + playerCurrentHealth + "/" + getMaxHealth(playerData));
             } else {
                 System.out.println("Enemy's move missed!");
             }
+        }
+    }
 
+    private void setMoveButtonsEnabled(boolean enabled) {
+        for (JButton moveButton : moveButtons) {
+            moveButton.setEnabled(enabled);
         }
     }
 

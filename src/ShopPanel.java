@@ -112,8 +112,6 @@ public class ShopPanel extends JFrame {
         backButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         backButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, backButton.getPreferredSize().height));
         shopContentPanel.add(backButton, BorderLayout.SOUTH);
-
-        // Change button colors on hover
         backButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
@@ -133,7 +131,7 @@ public class ShopPanel extends JFrame {
         add(shopContentPanel, BorderLayout.CENTER);
 
         // Add action listener to the back button
-        backButton.addActionListener(e -> dispose()); // Close the shop frame when the "Back" button is pressed
+        backButton.addActionListener(e -> dispose());
 
         pack();
         setLocationRelativeTo(null); // Center the frame on the screen

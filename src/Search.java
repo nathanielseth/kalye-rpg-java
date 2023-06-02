@@ -42,7 +42,7 @@ public class Search {
                 gamePanel.revalidate();
                 gamePanel.repaint();
 
-                int searchTime = (int) (Math.random() * 7000) + 1000;
+                int searchTime = (int) (Math.random() * 5000) + 1000;
 
                 Timer timer = new Timer(searchTime, new ActionListener() {
                     @Override
@@ -85,10 +85,10 @@ public class Search {
             String[] veryCommonEnemies = { "Ipis", "Daga" };
             String[] commonEnemies = { "Lamok", "Langaw", "Tuta", "Ibon" };
             String[] moderateEnemies = { "Kuting", "Manok", "Gagamba", "Butiki", "Kuto", "Paro-paro" };
-            String[] rareEnemies = { "Salagubang", "Langgam", "Tambay", "Palaka", "Ahas", "Higad", "Tipaklong" };
+            String[] rareEnemies = { "Salagubang", "Langgam", "Palaka", "Ahas", "Higad", "Tipaklong" };
 
             double random = Math.random();
-            if (random < 0.1) {
+            if (random < 0.2) {
                 return getRandomArrayElement(rareEnemies);
             } else if (random < 0.4) {
                 return getRandomArrayElement(moderateEnemies);

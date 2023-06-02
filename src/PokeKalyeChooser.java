@@ -82,11 +82,9 @@ public class PokeKalyeChooser extends JFrame {
         askalRadioButton.addActionListener(radioButtonListener);
         langgamRadioButton.addActionListener(radioButtonListener);
 
-        // Add action listener to start button
         startButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Display a confirmation dialog
                 int choice = JOptionPane.showConfirmDialog(
                         PokeKalyeChooser.this,
                         "Start your journey with " + getSelectedPokeKalye()
@@ -102,7 +100,6 @@ public class PokeKalyeChooser extends JFrame {
             }
         });
 
-        // Initialize selected Pokekalye label
         selectedPokeKalyeLabel = new JLabel();
         selectedPokeKalyeLabel.setForeground(Color.WHITE);
         selectedPokeKalyeLabel.setFont(new Font("Courier New", Font.BOLD, 16));

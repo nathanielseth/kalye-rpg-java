@@ -85,6 +85,7 @@ public class PokeKalyeChooser extends JFrame {
         startButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                // Display a confirmation dialog
                 int choice = JOptionPane.showConfirmDialog(
                         PokeKalyeChooser.this,
                         "Start your journey with " + getSelectedPokeKalye()

@@ -5,11 +5,14 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseListener;
 
 import javax.swing.Timer;
+import javax.swing.border.Border;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class GamePanel extends JPanel {
-    private int playerLevel;
+    private int playerLevel = 1;
     private int experience;
     private JLabel playerLabel;
     private JProgressBar playerHealthBar;
@@ -25,9 +28,11 @@ public class GamePanel extends JPanel {
     private boolean inBattle;
     private String enemyPokeKalye = "";
     private int enemyMaxHealth;
+    private JProgressBar playerExpBar;
+    private JLabel playerLevelLabel;
     private int enemyCurrentHealth;
     private JLabel battleStatusLabel;
-    private int pesos;
+    private int pesos = 0;
     private Search search;
     private JLabel enemyImageLabel;
     private List<JButton> moveButtons;
@@ -68,7 +73,6 @@ public class GamePanel extends JPanel {
     }
 
     public GamePanel(String playerName, String selectedPokeKalye) {
-        playerLevel = 1;
         this.enemyPokeKalye = "";
         search = new Search(this);
         this.selectedPokeKalye = selectedPokeKalye;
@@ -95,13 +99,28 @@ public class GamePanel extends JPanel {
         playerPanel.setBackground(new Color(82, 113, 255));
         playerPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
+        Border blackBorder = BorderFactory.createLineBorder(Color.WHITE);
+
         playerLabel = new JLabel(selectedPokeKalye.toUpperCase());
         playerLabel.setForeground(Color.WHITE);
         playerHealthBar = new JProgressBar(0, playerMaxHealth);
         playerHealthBar.setForeground(new Color(102, 255, 51));
+        playerHealthBar.setBorder(blackBorder);
 
         playerPanel.add(playerLabel);
         playerPanel.add(playerHealthBar);
+
+        playerExpBar = new JProgressBar(0, getLevelUpExperience(playerLevel));
+        playerExpBar.setForeground(Color.BLUE);
+        playerExpBar.setValue(experience);
+        playerExpBar.setPreferredSize(new Dimension(50, 10));
+
+        playerLevelLabel = new JLabel("" + playerLevel);
+        playerLevelLabel.setForeground(Color.WHITE);
+        playerLevelLabel.setFont(new Font("Impact", Font.BOLD, 15));
+
+        playerPanel.add(playerExpBar);
+        playerPanel.add(playerLevelLabel);
 
         JPanel imagePanel = new JPanel();
         imagePanel.setLayout(null);
@@ -121,6 +140,7 @@ public class GamePanel extends JPanel {
         enemyPanel.setBackground(new Color(82, 113, 255));
         enemyPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 20));
         enemyHealthBar = new JProgressBar(0, enemyMaxHealth);
+        enemyHealthBar.setBorder(blackBorder);
         enemyLabel = new JLabel(enemyData.getName().toUpperCase());
         enemyLabel.setForeground(Color.WHITE);
 
@@ -196,11 +216,6 @@ public class GamePanel extends JPanel {
         add(dialogueScrollPane, BorderLayout.WEST);
         add(buttonsPanel, BorderLayout.SOUTH);
 
-        dialogueArea
-                .append("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n " + selectedPokeKalye + " Level: " + playerLevel
-                        + "\n GCash: " + pesos);
-        dialogueArea.setCaretPosition(dialogueArea.getDocument().getLength());
-
         // action listeners
         movesButton.addActionListener(e -> showMovesDialog());
 
@@ -213,6 +228,195 @@ public class GamePanel extends JPanel {
         buttonsPanel.revalidate();
         buttonsPanel.repaint();
         showIntroScreen();
+    }
+
+    public int getLevel() {
+        return playerLevel;
+    }
+
+    public int getPesos() {
+        return pesos;
+    }
+
+    private void checkBattleResult() {
+        if (enemyCurrentHealth <= 0) {
+            experience += getRandomNumber(45, 65);
+            int levelUpExp = getLevelUpExperience(playerLevel);
+            if (experience >= levelUpExp) {
+                playerLevel++;
+                experience -= levelUpExp;
+            }
+            int earnedPesos = getRandomNumber(1, 10);
+            pesos += earnedPesos;
+            appendToDialogue(
+                    "\n" + selectedPokeKalye + " gained " + experience + " exp\n and " + earnedPesos + " pesos.");
+            playerExpBar.setMaximum(getLevelUpExperience(playerLevel));
+            playerExpBar.setValue(experience);
+            playerLevelLabel.setText("" + playerLevel);
+            Timer timer = new Timer(100, new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    setInBattle(false);
+                    searchButton.setEnabled(true);
+                    restoreButtons();
+                }
+            });
+            timer.setRepeats(false);
+            timer.start();
+            clearDialogue();
+        } else if (playerCurrentHealth <= 0 && !gameOver) {
+            gameOver = true;
+            GameOverPanel gameOverScreen = new GameOverPanel();
+            JFrame currentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
+            currentFrame.getContentPane().removeAll();
+            currentFrame.setContentPane(gameOverScreen);
+            currentFrame.pack();
+            currentFrame.revalidate();
+            currentFrame.repaint();
+        }
+    }
+
+    private void showMovesDialog() {
+        buttonsPanel.removeAll();
+        moveButtons.clear();
+
+        MovePool.Move[] moves = playerData.getMoves();
+        int numMoves = Math.min(playerLevel < 5 ? 2 : playerLevel < 10 ? 3 : 4, 4);
+
+        for (int i = 0; i < numMoves; i++) {
+            MovePool.Move move = moves[i];
+            JButton moveButton = new JButton(move.getName());
+            moveButton.setBackground(Color.WHITE);
+
+            moveButton.addMouseListener(new java.awt.event.MouseAdapter() {
+                public void mouseEntered(java.awt.event.MouseEvent evt) {
+                    moveButton.setBackground(new Color(102, 255, 51));
+                }
+
+                public void mouseExited(java.awt.event.MouseEvent evt) {
+                    moveButton.setBackground(Color.WHITE);
+                }
+            });
+
+            moveButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (playerTurn) {
+                        performMove(move);
+                    }
+                }
+            });
+
+            moveButtons.add(moveButton);
+            buttonsPanel.add(moveButton);
+        }
+
+        buttonsPanel.revalidate();
+        buttonsPanel.repaint();
+    }
+
+    public void enableSearchButton(boolean enable) {
+        SwingUtilities.invokeLater(() -> searchButton.setEnabled(enable));
+    }
+
+    private void openShopPanel() {
+        ShopPanel shopPanel = new ShopPanel(this);
+        JFrame currentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
+        currentFrame.getContentPane().removeAll();
+        currentFrame.setContentPane(shopPanel);
+        currentFrame.pack();
+        currentFrame.revalidate();
+        currentFrame.repaint();
+    }
+
+    public void goBackToMainPanel() {
+        ((CardLayout) getParent().getLayout()).show(getParent(), "GamePanel");
+    }
+
+    public void setEnemyImage(String enemyPokeKalye) {
+        this.enemyPokeKalye = enemyPokeKalye;
+        System.out.println(enemyPokeKalye);
+        initializeEnemyData(enemyPokeKalye);
+        setEnemyData(enemyData);
+        updateHealthBars();
+        enemyLabel.setText(enemyData.getName().toUpperCase());
+        ImageIcon enemyImage = new ImageIcon("images/" + enemyPokeKalye + "2.png");
+        enemyImageLabel.setIcon(enemyImage);
+        setInBattle(true);
+        System.out.println("Enemy HP: " + enemyCurrentHealth + "/" + enemyMaxHealth);
+    }
+
+    public void setDialogueText(String dialogue) {
+        dialogueArea.setText(dialogue);
+    }
+
+    public void displayBattleResult(String result) {
+        battleStatusLabel.setText(result);
+    }
+
+    public String getPokeKalyeName() {
+        return selectedPokeKalye;
+    }
+
+    public void enableSearchButton() {
+        searchButton.setEnabled(true);
+    }
+
+    public boolean isInBattle() {
+        return inBattle;
+
+    }
+
+    public void setInBattle(boolean inBattle) {
+        this.inBattle = inBattle;
+        if (inBattle) {
+            initializeEnemyData(enemyPokeKalye);
+        } else {
+            enemyData = null;
+        }
+        movesButton.setEnabled(inBattle);
+        enemyLabel.setVisible(inBattle);
+        enemyHealthBar.setVisible(inBattle);
+        enemyImageLabel.setVisible(inBattle);
+    }
+
+    public JButton getSearchButton() {
+        return searchButton;
+    }
+
+    private void enableButtons() {
+        searchButton.setEnabled(true);
+        settingsButton.setEnabled(true);
+        sariSariButton.setEnabled(true);
+    }
+
+    private void openSettingsPanel() {
+        SettingsPanel settingsPanel = new SettingsPanel();
+        settingsPanel.setVisible(true);
+    }
+
+    public void setSearchLabelText(String text) {
+        searchingLabel.setText(text);
+    }
+
+    public void showSearchingLabel(boolean show) {
+        searchingLabel.setVisible(show);
+    }
+
+    public void setEnemyData(PokeKalyeData.PokeKalye enemyData) {
+        this.enemyData = enemyData;
+        this.enemyMaxHealth = getMaxHealth(enemyData);
+        this.enemyCurrentHealth = enemyMaxHealth;
+        enemyHealthBar.setMaximum(enemyMaxHealth);
+        enemyHealthBar.setValue(enemyCurrentHealth);
+    }
+
+    public int getEnemyCurrentHealth() {
+        return enemyData.getCurrentHealth();
+    }
+
+    public int getPlayerCurrentHealth() {
+        return playerData.getCurrentHealth();
     }
 
     private int getMaxHealth(PokeKalyeData.PokeKalye pokekalye) {
@@ -321,172 +525,6 @@ public class GamePanel extends JPanel {
             }
         }
         return maxHealth;
-    }
-
-    public int getLevel() {
-        return playerLevel;
-    }
-
-    private void checkBattleResult() {
-        if (enemyCurrentHealth <= 0) {
-            Timer timer = new Timer(2000, new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    setInBattle(false);
-                    searchButton.setEnabled(true);
-                    restoreButtons();
-                }
-            });
-            timer.setRepeats(false);
-            timer.start();
-        } else if (playerCurrentHealth <= 0 && !gameOver) {
-            gameOver = true;
-            GameOverPanel gameOverScreen = new GameOverPanel();
-            JFrame currentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
-            currentFrame.getContentPane().removeAll(); // Remove all components from the current frame
-            currentFrame.setContentPane(gameOverScreen); // Set the GameOverPanel as the new content pane
-            currentFrame.pack(); // Adjust the frame size
-            currentFrame.revalidate(); // Revalidate the frame to update the layout
-            currentFrame.repaint(); // Repaint the frame to display the GameOverPanel
-        }
-    }
-
-    private void showMovesDialog() {
-        buttonsPanel.removeAll();
-        moveButtons.clear();
-
-        MovePool.Move[] moves = playerData.getMoves();
-        int numMoves = Math.min(playerLevel < 5 ? 2 : playerLevel < 10 ? 3 : 4, 4);
-
-        for (int i = 0; i < numMoves; i++) {
-            MovePool.Move move = moves[i];
-            JButton moveButton = new JButton(move.getName());
-            moveButton.setBackground(Color.WHITE);
-
-            moveButton.addMouseListener(new java.awt.event.MouseAdapter() {
-                public void mouseEntered(java.awt.event.MouseEvent evt) {
-                    moveButton.setBackground(new Color(102, 255, 51));
-                }
-
-                public void mouseExited(java.awt.event.MouseEvent evt) {
-                    moveButton.setBackground(Color.WHITE);
-                }
-            });
-
-            moveButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if (playerTurn) {
-                        performMove(move);
-                    }
-                }
-            });
-
-            moveButtons.add(moveButton);
-            buttonsPanel.add(moveButton);
-        }
-
-        buttonsPanel.revalidate();
-        buttonsPanel.repaint();
-    }
-
-    public void enableSearchButton(boolean enable) {
-        SwingUtilities.invokeLater(() -> searchButton.setEnabled(enable));
-    }
-
-    private void openShopPanel() {
-        ShopPanel shopPanel = new ShopPanel();
-        shopPanel.setVisible(true);
-    }
-
-    public void goBackToMainPanel() {
-        ((CardLayout) getParent().getLayout()).show(getParent(), "GamePanel");
-    }
-
-    public void setEnemyImage(String enemyPokeKalye) {
-        this.enemyPokeKalye = enemyPokeKalye;
-        System.out.println(enemyPokeKalye);
-        initializeEnemyData(enemyPokeKalye);
-        setEnemyData(enemyData);
-        updateHealthBars();
-        enemyLabel.setText(enemyData.getName().toUpperCase());
-        ImageIcon enemyImage = new ImageIcon("images/" + enemyPokeKalye + "2.png");
-        enemyImageLabel.setIcon(enemyImage);
-        setInBattle(true);
-        System.out.println("Enemy HP: " + enemyCurrentHealth + "/" + enemyMaxHealth);
-    }
-
-    public void setDialogueText(String dialogue) {
-        dialogueArea.setText(dialogue);
-    }
-
-    public void displayBattleResult(String result) {
-        battleStatusLabel.setText(result);
-    }
-
-    public String getPokeKalyeName() {
-        return selectedPokeKalye;
-    }
-
-    public void enableSearchButton() {
-        searchButton.setEnabled(true);
-    }
-
-    public boolean isInBattle() {
-        return inBattle;
-
-    }
-
-    public void setInBattle(boolean inBattle) {
-        this.inBattle = inBattle;
-        if (inBattle) {
-            initializeEnemyData(enemyPokeKalye);
-        } else {
-            enemyData = null;
-        }
-        movesButton.setEnabled(inBattle);
-        enemyLabel.setVisible(inBattle);
-        enemyHealthBar.setVisible(inBattle);
-        enemyImageLabel.setVisible(inBattle);
-    }
-
-    public JButton getSearchButton() {
-        return searchButton;
-    }
-
-    private void enableButtons() {
-        searchButton.setEnabled(true);
-        settingsButton.setEnabled(true);
-        sariSariButton.setEnabled(true);
-    }
-
-    private void openSettingsPanel() {
-        SettingsPanel settingsPanel = new SettingsPanel();
-        settingsPanel.setVisible(true);
-    }
-
-    public void setSearchLabelText(String text) {
-        searchingLabel.setText(text);
-    }
-
-    public void showSearchingLabel(boolean show) {
-        searchingLabel.setVisible(show);
-    }
-
-    public void setEnemyData(PokeKalyeData.PokeKalye enemyData) {
-        this.enemyData = enemyData;
-        this.enemyMaxHealth = getMaxHealth(enemyData);
-        this.enemyCurrentHealth = enemyMaxHealth;
-        enemyHealthBar.setMaximum(enemyMaxHealth);
-        enemyHealthBar.setValue(enemyCurrentHealth);
-    }
-
-    public int getEnemyCurrentHealth() {
-        return enemyData.getCurrentHealth();
-    }
-
-    public int getPlayerCurrentHealth() {
-        return playerData.getCurrentHealth();
     }
 
     private void initializeEnemyData(String enemyPokeKalye) {
@@ -607,16 +645,14 @@ public class GamePanel extends JPanel {
         System.out.println("Enemy HP: " + enemyCurrentHealth + "/" + enemyMaxHealth);
         System.out.println("Player HP: " + playerCurrentHealth + "/" + playerMaxHealth);
 
-        this.playerCurrentHealth = playerCurrentHealth; // Update the current health values
+        this.playerCurrentHealth = playerCurrentHealth;
         this.enemyCurrentHealth = enemyCurrentHealth;
-
-        checkBattleResult();
     }
 
     private void animateHealthBar(JProgressBar healthBar, int currentHealth, int maxHealth, int duration) {
         int startValue = healthBar.getValue();
         int endValue = currentHealth;
-        int totalFrames = duration / 50; // Total frames based on the update interval
+        int totalFrames = duration / 60;
         double increment = (double) (endValue - startValue) / totalFrames;
 
         int delay = duration / totalFrames;
@@ -635,16 +671,16 @@ public class GamePanel extends JPanel {
                     healthBar.setValue(endValue);
                     ((Timer) e.getSource()).stop();
                     SwingUtilities.invokeLater(() -> {
-                        updateBarColor(healthBar); // Update color after animation completes
+                        updateBarColor(healthBar);
                         healthBar.repaint();
                     });
                 } else {
-                    healthBar.repaint(); // Repaint the health bar during animation
+                    healthBar.repaint();
                 }
             }
         });
 
-        timer.setInitialDelay(0); // Start the timer immediately
+        timer.setInitialDelay(0);
         timer.start();
     }
 
@@ -663,18 +699,21 @@ public class GamePanel extends JPanel {
     }
 
     private void performMove(MovePool.Move move) {
+        clearDialogue();
         int damage = move.getDamage();
         double chance = move.getChance();
 
         if (Math.random() <= chance) {
             enemyCurrentHealth -= damage;
             updateHealthBars();
+            appendToDialogue(selectedPokeKalye + " used " + move.getName() + "!");
             System.out.println("Enemy HP: " + enemyCurrentHealth + "/" + enemyMaxHealth);
         } else {
+            appendToDialogue(selectedPokeKalye + " missed with " + move.getName() + ".");
             System.out.println("Move missed!");
         }
         setMoveButtonsEnabled(false);
-        Timer timer = new Timer(2000, e -> {
+        Timer timer = new Timer(1800, e -> {
             enemyTurn();
             checkBattleResult();
             setMoveButtonsEnabled(true);
@@ -693,11 +732,16 @@ public class GamePanel extends JPanel {
 
             if (Math.random() <= chance) {
                 playerCurrentHealth -= damage;
+                dialogueArea.append("\n " + enemyPokeKalye + " used " + enemyMove.getName() + "!");
                 updateHealthBars();
                 System.out.println("Player HP: " + playerCurrentHealth + "/" + getMaxHealth(playerData));
             } else {
-                System.out.println("Enemy's move missed!");
+                dialogueArea.append("\n " + enemyPokeKalye + " missed!");
             }
+        }
+
+        if (enemyCurrentHealth <= 0) {
+            inBattle = false;
         }
     }
 
@@ -728,5 +772,24 @@ public class GamePanel extends JPanel {
 
         buttonsPanel.revalidate();
         buttonsPanel.repaint();
+    }
+
+    private int getLevelUpExperience(int level) {
+        return 100 + (level - 1) * 50;
+    }
+
+    private Random random = new Random();
+
+    private int getRandomNumber(int min, int max) {
+        return random.nextInt(max - min + 1) + min;
+    }
+
+    private void appendToDialogue(String text) {
+        dialogueArea.append("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n " + text);
+        dialogueArea.setCaretPosition(dialogueArea.getDocument().getLength());
+    }
+
+    private void clearDialogue() {
+        dialogueArea.setText(" What will " + selectedPokeKalye + " do?");
     }
 }

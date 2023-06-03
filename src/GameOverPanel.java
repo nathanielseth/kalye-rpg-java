@@ -39,9 +39,9 @@ public class GameOverPanel extends JPanel {
     private float alpha;
     private String[] randomTexts = {
             "like John Cena, you must never give up...",
-            "a computer shop tambay stole your Pokekalye...",
+            "olats...!",
             "bounce back lang...!",
-            "Professor Kalye is disappointed in you...",
+            "Professor Kalye is disappointed...",
             "so that's it huh...?"
     };
     private Timer fadeInTimer;

@@ -3,20 +3,16 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class ShopPanel extends JFrame {
+public class ShopPanel extends JPanel {
     private JButton backButton;
+    private GamePanel gamePanel;
 
-    public ShopPanel() {
-        setTitle("Shop");
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
-        // Set layout manager for the frame
+    public ShopPanel(GamePanel gamePanel) {
+        this.gamePanel = gamePanel;
+        setBackground(new Color(82, 113, 255));
         setLayout(new BorderLayout());
         setPreferredSize(new Dimension(600, 400));
-
-        // Set background color
-        getContentPane().setBackground(new Color(82, 113, 255));
+        setOpaque(true); // Make the panel transparent
 
         // Create and add GUI components for the shop panel
         JPanel shopContentPanel = new JPanel();
@@ -131,9 +127,16 @@ public class ShopPanel extends JFrame {
         add(shopContentPanel, BorderLayout.CENTER);
 
         // Add action listener to the back button
-        backButton.addActionListener(e -> dispose());
+        backButton.addActionListener(e -> {
+            JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
+            Container contentPane = frame.getContentPane();
+            contentPane.removeAll();
+            contentPane.add(gamePanel);
+            frame.pack();
+            frame.revalidate();
+            frame.repaint();
+        });
 
-        pack();
-        setLocationRelativeTo(null); // Center the frame on the screen
+        setPreferredSize(new Dimension(600, 400));
     }
 }

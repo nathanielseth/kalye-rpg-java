@@ -42,7 +42,7 @@ public class Professor extends JFrame {
         containerPanel.add(dialoguePanel, BorderLayout.CENTER);
 
         professorImageLabel = new JLabel();
-        ImageIcon professorIcon = new ImageIcon("images/professor.png");
+        ImageIcon professorIcon = new ImageIcon("media/images/professor.png");
         Image scaledImage = professorIcon.getImage().getScaledInstance(205, -1, Image.SCALE_SMOOTH);
         professorImageLabel.setIcon(new ImageIcon(scaledImage));
         professorImageLabel.setPreferredSize(new Dimension(205, scaledImage.getHeight(null)));

@@ -18,7 +18,7 @@ public class PokeKalyeChooser extends JFrame {
         setSize(600, 400);
         setLayout(null);
 
-        setContentPane(new JLabel(new ImageIcon("images/bg.png")));
+        setContentPane(new JLabel(new ImageIcon("media/images/bg.png")));
 
         JLabel pokeKalyeChooserLabel = new JLabel(
                 "<html><p style='text-align:center; font-family:\"Impact\"; font-size:22px; color:white; letter-spacing:800em;'>CHOOSE YOUR POKEKALYE !</p></html>",
@@ -124,11 +124,12 @@ public class PokeKalyeChooser extends JFrame {
         puspinLabel.setBounds(100, 90, 80, 30);
         askalLabel.setBounds(270, 90, 80, 30);
         langgamLabel.setBounds(420, 90, 80, 30);
-        createImageLabel("images/puspin.png", 140, 140, "Puspin - A fluffy but sneaky little devil.").setBounds(80,
+        createImageLabel("media/images/puspin.png", 140, 140, "Puspin - A fluffy but sneaky little devil.").setBounds(
+                80,
                 130, 120, 140);
-        createImageLabel("images/askal.png", 140, 140, "Askal - An unhinged creature and a companion for life.")
+        createImageLabel("media/images/askal.png", 140, 140, "Askal - An unhinged creature and a companion for life.")
                 .setBounds(240, 130, 140, 140);
-        createImageLabel("images/langgam.png", 140, 140, "Langgam - Known to eliminate multiversal threats.")
+        createImageLabel("media/images/langgam.png", 140, 140, "Langgam - Known to eliminate multiversal threats.")
                 .setBounds(390, 160, 140, 140);
         puspinRadioButton.setBounds(120, 280, 20, 20);
         askalRadioButton.setBounds(290, 280, 20, 20);

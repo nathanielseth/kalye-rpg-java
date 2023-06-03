@@ -130,7 +130,7 @@ public class GamePanel extends JPanel {
         enemyImageLabel.setBounds(240, 120, 100, 100);
         imagePanel.add(enemyImageLabel);
 
-        JLabel yourPokeKalyeImage = new JLabel(new ImageIcon("images/" + selectedPokeKalye + "User.png"));
+        JLabel yourPokeKalyeImage = new JLabel(new ImageIcon("media/images/" + selectedPokeKalye + "User.png"));
         yourPokeKalyeImage.setBounds(70, 10, 100, 100);
 
         imagePanel.add(yourPokeKalyeImage);
@@ -238,6 +238,10 @@ public class GamePanel extends JPanel {
         return pesos;
     }
 
+    public void setPesos(int pesos) {
+        this.pesos = pesos;
+    }
+
     private void checkBattleResult() {
         if (enemyCurrentHealth <= 0) {
             experience += getRandomNumber(45, 65);
@@ -246,7 +250,7 @@ public class GamePanel extends JPanel {
                 playerLevel++;
                 experience -= levelUpExp;
             }
-            int earnedPesos = getRandomNumber(1, 10);
+            int earnedPesos = getRandomNumber(1, 5);
             pesos += earnedPesos;
             appendToDialogue(
                     "\n" + selectedPokeKalye + " gained " + experience + " exp\n and " + earnedPesos + " pesos.");
@@ -340,7 +344,7 @@ public class GamePanel extends JPanel {
         setEnemyData(enemyData);
         updateHealthBars();
         enemyLabel.setText(enemyData.getName().toUpperCase());
-        ImageIcon enemyImage = new ImageIcon("images/" + enemyPokeKalye + "2.png");
+        ImageIcon enemyImage = new ImageIcon("media/images/" + enemyPokeKalye + "2.png");
         enemyImageLabel.setIcon(enemyImage);
         setInBattle(true);
         System.out.println("Enemy HP: " + enemyCurrentHealth + "/" + enemyMaxHealth);
@@ -416,7 +420,11 @@ public class GamePanel extends JPanel {
     }
 
     public int getPlayerCurrentHealth() {
-        return playerData.getCurrentHealth();
+        return playerCurrentHealth;
+    }
+
+    public void setPlayerCurrentHealth(int health) {
+        playerCurrentHealth = health;
     }
 
     private int getMaxHealth(PokeKalyeData.PokeKalye pokekalye) {
@@ -633,7 +641,7 @@ public class GamePanel extends JPanel {
         }
     }
 
-    private void updateHealthBars() {
+    void updateHealthBars() {
         int playerMaxHealth = getMaxHealth(playerData);
         int playerCurrentHealth = this.playerCurrentHealth;
         int enemyMaxHealth = getMaxHealth(enemyData);
@@ -688,11 +696,15 @@ public class GamePanel extends JPanel {
         int maxHealth = healthBar.getMaximum();
         int currentHealth = healthBar.getValue();
         double healthPercentage = (double) currentHealth / maxHealth;
+        playerData.getMaxHealth();
 
+        if (getMaxHealth(playerData) < getPlayerCurrentHealth()) {
+            playerHealthBar.setForeground(new Color(255, 82, 200)); // Boosted HP color
+        }
         if (healthPercentage >= 0.6) {
             healthBar.setForeground(new Color(102, 255, 51)); // Green
         } else if (healthPercentage >= 0.3) {
-            healthBar.setForeground(Color.YELLOW); // Yellow
+            healthBar.setForeground(new Color(255, 224, 82)); // Yellow
         } else {
             healthBar.setForeground(Color.RED); // Red
         }

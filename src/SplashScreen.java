@@ -23,7 +23,7 @@ public class SplashScreen {
     }
 
     public SplashScreen() throws IOException {
-        JFrame splashFrame = createSplashFrame("images/PokeKalye.png", 300, 300);
+        JFrame splashFrame = createSplashFrame("media/images/PokeKalye.png", 300, 300);
         Timer timer = new Timer(7000, e -> {
             splashFrame.dispose(); // 7000 pag final na
             showSecondSplash();
@@ -36,7 +36,7 @@ public class SplashScreen {
     private void showSecondSplash() {
         SwingUtilities.invokeLater(() -> {
             try {
-                JFrame splashFrame = createSplashFrame("images/Warning.png", 300, 300);
+                JFrame splashFrame = createSplashFrame("media/images/Warning.png", 300, 300);
                 Timer timer = new Timer(900, e -> {
                     splashFrame.dispose();
                     launchGame();

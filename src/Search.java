@@ -88,7 +88,7 @@ public class Search {
             String[] rareEnemies = { "Salagubang", "Langgam", "Palaka", "Ahas", "Higad", "Tipaklong" };
 
             double random = Math.random();
-            if (random < 0.2) {
+            if (random < 0.1) {
                 return getRandomArrayElement(rareEnemies);
             } else if (random < 0.4) {
                 return getRandomArrayElement(moderateEnemies);
@@ -106,7 +106,7 @@ public class Search {
             String[] rareEnemies = { "Kambing", "Jejemonster", "Kabayo" };
 
             double random = Math.random();
-            if (random < 0.2) {
+            if (random < 0.1) {
                 return getRandomArrayElement(rareEnemies);
             } else if (random < 0.5) {
                 return getRandomArrayElement(moderateEnemies);

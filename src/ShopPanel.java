@@ -166,6 +166,9 @@ public class ShopPanel extends JPanel {
             AudioInputStream audioStream = AudioSystem.getAudioInputStream(musicFile);
             musicClip = AudioSystem.getClip();
             musicClip.open(audioStream);
+
+            musicClip.loop(Clip.LOOP_CONTINUOUSLY);
+
             musicClip.start();
         } catch (LineUnavailableException | IOException | UnsupportedAudioFileException e) {
             e.printStackTrace();

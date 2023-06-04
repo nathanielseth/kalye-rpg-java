@@ -52,8 +52,19 @@ public class GamePanel extends JPanel {
     private boolean playerTurn = true;
     private boolean gameOver = false;
     private boolean tripleDamageNextMove = false;
-    private Clip loopingMusicClip;
     private JLabel yourPokeKalyeImage;
+    private Clip loopingMusicClip;
+    private static Clip clickSoundClip;
+    private static Clip koSoundClip;
+    private static Clip levelUpSoundClip;
+    private static Clip fleeSoundClip;
+    private static Clip lowHitSoundClip;
+    private static Clip medHitSoundClip;
+    private static Clip highHitSoundClip;
+    private static Clip hpDownSoundClip;
+    private static Clip burrowSoundClip;
+    private static Clip missSoundClip;
+    private static Clip barkSoundClip;
 
     void showIntroScreen() {
         this.setBackground(Color.BLACK);
@@ -93,6 +104,7 @@ public class GamePanel extends JPanel {
         this.enemyCurrentHealth = getMaxHealth(enemyData);
         this.playerCurrentHealth = getMaxHealth(playerData);
         search = new Search(this);
+        preloadSounds();
 
         playerMaxHealth = getMaxHealth(playerData);
         int enemyMaxHealth = getMaxHealth(enemyData);
@@ -128,14 +140,21 @@ public class GamePanel extends JPanel {
         playerExpBar.setValue(experience);
         playerExpBar.setPreferredSize(new Dimension(50, 10));
 
-        playerLevelLabel = new JLabel("" + playerLevel);
+        playerLevelLabel = new JLabel("LVL " + playerLevel);
         playerLevelLabel.setForeground(Color.WHITE);
-        playerLevelLabel.setFont(new Font("Impact", Font.BOLD, 15));
+        playerLevelLabel.setFont(new Font("Impact", Font.PLAIN, 12));
 
         playerPanel.add(playerExpBar);
         playerPanel.add(playerLevelLabel);
 
-        JPanel imagePanel = new JPanel();
+        JPanel imagePanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                g.setColor(new Color(240, 221, 226));
+                g.fillRect(0, 0, getWidth(), getHeight());
+            }
+        };
         imagePanel.setLayout(null);
         imagePanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
@@ -145,7 +164,6 @@ public class GamePanel extends JPanel {
 
         yourPokeKalyeImage = new JLabel(new ImageIcon("media/images/" + selectedPokeKalye + "User.png"));
         yourPokeKalyeImage.setBounds(70, 10, 100, 100);
-
         imagePanel.add(yourPokeKalyeImage);
 
         JPanel enemyPanel = new JPanel();
@@ -174,6 +192,7 @@ public class GamePanel extends JPanel {
         dialogueArea = new JTextArea(" What will " + selectedPokeKalye + " do?");
         dialogueArea.setEditable(false);
         dialogueArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        dialogueArea.setBackground(new Color(240, 221, 226));
 
         JScrollPane dialogueScrollPane = new JScrollPane(dialogueArea);
         dialogueScrollPane.setPreferredSize(new Dimension(170, getHeight()));
@@ -271,14 +290,15 @@ public class GamePanel extends JPanel {
             if (experience >= levelUpExp) {
                 playerLevel++;
                 experience -= levelUpExp;
-                playLevelUpSound();
                 evolvePokeKalye();
+                animateLevelUp();
+                playLevelUpSound();
             }
             int earnedPesos = getRandomNumber(1, 10);
             pesos += earnedPesos;
             playerExpBar.setMaximum(getLevelUpExperience(playerLevel));
             playerExpBar.setValue(experience);
-            playerLevelLabel.setText("" + playerLevel);
+            playerLevelLabel.setText("LVL " + playerLevel);
             Timer timer = new Timer(50, new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -312,7 +332,7 @@ public class GamePanel extends JPanel {
         MovePool.Move[] moves = playerData.getMoves();
         int numMoves = 2;
 
-        if (playerLevel >= 5) {
+        if (playerLevel >= 6) {
             numMoves = 3;
         }
 
@@ -329,21 +349,26 @@ public class GamePanel extends JPanel {
 
             moveButton.addMouseListener(new java.awt.event.MouseAdapter() {
                 public void mouseEntered(java.awt.event.MouseEvent evt) {
-                    moveButton.setBackground(new Color(102, 255, 51));
-                    playHoverSound();
+                    if (moveButton.isEnabled()) {
+                        moveButton.setBackground(new Color(102, 255, 51));
+                        playHoverSound();
+                    }
                 }
 
                 public void mouseExited(java.awt.event.MouseEvent evt) {
                     moveButton.setBackground(Color.WHITE);
+
                 }
             });
 
             moveButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    playButtonClickSound();
-                    if (playerTurn) {
-                        performMove(move);
+                    if (moveButton.isEnabled()) {
+                        playButtonClickSound();
+                        if (playerTurn) {
+                            performMove(move);
+                        }
                     }
                 }
             });
@@ -764,6 +789,7 @@ public class GamePanel extends JPanel {
             searchButton.setEnabled(true);
             restoreButtons();
             appendToDialogue(selectedPokeKalye + " fled from\n the battle!");
+            playFleeUpSound();
             return;
         }
 
@@ -786,15 +812,22 @@ public class GamePanel extends JPanel {
                     playerCurrentHealth += 10;
                     updateHealthBars();
                 }
+                playBurrowSound();
                 appendToDialogue(selectedPokeKalye + " used " + moveName + "!");
                 System.out.println("Enemy HP: " + enemyCurrentHealth + "/" + enemyMaxHealth);
                 System.out.println("Player HP: " + playerCurrentHealth + "/" + getMaxHealth(playerData));
+                if (damage > 0) {
+                    animateDamageBlink(enemyImageLabel);
+                    playDamageSound(damage);
+                }
             } else {
                 appendToDialogue("Burrow failed!");
+                playMissSound();
             }
         } else if (moveName.equals("Tahol")) {
             tripleDamageNextMove = true;
             appendToDialogue(selectedPokeKalye + " used " + moveName + "!");
+            playBarkSound();
         } else {
             int damage = move.getDamage();
             if (tripleDamageNextMove) {
@@ -806,13 +839,18 @@ public class GamePanel extends JPanel {
                 updateHealthBars();
                 appendToDialogue(selectedPokeKalye + " used " + moveName + "!");
                 System.out.println("Enemy HP: " + enemyCurrentHealth + "/" + enemyMaxHealth);
+                if (damage > 0) {
+                    animateDamageBlink(enemyImageLabel);
+                    playDamageSound(damage);
+                }
             } else {
                 appendToDialogue(selectedPokeKalye + " missed!");
+                playMissSound();
             }
         }
 
         setMoveButtonsEnabled(false);
-        Timer timer = new Timer(1800, e -> {
+        Timer timer = new Timer(2000, e -> {
             enemyTurn();
             checkBattleResult();
             setMoveButtonsEnabled(true);
@@ -835,6 +873,7 @@ public class GamePanel extends JPanel {
                 searchButton.setEnabled(true);
                 restoreButtons();
                 appendToDialogue(enemyPokeKalye + " fled from\n the battle!");
+                playFleeUpSound();
                 return;
             }
 
@@ -842,15 +881,22 @@ public class GamePanel extends JPanel {
 
             if (enemyMoveName.equals("Burrow")) {
                 if (Math.random() <= chance) {
-                    // Move hits
                     int damage = enemyMove.getDamage();
                     playerCurrentHealth -= damage;
                     dialogueArea.append("\n " + enemyPokeKalye + " used " + enemyMoveName + "!");
                     updateHealthBars();
                     System.out.println("Player HP: " + playerCurrentHealth + "/" + getMaxHealth(playerData));
+                    if (damage > 0) {
+                        animateDamageBlink(yourPokeKalyeImage);
+                        playDamageSound(damage);
+                    }
                 } else {
                     dialogueArea.append("\n Burrow failed!");
+                    playMissSound();
                 }
+            } else if (enemyMoveName.equals("Tahol")) {
+                dialogueArea.append("\n " + enemyPokeKalye + " used " + enemyMoveName + "!");
+                playBarkSound();
             } else {
                 int damage = enemyMove.getDamage();
                 if (Math.random() <= chance) {
@@ -858,8 +904,13 @@ public class GamePanel extends JPanel {
                     dialogueArea.append("\n " + enemyPokeKalye + " used " + enemyMoveName + "!");
                     updateHealthBars();
                     System.out.println("Player HP: " + playerCurrentHealth + "/" + getMaxHealth(playerData));
+                    if (damage > 0) {
+                        animateDamageBlink(yourPokeKalyeImage);
+                        playDamageSound(damage);
+                    }
                 } else {
                     dialogueArea.append("\n " + enemyPokeKalye + " missed!");
+                    playMissSound();
                 }
             }
         }
@@ -867,6 +918,7 @@ public class GamePanel extends JPanel {
         if (enemyCurrentHealth <= 0) {
             inBattle = false;
             fadeOutBattleMusic();
+            playEnemyDefeatedSound();
         }
     }
 
@@ -900,7 +952,7 @@ public class GamePanel extends JPanel {
     }
 
     private int getLevelUpExperience(int level) {
-        return 100 + (level - 1) * 35;
+        return 100 + (level - 1) * 30;
     }
 
     private Random random = new Random();
@@ -916,6 +968,44 @@ public class GamePanel extends JPanel {
 
     private void clearDialogue() {
         dialogueArea.setText(" What will " + selectedPokeKalye + " do?");
+    }
+
+    private void preloadSounds() {
+        try {
+            File clickSoundFile = new File("media/audio/click.wav");
+            File koSoundFile = new File("media/audio/ko.wav");
+            File levelUpSoundFile = new File("media/audio/levelup.wav");
+            File fleeSoundFile = new File("media/audio/flee.wav");
+            File lowHitSoundFile = new File("media/audio/lowHit.wav");
+            File medHitSoundFile = new File("media/audio/medHit.wav");
+            File highHitSoundFile = new File("media/audio/highHit.wav");
+            File hpDownSoundFile = new File("media/audio/hpDown.wav");
+            File burrowSoundFile = new File("media/audio/burrow.wav");
+            File missSoundFile = new File("media/audio/miss.wav");
+            File barkSoundFile = new File("media/audio/bark.wav");
+
+            clickSoundClip = preloadClip(clickSoundFile);
+            koSoundClip = preloadClip(koSoundFile);
+            levelUpSoundClip = preloadClip(levelUpSoundFile);
+            fleeSoundClip = preloadClip(fleeSoundFile);
+            lowHitSoundClip = preloadClip(lowHitSoundFile);
+            medHitSoundClip = preloadClip(medHitSoundFile);
+            highHitSoundClip = preloadClip(highHitSoundFile);
+            hpDownSoundClip = preloadClip(hpDownSoundFile);
+            burrowSoundClip = preloadClip(burrowSoundFile);
+            missSoundClip = preloadClip(missSoundFile);
+            barkSoundClip = preloadClip(barkSoundFile);
+        } catch (IOException | LineUnavailableException | UnsupportedAudioFileException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private Clip preloadClip(File audioFile)
+            throws IOException, LineUnavailableException, UnsupportedAudioFileException {
+        AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
+        Clip clip = AudioSystem.getClip();
+        clip.open(audioStream);
+        return clip;
     }
 
     private void playBattleMusic() {
@@ -967,40 +1057,141 @@ public class GamePanel extends JPanel {
     }
 
     private void playButtonClickSound() {
-        try {
-            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("media/audio/click.wav"));
-            Clip clip = AudioSystem.getClip();
-            clip.open(audioInputStream);
-            clip.start();
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        if (clickSoundClip != null) {
+            clickSoundClip.setFramePosition(0);
+            clickSoundClip.start();
         }
     }
 
     private void playEnemyDefeatedSound() {
-        try {
-            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("media/audio/ko.wav"));
-            Clip clip = AudioSystem.getClip();
-            clip.open(audioInputStream);
-            clip.start();
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (koSoundClip != null) {
+            koSoundClip.setFramePosition(0);
+            koSoundClip.start();
         }
     }
 
     private void playLevelUpSound() {
+        if (levelUpSoundClip != null) {
+            levelUpSoundClip.setFramePosition(0);
+            levelUpSoundClip.start();
+        }
+    }
+
+    private void playFleeUpSound() {
+        if (fleeSoundClip != null) {
+            fleeSoundClip.setFramePosition(0);
+            fleeSoundClip.start();
+        }
+    }
+
+    private void playDamageSound(int damage) {
+        if (damage >= 1 && damage <= 5) {
+            playLowHitSound();
+        } else if (damage >= 6 && damage <= 11) {
+            playMedHitSound();
+            playHpDownSound();
+        } else if (damage >= 12) {
+            playHighHitSound();
+            playHpDownSound();
+        }
+    }
+
+    private void playLowHitSound() {
+        if (lowHitSoundClip != null) {
+            lowHitSoundClip.setFramePosition(0);
+            Thread soundThread = new Thread(() -> {
+                lowHitSoundClip.start();
+                try {
+                    Thread.sleep(lowHitSoundClip.getMicrosecondLength() / 1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } finally {
+                    lowHitSoundClip.close();
+                }
+            });
+
+            soundThread.start();
+        }
+    }
+
+    private void playMedHitSound() {
+        if (medHitSoundClip != null) {
+            medHitSoundClip.setFramePosition(0);
+            Thread soundThread = new Thread(() -> {
+                medHitSoundClip.start();
+                try {
+                    Thread.sleep(medHitSoundClip.getMicrosecondLength() / 1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } finally {
+                    medHitSoundClip.close();
+                }
+            });
+
+            soundThread.start();
+        }
+    }
+
+    private void playHighHitSound() {
+        if (highHitSoundClip != null) {
+            highHitSoundClip.setFramePosition(0);
+            Thread soundThread = new Thread(() -> {
+                highHitSoundClip.start();
+                try {
+                    Thread.sleep(highHitSoundClip.getMicrosecondLength() / 1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } finally {
+                    highHitSoundClip.close();
+                }
+            });
+
+            soundThread.start();
+        }
+    }
+
+    private void playHpDownSound() {
+        if (hpDownSoundClip != null) {
+            hpDownSoundClip.setFramePosition(0);
+            hpDownSoundClip.start();
+        }
+    }
+
+    private void playBurrowSound() {
+        if (burrowSoundClip != null) {
+            burrowSoundClip.setFramePosition(0);
+            burrowSoundClip.start();
+        }
+    }
+
+    private void playMissSound() {
+        if (missSoundClip != null) {
+            missSoundClip.setFramePosition(0);
+            missSoundClip.start();
+        }
+    }
+
+    private void playBarkSound() {
+        if (barkSoundClip != null) {
+            barkSoundClip.setFramePosition(0);
+            barkSoundClip.start();
+        }
+    }
+
+    private void playEvolveSound() {
         try {
-            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("media/audio/levelup.wav"));
+            File soundFile = new File("media/audio/evolve.wav");
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(soundFile);
             Clip clip = AudioSystem.getClip();
             clip.open(audioInputStream);
             clip.start();
-        } catch (Exception e) {
+        } catch (IOException | UnsupportedAudioFileException | LineUnavailableException e) {
             e.printStackTrace();
         }
     }
 
     private void evolvePokeKalye() {
-        if (playerLevel == 5) {
+        if (playerLevel == 6) {
             if (selectedPokeKalye.equals("Langgam")) {
                 selectedPokeKalye = "Antik";
                 this.playerData = new PokeKalyeData.PokeKalye(selectedPokeKalye, 30,
@@ -1008,6 +1199,9 @@ public class GamePanel extends JPanel {
                 playerMaxHealth = getMaxHealth(this.playerData);
                 playerLabel.setText("ANTIK");
                 yourPokeKalyeImage.setIcon(new ImageIcon("media/images/AntikUser.png"));
+                animateDamageBlink(yourPokeKalyeImage);
+                playEvolveSound();
+                playerHealthBar.setMaximum(playerMaxHealth);
             }
         } else if (playerLevel == 11) {
             if (selectedPokeKalye.equals("Antik")) {
@@ -1017,6 +1211,9 @@ public class GamePanel extends JPanel {
                 playerMaxHealth = getMaxHealth(this.playerData);
                 playerLabel.setText(selectedPokeKalye.toUpperCase());
                 yourPokeKalyeImage.setIcon(new ImageIcon("media/images/AntManUser.png"));
+                animateDamageBlink(yourPokeKalyeImage);
+                playEvolveSound();
+                playerHealthBar.setMaximum(playerMaxHealth);
             } else if (selectedPokeKalye.equals("Puspin")) {
                 selectedPokeKalye = "Puspin Boots";
                 this.playerData = new PokeKalyeData.PokeKalye(selectedPokeKalye, 0,
@@ -1024,6 +1221,9 @@ public class GamePanel extends JPanel {
                 playerMaxHealth = getMaxHealth(this.playerData);
                 playerLabel.setText(selectedPokeKalye.toUpperCase());
                 yourPokeKalyeImage.setIcon(new ImageIcon("media/images/PuspinBootsUser.png"));
+                animateDamageBlink(yourPokeKalyeImage);
+                playEvolveSound();
+                playerHealthBar.setMaximum(playerMaxHealth);
             } else if (selectedPokeKalye.equals("Askal")) {
                 selectedPokeKalye = "Big Dog";
                 this.playerData = new PokeKalyeData.PokeKalye(selectedPokeKalye, 0,
@@ -1031,7 +1231,70 @@ public class GamePanel extends JPanel {
                 playerMaxHealth = getMaxHealth(this.playerData);
                 playerLabel.setText(selectedPokeKalye.toUpperCase());
                 yourPokeKalyeImage.setIcon(new ImageIcon("media/images/BigDogUser.png"));
+                animateDamageBlink(yourPokeKalyeImage);
+                playEvolveSound();
+                playerHealthBar.setMaximum(playerMaxHealth);
             }
         }
+    }
+
+    private void animateLevelUp() {
+        Color originalColor = playerLevelLabel.getForeground();
+        Color highlightColor = Color.YELLOW;
+        int animationDuration = 1000;
+        int animationInterval = 110;
+        int numIterations = animationDuration / animationInterval;
+
+        Timer delayTimer = new Timer(1000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Timer animationTimer = new Timer(animationInterval, new ActionListener() {
+                    private int iteration = 0;
+
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        if (iteration % 2 == 0) {
+                            playerLevelLabel.setForeground(highlightColor);
+                        } else {
+                            playerLevelLabel.setForeground(originalColor);
+                        }
+                        iteration++;
+                        if (iteration >= numIterations) {
+                            playerLevelLabel.setForeground(originalColor);
+                            ((Timer) e.getSource()).stop();
+                        }
+                    }
+                });
+                animationTimer.start();
+            }
+        });
+        delayTimer.setRepeats(false);
+        delayTimer.start();
+    }
+
+    private void animateDamageBlink(Component component) {
+        int numBlinks = 4;
+        int blinkDuration = 450;
+        int blinkInterval = blinkDuration / (2 * numBlinks);
+
+        Timer timer = new Timer(blinkInterval, new ActionListener() {
+            private int blinkCount = 0;
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (blinkCount % 2 == 0) {
+                    component.setVisible(false);
+                } else {
+                    component.setVisible(true);
+                }
+                blinkCount++;
+                if (blinkCount >= 2 * numBlinks) {
+                    component.setVisible(true);
+                    ((Timer) e.getSource()).stop();
+                }
+            }
+        });
+
+        timer.start();
     }
 }

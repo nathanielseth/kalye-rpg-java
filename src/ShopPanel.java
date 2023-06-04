@@ -10,9 +10,13 @@ public class ShopPanel extends JPanel {
     private JButton backButton;
     private GamePanel gamePanel;
     private Clip musicClip;
+    private Clip hoverSoundClip;
+    private Clip buySoundClip;
+    private Clip buttonClickSoundClip;
     private JLabel pesosLabel;
 
     public ShopPanel(GamePanel gamePanel) {
+        preloadSounds();
         this.gamePanel = gamePanel;
         setBackground(new Color(82, 113, 255));
         setLayout(new BorderLayout());
@@ -68,16 +72,14 @@ public class ShopPanel extends JPanel {
             JPanel itemPanel = new JPanel(new BorderLayout());
             itemPanel.setBorder(BorderFactory.createLineBorder(Color.WHITE));
             itemPanel.setOpaque(true);
-            itemPanel.setBackground(new Color(255, 51, 102));
+            itemPanel.setBackground(new Color(240, 221, 226));
 
             JLabel itemLabel = new JLabel(itemNames[i]);
             itemLabel.setHorizontalAlignment(SwingConstants.CENTER);
             itemPanel.add(itemLabel, BorderLayout.NORTH);
-            itemLabel.setForeground(new Color(102, 255, 51));
 
             JLabel itemPrice = new JLabel(((i + 1) * 10) + " pesos");
             itemPrice.setHorizontalAlignment(SwingConstants.CENTER);
-            itemPrice.setForeground(Color.WHITE);
             itemPanel.add(itemPrice, BorderLayout.SOUTH);
 
             String imagePath = "media/images/item" + (i + 1) + ".png";
@@ -85,7 +87,7 @@ public class ShopPanel extends JPanel {
             JLabel itemImage = new JLabel(itemIcon);
             itemPanel.add(itemImage, BorderLayout.CENTER);
 
-            JButton buyButton = new JButton("Buy");
+            JButton buyButton = new JButton("BUY");
             itemPanel.add(buyButton, BorderLayout.EAST);
 
             if (gamePanel.getPesos() < ((i + 1) * 10)) {
@@ -94,6 +96,7 @@ public class ShopPanel extends JPanel {
 
                 int itemIndex = i;
                 buyButton.addActionListener(e -> {
+                    playBuySound();
                     int price = (itemIndex + 1) * 10;
                     gamePanel.setPesos(gamePanel.getPesos() - price);
 
@@ -127,6 +130,7 @@ public class ShopPanel extends JPanel {
         setupButtonMouseListener(backButton);
         shopContentPanel.add(backButton, BorderLayout.SOUTH);
         backButton.addActionListener(e -> {
+            playButtonClickSound();
             stopMusic();
             JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
             Container contentPane = frame.getContentPane();
@@ -160,6 +164,24 @@ public class ShopPanel extends JPanel {
         pesosLabel.setText("GCash: " + gamePanel.getPesos() + " pesos");
     }
 
+    private void preloadSounds() {
+        try {
+            hoverSoundClip = preloadClip(new File("media/audio/hover.wav"));
+            buySoundClip = preloadClip(new File("media/audio/buy.wav"));
+            buttonClickSoundClip = preloadClip(new File("media/audio/click.wav"));
+        } catch (IOException | LineUnavailableException | UnsupportedAudioFileException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private Clip preloadClip(File audioFile)
+            throws IOException, LineUnavailableException, UnsupportedAudioFileException {
+        AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
+        Clip clip = AudioSystem.getClip();
+        clip.open(audioStream);
+        return clip;
+    }
+
     private void playMusic(String musicFilePath) {
         try {
             File musicFile = new File(musicFilePath);
@@ -181,16 +203,42 @@ public class ShopPanel extends JPanel {
         }
     }
 
+    private void playHoverSound() {
+        if (hoverSoundClip != null) {
+            hoverSoundClip.setFramePosition(0);
+            hoverSoundClip.start();
+        }
+    }
+
+    private void playBuySound() {
+        if (buySoundClip != null) {
+            buySoundClip.setFramePosition(0);
+            buySoundClip.start();
+        }
+    }
+
+    private void playButtonClickSound() {
+        if (buttonClickSoundClip != null) {
+            buttonClickSoundClip.setFramePosition(0);
+            buttonClickSoundClip.start();
+        }
+    }
+
     private void setupButtonMouseListener(JButton button) {
         button.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
-                button.setBackground(new Color(102, 255, 51));
+                if (button.isEnabled()) {
+                    button.setBackground(new Color(102, 255, 51));
+                    playHoverSound();
+                }
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
-                button.setBackground(Color.WHITE);
+                if (button.isEnabled()) {
+                    button.setBackground(Color.WHITE);
+                }
             }
         });
         button.setBackground(Color.WHITE);

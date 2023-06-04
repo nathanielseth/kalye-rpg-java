@@ -16,7 +16,14 @@ import javax.swing.Timer;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.IOException;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.KeyStroke;
@@ -28,7 +35,7 @@ public class GameOverPanel extends JPanel {
     private static final Color BACKGROUND_COLOR = Color.BLACK;
     private static final Color TEXT_COLOR = Color.WHITE;
     private static final Font BIG_FONT = new Font("Impact", Font.BOLD, 90);
-    private static final Font SMALL_FONT = new Font("Courier New", Font.PLAIN, 20);
+    private static final Font SMALL_FONT = new Font("Courier New", Font.PLAIN, 15);
     private static final int FADE_IN_DELAY = 100;
     private static final int FADE_IN_DURATION = 5000;
     private static final int ANIMATION_DELAY = 3000;
@@ -46,6 +53,7 @@ public class GameOverPanel extends JPanel {
     };
     private Timer fadeInTimer;
     private Timer typingTimer;
+    private Clip musicClip;
 
     public GameOverPanel() {
         setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
@@ -96,10 +104,12 @@ public class GameOverPanel extends JPanel {
         });
         fadeInTimer.setRepeats(true);
         fadeInTimer.start();
+        playMusic("media/audio/over.wav");
 
         Action quitAction = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                stopMusic();
                 System.exit(0);
             }
         };
@@ -107,9 +117,10 @@ public class GameOverPanel extends JPanel {
         Action restartAction = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                stopMusic();
                 Window window = SwingUtilities.getWindowAncestor(GameOverPanel.this);
                 window.dispose();
-                Professor.main(null);
+                PokeKalyeChooser.main(null);
             }
         };
 
@@ -173,5 +184,26 @@ public class GameOverPanel extends JPanel {
         int labelY = PANEL_HEIGHT / 2 - 80;
         g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
         g2d.drawString("GAME OVER", labelX, labelY);
+    }
+
+    private void playMusic(String musicFilePath) {
+        try {
+            File musicFile = new File(musicFilePath);
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(musicFile);
+            musicClip = AudioSystem.getClip();
+            musicClip.open(audioStream);
+
+            musicClip.loop(Clip.LOOP_CONTINUOUSLY);
+
+            musicClip.start();
+        } catch (LineUnavailableException | IOException | UnsupportedAudioFileException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void stopMusic() {
+        if (musicClip != null && musicClip.isRunning()) {
+            musicClip.stop();
+        }
     }
 }

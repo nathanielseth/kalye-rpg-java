@@ -1,6 +1,13 @@
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
+import java.io.IOException;
 
 public class PokeKalyeChooser extends JFrame {
     private TooltipLabel puspinLabel;
@@ -11,6 +18,10 @@ public class PokeKalyeChooser extends JFrame {
     private static JRadioButton langgamRadioButton;
     private JButton startButton;
     private JLabel selectedPokeKalyeLabel;
+    private static Clip puspinCrySound;
+    private static Clip askalCrySound;
+    private static Clip langgamCrySound;
+    private Clip musicClip;
 
     public PokeKalyeChooser() {
         setTitle("KalyeRPG");
@@ -60,6 +71,7 @@ public class PokeKalyeChooser extends JFrame {
                 if (puspinRadioButton.isSelected() || askalRadioButton.isSelected()
                         || langgamRadioButton.isSelected()) {
                     startButton.setBackground(new Color(102, 255, 51));
+                    playHoverSound();
                 }
             }
 
@@ -85,7 +97,7 @@ public class PokeKalyeChooser extends JFrame {
         startButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Display a confirmation dialog
+                playClickSound();
                 int choice = JOptionPane.showConfirmDialog(
                         PokeKalyeChooser.this,
                         "Start your journey with " + getSelectedPokeKalye()
@@ -95,6 +107,8 @@ public class PokeKalyeChooser extends JFrame {
                         JOptionPane.PLAIN_MESSAGE);
 
                 if (choice == JOptionPane.YES_OPTION) {
+                    stopMusic();
+                    playClickSound();
                     launchGame();
                     dispose();
                 }
@@ -139,6 +153,7 @@ public class PokeKalyeChooser extends JFrame {
 
         setResizable(false);
         setVisible(true);
+        playMusic("media/audio/choose.wav");
     }
 
     private JLabel createImageLabel(String imagePath, int width, int height, String tooltipText) {
@@ -180,11 +195,14 @@ public class PokeKalyeChooser extends JFrame {
     private void updateSelectedPokekalyeLabel(JRadioButton selectedRadioButton) {
         if (selectedRadioButton == puspinRadioButton) {
             selectedPokeKalyeLabel.setText("THICC AND QUICC");
+            playPuspinCrySound();
         } else if (selectedRadioButton == askalRadioButton) {
             selectedPokeKalyeLabel
                     .setText("LOYAL AND UNHINGED");
+            playAskalCrySound();
         } else if (selectedRadioButton == langgamRadioButton) {
             selectedPokeKalyeLabel.setText("SMALL BUT TERRIBLE");
+            playLanggamCrySound();
         }
     }
 
@@ -207,6 +225,7 @@ public class PokeKalyeChooser extends JFrame {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
+                loadCrySounds();
                 PokeKalyeChooser pokeKalyeChooser = new PokeKalyeChooser();
                 pokeKalyeChooser.setLocationRelativeTo(null);
             }
@@ -217,6 +236,92 @@ public class PokeKalyeChooser extends JFrame {
         public TooltipLabel(String text) {
             super(text);
             setOpaque(true);
+        }
+    }
+
+    private void playPuspinCrySound() {
+        if (puspinCrySound != null) {
+            puspinCrySound.setFramePosition(0);
+            puspinCrySound.start();
+        }
+    }
+
+    private void playAskalCrySound() {
+        if (askalCrySound != null) {
+            askalCrySound.setFramePosition(0);
+            askalCrySound.start();
+        }
+    }
+
+    private void playLanggamCrySound() {
+        if (langgamCrySound != null) {
+            langgamCrySound.setFramePosition(0);
+            langgamCrySound.start();
+        }
+    }
+
+    private void playHoverSound() {
+        try {
+            File soundFile = new File("media/audio/hover.wav");
+            AudioInputStream audioIn = AudioSystem.getAudioInputStream(soundFile);
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioIn);
+            clip.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void playClickSound() {
+        try {
+            File soundFile = new File("media/audio/click.wav");
+            AudioInputStream audioIn = AudioSystem.getAudioInputStream(soundFile);
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioIn);
+            clip.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void loadCrySounds() {
+        try {
+            AudioInputStream puspinStream = AudioSystem
+                    .getAudioInputStream(new File("media/audio/cries/puspincry.wav"));
+            puspinCrySound = AudioSystem.getClip();
+            puspinCrySound.open(puspinStream);
+
+            AudioInputStream askalStream = AudioSystem.getAudioInputStream(new File("media/audio/cries/askalcry.wav"));
+            askalCrySound = AudioSystem.getClip();
+            askalCrySound.open(askalStream);
+
+            AudioInputStream langgamStream = AudioSystem
+                    .getAudioInputStream(new File("media/audio/cries/langgamcry.wav"));
+            langgamCrySound = AudioSystem.getClip();
+            langgamCrySound.open(langgamStream);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void playMusic(String musicFilePath) {
+        try {
+            File musicFile = new File(musicFilePath);
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(musicFile);
+            musicClip = AudioSystem.getClip();
+            musicClip.open(audioStream);
+
+            musicClip.loop(Clip.LOOP_CONTINUOUSLY);
+
+            musicClip.start();
+        } catch (LineUnavailableException | IOException | UnsupportedAudioFileException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void stopMusic() {
+        if (musicClip != null && musicClip.isRunning()) {
+            musicClip.stop();
         }
     }
 }

@@ -9,16 +9,16 @@ public class MovePool {
     public static final Move SPEAR = new Move("Spear", 10, false, 0.7);
     public static final Move OUTRAGE = new Move("Outrage", 20, false, 1);
     public static final Move KAGAT = new Move("Kagat", 5, false, 1);
-    public static final Move BURROW = new Move("Burrow", 3, true, 0.65, Effect.DODGE_NEXT_MOVE);
+    public static final Move BURROW = new Move("Burrow", 3, true, 0.60, Effect.DODGE_NEXT_MOVE);
     public static Move GANG_UP = new Move("Gang Up", 3, false, 1, Effect.REPEAT_MOVE);
     public static final Move QUANTUM_BITE = new Move("Quantum Bite", 30, false, 1);
-    public static final Move SCRATCH = new Move("Scratch", 1, false, 1);
+    public static final Move SCRATCH = new Move("Scratch", 1, false, 0.9);
     public static final Move DAPO = new Move("Dapo", 2, false, 0.7);
     public static final Move DAPO_FLYING = new Move("Dapo", 4, false, 1);
     public static final Move LIPAD = new Move("Lipad", 5, false, 1);
     public static final Move NGATNGAT = new Move("Ngatngat", 3, false, 0.8);
     public static final Move SQUEAK = new Move("Squeak", 0, false, 1);
-    public static final Move DAPO_LAMOK = new Move("Dapo", 0, false, 1);
+    public static final Move DAPO_LAMOK = new Move("Dapo", 1, false, 1);
     public static final Move SUCK = new Move("Suck", 4, false, 1, Effect.DENGUE);
     public static final Move SIT_AND_WAIT = new Move("Stare", 0, false, 1);
     public static final Move LICK = new Move("Lick", 5, false, 0.9);
@@ -39,8 +39,8 @@ public class MovePool {
     public static final Move SLITHER = new Move("Slither", 5, true, 0.9);
     public static final Move KAGAT_SNAKE = new Move("Kagat", 9, false, 0.7);
     public static final Move HISS = new Move("Hiss", 0, true, 1);
-    public static final Move DAPO_HIGAD = new Move("Dapo", 0, true, 1);
-    public static final Move KARATE_CHOP = new Move("Karate Chop", 9, false, 0.4);
+    public static final Move DAPO_HIGAD = new Move("Dapo", 6, true, 1);
+    public static final Move KARATE_CHOP = new Move("Karate Chop", 8, false, 0.4);
     public static final Move TADYAK = new Move("Tadyak", 30, false, 0.4);
 
     public static class Move {

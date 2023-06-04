@@ -18,21 +18,13 @@ public class SettingsPanel extends JFrame {
     public SettingsPanel() {
         setTitle("Settings");
         setLocationRelativeTo(null);
-
-        // Set layout manager for the frame
         setLayout(new BorderLayout());
         setPreferredSize(new Dimension(300, 300));
-
-        // Set background color
         getContentPane().setBackground(new Color(82, 113, 255));
-
-        // Create the settings panel
         JPanel settingsPanel = new JPanel();
         settingsPanel.setLayout(new GridBagLayout());
         settingsPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         settingsPanel.setBackground(new Color(82, 113, 255));
-
-        // Create the settings components
         JLabel settingsLabel = new JLabel("SETTINGS", SwingConstants.CENTER);
         settingsLabel.setFont(new Font("Impact", Font.BOLD, 39));
         settingsLabel.setForeground(Color.WHITE);
@@ -53,8 +45,6 @@ public class SettingsPanel extends JFrame {
         JLabel cheatCodesLabel = new JLabel("Cheat Codes");
         cheatCodesTextField = new JTextField();
         cheatCodesTextField.setDocument(new JTextFieldLimit(10));
-
-        // Set font and color for labels
         Font labelFont = new Font("Courier New", Font.PLAIN, 16);
         Color labelColor = Color.WHITE;
 
@@ -68,8 +58,6 @@ public class SettingsPanel extends JFrame {
         graphicsLabel.setForeground(labelColor);
         cheatCodesLabel.setFont(labelFont);
         cheatCodesLabel.setForeground(labelColor);
-
-        // Add the components to the settings panel
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -116,20 +104,16 @@ public class SettingsPanel extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         settingsPanel.add(cheatCodesTextField, gbc);
 
-        // Create the back button
         backButton = new JButton("OK");
         backButton.addActionListener(e -> dispose());
         backButton.setBackground(Color.WHITE);
         backButton.addMouseListener(new ButtonHoverAdapter());
 
-        // Create the main panel and add components
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         mainPanel.setBackground(new Color(82, 113, 255));
         mainPanel.add(settingsPanel, BorderLayout.CENTER);
         mainPanel.add(backButton, BorderLayout.SOUTH);
-
-        // Add the main panel to the frame
         add(mainPanel, BorderLayout.CENTER);
 
         pack();

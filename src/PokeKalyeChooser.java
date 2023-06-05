@@ -120,8 +120,6 @@ public class PokeKalyeChooser extends JFrame {
         selectedPokeKalyeLabel.setFont(new Font("Courier New", Font.BOLD, 16));
         selectedPokeKalyeLabel.setHorizontalAlignment(SwingConstants.LEFT);
         selectedPokeKalyeLabel.setVerticalAlignment(SwingConstants.BOTTOM);
-
-        // Add components to the content pane
         Container contentPane = getContentPane();
         contentPane.setLayout(null);
         contentPane.add(pokeKalyeChooserLabel);

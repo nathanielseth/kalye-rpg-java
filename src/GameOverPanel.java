@@ -38,7 +38,7 @@ public class GameOverPanel extends JPanel {
     private static final Font SMALL_FONT = new Font("Courier New", Font.PLAIN, 15);
     private static final int FADE_IN_DELAY = 100;
     private static final int FADE_IN_DURATION = 5000;
-    private static final int ANIMATION_DELAY = 3000;
+    private static final int ANIMATION_DELAY = 3500;
     private static final String QUIT_TEXT = "ESC to quit, ENTER to try again.";
 
     private JLabel randomTextLabel;
@@ -132,7 +132,7 @@ public class GameOverPanel extends JPanel {
     }
 
     private void startTypingAnimation() {
-        typingTimer = new Timer(100, new ActionListener() {
+        typingTimer = new Timer(90, new ActionListener() {
             private int currentCharIndex = 0;
             private int randomTextIndex = (int) (Math.random() * randomTexts.length);
 
@@ -179,11 +179,11 @@ public class GameOverPanel extends JPanel {
         g2d.fillRect(0, 0, getWidth(), getHeight());
         g2d.setColor(TEXT_COLOR);
         g2d.setFont(BIG_FONT);
-        int labelWidth = g2d.getFontMetrics().stringWidth("GAME OVER");
+        int labelWidth = g2d.getFontMetrics().stringWidth("GAME\n OVER");
         int labelX = (getWidth() - labelWidth) / 2;
         int labelY = PANEL_HEIGHT / 2 - 80;
         g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
-        g2d.drawString("GAME OVER", labelX, labelY);
+        g2d.drawString("GAME\n OVER", labelX, labelY);
     }
 
     private void playMusic(String musicFilePath) {

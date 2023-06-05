@@ -1,15 +1,15 @@
 public class MovePool {
-    public static final Move KALMOT = new Move("Kalmot", 7, false, 1);
+    public static final Move KALMOT = new Move("Kalmot", 78, false, 1);
     public static final Move FLEE = new Move("Flee", 0, true, 0.8);
     public static final Move PURR = new Move("Purr", 0, false, 0.4, Effect.HEAL_HP);
     public static final Move SNEAK_ATTACK = new Move("Sneak Attack", 50, false, 1);
     public static final Move BITE = new Move("Bite", 4, false, 1, Effect.RABIES);
-    public static final Move BITE_TUTA = new Move("Bite", 2, false, 1);
+    public static final Move BITE_TUTA = new Move("Bite", 5, false, 0.7);
     public static final Move TAHOL = new Move("Tahol", 0, true, 1, Effect.MULTIPLY_DAMAGE);
     public static final Move SPEAR = new Move("Spear", 10, false, 0.7);
     public static final Move OUTRAGE = new Move("Outrage", 20, false, 1);
     public static final Move KAGAT = new Move("Kagat", 5, false, 1);
-    public static final Move BURROW = new Move("Burrow", 3, true, 0.60, Effect.DODGE_NEXT_MOVE);
+    public static final Move BURROW = new Move("Burrow", 3, true, 0.65, Effect.DODGE_NEXT_MOVE);
     public static Move GANG_UP = new Move("Gang Up", 3, false, 1, Effect.REPEAT_MOVE);
     public static final Move QUANTUM_BITE = new Move("Quantum Bite", 30, false, 1);
     public static final Move SCRATCH = new Move("Scratch", 1, false, 0.9);
@@ -39,9 +39,11 @@ public class MovePool {
     public static final Move SLITHER = new Move("Slither", 5, true, 0.9);
     public static final Move KAGAT_SNAKE = new Move("Kagat", 9, false, 0.7);
     public static final Move HISS = new Move("Hiss", 0, true, 1);
-    public static final Move DAPO_HIGAD = new Move("Dapo", 6, true, 1);
+    public static final Move DAPO_HIGAD = new Move("Dapo", 8, true, 0.5);
     public static final Move KARATE_CHOP = new Move("Karate Chop", 8, false, 0.4);
     public static final Move TADYAK = new Move("Tadyak", 30, false, 0.4);
+    public static final Move STING = new Move("Sting", 5, false, 0.65);
+    public static final Move BUZZ = new Move("Buzz", 0, false, 0.8);
 
     public static class Move {
         private final String name;
@@ -157,6 +159,8 @@ public class MovePool {
                 return new Move[] { DAPO_HIGAD };
             case "Tipaklong":
                 return new Move[] { KARATE_CHOP, DAPO };
+            case "Mandarangkal":
+                return new Move[] { KARATE_CHOP, DAPO };
             case "Kabayo":
                 return new Move[] { TADYAK };
             case "Master Splinter":
@@ -165,6 +169,8 @@ public class MovePool {
                 return new Move[] { CROAK };
             case "Kuto":
                 return new Move[] { SCRATCH };
+            case "Bubuyog":
+                return new Move[] { STING, BUZZ };
             default:
                 System.out.print("Unknown Poke");
                 return new Move[0];

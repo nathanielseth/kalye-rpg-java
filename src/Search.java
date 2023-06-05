@@ -1,17 +1,32 @@
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.sound.sampled.*;
+import java.io.File;
 
 public class Search {
     private GamePanel gamePanel;
-    boolean currentlySearching;
+    private boolean currentlySearching;
     private Timer animationTimer;
     private int dotsCount = 0;
     private String searchingText = "Searching";
+    private Clip searchClip;
 
     public Search(GamePanel gamePanel) {
         this.gamePanel = gamePanel;
         currentlySearching = false;
+        loadSearchSound();
+    }
+
+    private void loadSearchSound() {
+        try {
+            File soundFile = new File("media/audio/search.wav");
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(soundFile);
+            searchClip = AudioSystem.getClip();
+            searchClip.open(audioInputStream);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void performSearch() {
@@ -25,7 +40,6 @@ public class Search {
             protected Void doInBackground() throws Exception {
                 gamePanel.enableSearchButton(false);
                 currentlySearching = true;
-
                 gamePanel.setSearchLabelText("SEARCHING...");
                 gamePanel.showSearchingLabel(true);
 
@@ -36,9 +50,6 @@ public class Search {
                 animationTimer.setInitialDelay(0);
                 animationTimer.start();
 
-                JLabel loadingLabel = new JLabel(new ImageIcon("images/searching.gif"));
-                loadingLabel.setBounds(70, 10, 100, 100);
-                gamePanel.add(loadingLabel);
                 gamePanel.revalidate();
                 gamePanel.repaint();
 
@@ -47,7 +58,6 @@ public class Search {
                 Timer timer = new Timer(searchTime, new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        gamePanel.remove(loadingLabel);
                         gamePanel.revalidate();
                         gamePanel.repaint();
                         gamePanel.showSearchingLabel(false);
@@ -68,11 +78,31 @@ public class Search {
                 timer.setRepeats(false);
                 timer.start();
 
+                playSearchSound();
+
                 return null;
+            }
+
+            @Override
+            protected void done() {
+                gamePanel.enableSearchButton(true);
             }
         };
 
         searchWorker.execute();
+    }
+
+    private void playSearchSound() {
+        try {
+            searchClip.setFramePosition(0); // Set the frame position to the beginning
+            searchClip.loop(Clip.LOOP_CONTINUOUSLY);
+            while (currentlySearching && !gamePanel.isInBattle()) {
+                Thread.sleep(100);
+            }
+            searchClip.stop();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public boolean isInBattle() {
@@ -84,11 +114,12 @@ public class Search {
         if (level < 10) {
             String[] veryCommonEnemies = { "Ipis", "Daga" };
             String[] commonEnemies = { "Lamok", "Langaw", "Tuta", "Ibon" };
-            String[] moderateEnemies = { "Kuting", "Manok", "Gagamba", "Butiki", "Kuto", "Paro-paro" };
-            String[] rareEnemies = { "Salagubang", "Langgam", "Palaka", "Ahas", "Higad", "Tipaklong" };
+            String[] moderateEnemies = { "Kuting", "Manok", "Gagamba", "Butiki", "Kuto", "Paro-paro", "Bubuyog" };
+            String[] rareEnemies = { "Salagubang", "Langgam", "Palaka", "Ahas", "Higad", "Tipaklong", "Askal",
+                    "Mandarangkal" };
 
             double random = Math.random();
-            if (random < 0.1) {
+            if (random < 0.08) {
                 return getRandomArrayElement(rareEnemies);
             } else if (random < 0.4) {
                 return getRandomArrayElement(moderateEnemies);
@@ -102,11 +133,11 @@ public class Search {
             String[] commonEnemies = { "Flying ipis", "Dagang Kanal", "Bangaw",
                     "Puspin", "Tutubi", "Paro-paro" };
             String[] moderateEnemies = { "Paniki", "Antik", "Higad", "Salagubang", "Manok", "Ahas", "Tipaklong",
-                    "Colored Sisiw", "Tuko" };
-            String[] rareEnemies = { "Kambing", "Jejemonster", "Kabayo" };
+                    "Colored Sisiw", "Tuko", "Bubuyog", "Mandarangkal" };
+            String[] rareEnemies = { "Kambing", "Kabayo", "Daga" };
 
             double random = Math.random();
-            if (random < 0.1) {
+            if (random < 0.05) {
                 return getRandomArrayElement(rareEnemies);
             } else if (random < 0.5) {
                 return getRandomArrayElement(moderateEnemies);
@@ -125,15 +156,14 @@ public class Search {
     }
 
     private void animateDots() {
-        dotsCount++;
-        if (dotsCount > 4) {
-            dotsCount = 0;
-        }
+        dotsCount = (dotsCount + 1) % 5;
 
         StringBuilder dots = new StringBuilder();
         for (int i = 0; i < dotsCount; i++) {
             dots.append(".");
         }
         searchingText = "SEARCHING" + dots;
+        int delay = 153;
+        animationTimer.setDelay(delay);
     }
 }

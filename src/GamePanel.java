@@ -131,6 +131,7 @@ public class GamePanel extends JPanel {
         playerHealthBar = new JProgressBar(0, playerMaxHealth);
         playerHealthBar.setForeground(new Color(102, 255, 51));
         playerHealthBar.setBorder(blackBorder);
+        playerHealthBar.setPreferredSize(new Dimension(140, 16));
 
         playerPanel.add(playerLabel);
         playerPanel.add(playerHealthBar);
@@ -172,6 +173,7 @@ public class GamePanel extends JPanel {
         enemyPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 20));
         enemyHealthBar = new JProgressBar(0, enemyMaxHealth);
         enemyHealthBar.setBorder(blackBorder);
+        enemyHealthBar.setPreferredSize(new Dimension(140, 16));
         enemyLabel = new JLabel(enemyData.getName().toUpperCase());
         enemyLabel.setForeground(Color.WHITE);
 
@@ -285,24 +287,23 @@ public class GamePanel extends JPanel {
     private void checkBattleResult() {
         if (enemyCurrentHealth <= 0) {
             playEnemyDefeatedSound();
-            experience += getRandomNumber(45, 75);
             int levelUpExp = getLevelUpExperience(playerLevel);
+            experience += getRandomNumber(45, 75);
             if (experience >= levelUpExp) {
                 playerLevel++;
                 experience -= levelUpExp;
                 evolvePokeKalye();
-                animateLevelUp();
+                animateLevelUp(playerLevelLabel);
                 playLevelUpSound();
             }
             int earnedPesos = getRandomNumber(1, 10);
             pesos += earnedPesos;
             playerExpBar.setMaximum(getLevelUpExperience(playerLevel));
-            playerExpBar.setValue(experience);
+            animateExpBar(playerExpBar, experience, getLevelUpExperience(playerLevel), 500);
             playerLevelLabel.setText("LVL " + playerLevel);
             Timer timer = new Timer(50, new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-
                     appendToDialogue("Prof RP caught the\n " + enemyPokeKalye + " for you!");
                     setInBattle(false);
                     searchButton.setEnabled(true);
@@ -576,6 +577,9 @@ public class GamePanel extends JPanel {
                 case "Kuto":
                     maxHealth = PokeKalyeData.KUTO.getMaxHealth();
                     break;
+                case "Bubuyog":
+                    maxHealth = PokeKalyeData.BUBUYOG.getMaxHealth();
+                    break;
                 case "Tutubi":
                     maxHealth = PokeKalyeData.TUTUBI.getMaxHealth();
                     break;
@@ -590,6 +594,9 @@ public class GamePanel extends JPanel {
                     break;
                 case "Tipaklong":
                     maxHealth = PokeKalyeData.TIPAKLONG.getMaxHealth();
+                    break;
+                case "Mandarangkal":
+                    maxHealth = PokeKalyeData.MANDARANGKAL.getMaxHealth();
                     break;
                 case "Kabayo":
                     maxHealth = PokeKalyeData.KABAYO.getMaxHealth();
@@ -687,6 +694,9 @@ public class GamePanel extends JPanel {
             case "Kuto":
                 enemyData = PokeKalyeData.KUTO;
                 break;
+            case "Bubuyog":
+                enemyData = PokeKalyeData.BUBUYOG;
+                break;
             case "Tutubi":
                 enemyData = PokeKalyeData.TUTUBI;
                 break;
@@ -702,6 +712,9 @@ public class GamePanel extends JPanel {
             case "Tipaklong":
                 enemyData = PokeKalyeData.TIPAKLONG;
                 break;
+            case "Mandarangkal":
+                enemyData = PokeKalyeData.MANDARANGKAL;
+                break;
             case "Kabayo":
                 enemyData = PokeKalyeData.KABAYO;
                 break;
@@ -716,8 +729,8 @@ public class GamePanel extends JPanel {
         int enemyMaxHealth = getMaxHealth(enemyData);
         int enemyCurrentHealth = this.enemyCurrentHealth;
 
-        animateHealthBar(playerHealthBar, playerCurrentHealth, playerMaxHealth, 300);
-        animateHealthBar(enemyHealthBar, enemyCurrentHealth, enemyMaxHealth, 300);
+        animateHealthBar(playerHealthBar, playerCurrentHealth, playerMaxHealth, 350);
+        animateHealthBar(enemyHealthBar, enemyCurrentHealth, enemyMaxHealth, 350);
 
         System.out.println("Enemy HP: " + enemyCurrentHealth + "/" + enemyMaxHealth);
         System.out.println("Player HP: " + playerCurrentHealth + "/" + playerMaxHealth);
@@ -729,7 +742,7 @@ public class GamePanel extends JPanel {
     private void animateHealthBar(JProgressBar healthBar, int currentHealth, int maxHealth, int duration) {
         int startValue = healthBar.getValue();
         int endValue = currentHealth;
-        int totalFrames = duration / 60;
+        int totalFrames = duration / 45;
         double increment = (double) (endValue - startValue) / totalFrames;
 
         int delay = duration / totalFrames;
@@ -768,15 +781,97 @@ public class GamePanel extends JPanel {
         playerData.getMaxHealth();
 
         if (getMaxHealth(playerData) < getPlayerCurrentHealth()) {
-            playerHealthBar.setForeground(new Color(255, 82, 200)); // Boosted HP color
+            playerHealthBar.setForeground(new Color(255, 82, 200));
         }
         if (healthPercentage >= 0.6) {
-            healthBar.setForeground(new Color(102, 255, 51)); // Green
+            healthBar.setForeground(new Color(102, 255, 51));
         } else if (healthPercentage >= 0.3) {
-            healthBar.setForeground(new Color(255, 224, 82)); // Yellow
+            healthBar.setForeground(new Color(255, 224, 82));
         } else {
-            healthBar.setForeground(Color.RED); // Red
+            healthBar.setForeground(Color.RED);
         }
+    }
+
+    private void animateExpBar(JProgressBar expBar, int currentExp, int maxExp, int duration) {
+        int startValue = expBar.getValue();
+        int endValue = Math.min(currentExp, maxExp);
+
+        int totalFrames = duration / 10;
+        double increment = (double) (endValue - startValue) / totalFrames;
+        int delay = duration / totalFrames;
+
+        Timer timer = new Timer(delay, null);
+        timer.addActionListener(new ActionListener() {
+            int frameCount = 0;
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                double value = startValue + increment * frameCount;
+                expBar.setValue((int) value);
+                expBar.setForeground(Color.BLUE);
+
+                frameCount++;
+                if (frameCount >= totalFrames) {
+                    timer.stop();
+                    expBar.repaint();
+                    if (expBar.getValue() >= maxExp) {
+                        resetExpBar(expBar, maxExp, duration);
+                    }
+                } else {
+                    expBar.repaint();
+                }
+            }
+        });
+
+        if (endValue == maxExp) {
+            expBar.setValue(0);
+            timer.setInitialDelay(150);
+        } else {
+            timer.setInitialDelay(0);
+        }
+
+        timer.start();
+    }
+
+    private void resetExpBar(JProgressBar expBar, int currentExp, int duration) {
+        int startValue = expBar.getValue();
+        int endValue = 0;
+
+        int totalFrames = duration / 10;
+        double increment = (double) (endValue - startValue) / totalFrames;
+        int delay = duration / totalFrames;
+        int maxExp = getLevelUpExperience(playerLevel);
+
+        Timer timer = new Timer(delay, null);
+        timer.addActionListener(new ActionListener() {
+            int frameCount = 0;
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                double value = startValue + increment * frameCount;
+                expBar.setValue((int) value);
+                expBar.setForeground(Color.BLUE);
+
+                frameCount++;
+                if (frameCount >= totalFrames) {
+                    timer.stop();
+                    expBar.repaint();
+                    if (expBar.getValue() >= maxExp) {
+                        try {
+                            Thread.sleep(50);
+                        } catch (InterruptedException ex) {
+                            ex.printStackTrace();
+                        }
+                        animateExpBar(expBar, currentExp, maxExp, duration);
+                    }
+                } else {
+                    expBar.repaint();
+                }
+            }
+        });
+
+        timer.setInitialDelay(0);
+        timer.start();
     }
 
     private void performMove(MovePool.Move move) {
@@ -918,7 +1013,6 @@ public class GamePanel extends JPanel {
         if (enemyCurrentHealth <= 0) {
             inBattle = false;
             fadeOutBattleMusic();
-            playEnemyDefeatedSound();
         }
     }
 
@@ -1179,6 +1273,7 @@ public class GamePanel extends JPanel {
     }
 
     private void playEvolveSound() {
+        animateLevelUp(playerLabel);
         try {
             File soundFile = new File("media/audio/evolve.wav");
             AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(soundFile);
@@ -1238,8 +1333,8 @@ public class GamePanel extends JPanel {
         }
     }
 
-    private void animateLevelUp() {
-        Color originalColor = playerLevelLabel.getForeground();
+    private void animateLevelUp(JLabel label) {
+        Color originalColor = label.getForeground();
         Color highlightColor = Color.YELLOW;
         int animationDuration = 1000;
         int animationInterval = 110;
@@ -1254,13 +1349,13 @@ public class GamePanel extends JPanel {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         if (iteration % 2 == 0) {
-                            playerLevelLabel.setForeground(highlightColor);
+                            label.setForeground(highlightColor);
                         } else {
-                            playerLevelLabel.setForeground(originalColor);
+                            label.setForeground(originalColor);
                         }
                         iteration++;
                         if (iteration >= numIterations) {
-                            playerLevelLabel.setForeground(originalColor);
+                            label.setForeground(originalColor);
                             ((Timer) e.getSource()).stop();
                         }
                     }

@@ -14,6 +14,8 @@ public class ShopPanel extends JPanel {
     private Clip buySoundClip;
     private Clip buttonClickSoundClip;
     private JLabel pesosLabel;
+    private JPanel itemsPanel;
+    boolean rugbySoldOut = false;
 
     public ShopPanel(GamePanel gamePanel) {
         preloadSounds();
@@ -52,9 +54,11 @@ public class ShopPanel extends JPanel {
         topPanel.add(imagePanel, BorderLayout.CENTER);
         shopContentPanel.add(topPanel, BorderLayout.NORTH);
 
-        JPanel itemsPanel = new JPanel(new GridLayout(3, 3, 10, 10));
+        itemsPanel = new JPanel(new GridLayout(3, 3, 10, 10));
         itemsPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
         itemsPanel.setOpaque(false);
+
+        refreshShopPanel();
 
         String[] itemNames = {
                 "Ice-y Tubig",
@@ -66,6 +70,18 @@ public class ShopPanel extends JPanel {
                 "Bye-gon",
                 "Mouse Trap",
                 "Infinity Edge"
+        };
+
+        String[] itemDescriptions = {
+                "Drinking this can make your health TUBIG!",
+                "Pag may Shtick-O, matik SWERTE!",
+                "EXP BOOST ba ang hanap mo, bili na ng COKE OMSIM!",
+                "Class-A Anti-Rabies m̶a̶d̶e̶ ̶f̶r̶o̶m̶ ̶a̶ ̶s̶h̶a̶d̶y̶ ̶f̶a̶c̶t̶o̶r̶y̶",
+                "The Kalye's #1 seller.",
+                "Mosquito sucks. Buy Dengue Vaccine!",
+                "All-purpose Bye-gon cleaner.",
+                "The most effective Mouse Trap ever.",
+                "Infinity Edge for Infinite Powers."
         };
 
         for (int i = 0; i < itemNames.length; i++) {
@@ -90,11 +106,14 @@ public class ShopPanel extends JPanel {
             JButton buyButton = new JButton("BUY");
             itemPanel.add(buyButton, BorderLayout.EAST);
 
-            if (gamePanel.getPesos() < ((i + 1) * 10)) {
+            String itemDescription = itemDescriptions[i];
+            itemPanel.setToolTipText(itemDescription);
+
+            if (gamePanel.getPesos() < ((i + 1) * 10) || (i == 4 && rugbySoldOut)) {
                 buyButton.setEnabled(false);
             } else {
-
                 int itemIndex = i;
+
                 buyButton.addActionListener(e -> {
                     playBuySound();
                     int price = (itemIndex + 1) * 10;
@@ -102,19 +121,53 @@ public class ShopPanel extends JPanel {
 
                     switch (itemIndex) {
                         case 0: // Ice-y Tubig
-                            gamePanel.setPlayerCurrentHealth(gamePanel.getPlayerCurrentHealth() + 10);
+                            gamePanel.setPlayerCurrentHealth(gamePanel.getPlayerCurrentHealth() + 5);
+                            gamePanel.updateHealthBars();
+                            refreshShopPanel();
                             break;
                         case 1: // Shtick-O
-                            gamePanel.setPlayerCurrentHealth(gamePanel.getPlayerCurrentHealth() + 30);
+                            gamePanel.setPlayerCurrentHealth(gamePanel.getPlayerCurrentHealth() + 15);
+                            refreshShopPanel();
                             break;
                         case 2: // Coke Omsim
-                            gamePanel.setPlayerCurrentHealth(gamePanel.getPlayerCurrentHealth() + 50);
+                            gamePanel.experience += 50;
+                            int levelUpExp = gamePanel.getLevelUpExperience(gamePanel.playerLevel);
+                            if (gamePanel.experience >= levelUpExp) {
+                                gamePanel.playerLevel++;
+                                gamePanel.experience -= levelUpExp;
+                                gamePanel.evolvePokeKalye();
+                                gamePanel.animateLevelUp(gamePanel.playerLevelLabel);
+                                gamePanel.playLevelUpSound();
+                            }
+                            refreshShopPanel();
+                            pesosLabel.setText("GCash: " + gamePanel.getPesos() + " pesos");
+                            gamePanel.playerExpBar.setMaximum(gamePanel.getLevelUpExperience(gamePanel.playerLevel));
+                            gamePanel.animateExpBar(gamePanel.playerExpBar, gamePanel.experience,
+                                    gamePanel.getLevelUpExperience(gamePanel.playerLevel), 600);
+                            gamePanel.playerLevelLabel.setText("LVL " + gamePanel.playerLevel);
                             break;
-                        // Add cases for other items
+                        case 3: // Rabies Vaccine
+                            gamePanel.setRabiesVaccinated(true);
+                            refreshShopPanel();
+                            break;
+                        case 4: // Rugby
+                            if (!rugbySoldOut) {
+                                gamePanel.setRugbied(true);
+                                gamePanel.evolvePokeKalye();
+                                rugbySoldOut = true;
+                                buyButton.setEnabled(false);
+                                refreshShopPanel();
+                            }
+                            refreshShopPanel();
+                            break;
+                        case 5: // Infinity Edge
+                            gamePanel.setDamageMultiplier(gamePanel.getDamageMultiplier() * 2);
+                            refreshShopPanel();
+                            break;
                     }
+                    buyButton.setEnabled(false);
                     pesosLabel.setText("GCash: " + gamePanel.getPesos() + " pesos");
                     gamePanel.updateHealthBars();
-                    // buyButton.setEnabled(false);
                 });
             }
 
@@ -139,6 +192,7 @@ public class ShopPanel extends JPanel {
             frame.pack();
             frame.revalidate();
             frame.repaint();
+            refreshShopPanel();
         });
         backButton.setBackground(Color.WHITE);
         backButton.setForeground(Color.BLACK);
@@ -244,4 +298,24 @@ public class ShopPanel extends JPanel {
         button.setBackground(Color.WHITE);
         button.setForeground(Color.BLACK);
     }
+
+    private void refreshShopPanel() {
+        for (Component component : itemsPanel.getComponents()) {
+            if (component instanceof JPanel) {
+                JPanel itemPanel = (JPanel) component;
+                JButton buyButton = (JButton) itemPanel.getComponent(3);
+                int itemIndex = itemsPanel.getComponentZOrder(itemPanel);
+
+                if ((gamePanel.getPesos() < ((itemIndex + 1) * 10)) || (itemIndex == 4 && rugbySoldOut)) {
+                    buyButton.setEnabled(false);
+                } else {
+                    buyButton.setEnabled(true);
+                }
+            }
+        }
+
+        pesosLabel.setText("GCash: " + gamePanel.getPesos() + " pesos");
+        repaint();
+    }
+
 }

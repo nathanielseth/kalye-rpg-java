@@ -160,7 +160,22 @@ public class ShopPanel extends JPanel {
                             }
                             refreshShopPanel();
                             break;
-                        case 5: // Infinity Edge
+                        case 5: // Dengue Vaccine
+                            refreshShopPanel();
+                            gamePanel.stopDengueTimer();
+                            boolean dengueCleared = gamePanel.setDengue(false);
+                            if (!dengueCleared) {
+                                gamePanel.stopDengueSound();
+                                gamePanel.removeDengueIcon();
+                            }
+                            break;
+                        case 6: // Bye-gon
+                            refreshShopPanel();
+                            break;
+                        case 7: // Mouse Trap
+                            refreshShopPanel();
+                            break;
+                        case 8: // Infinity Edge
                             gamePanel.setDamageMultiplier(gamePanel.getDamageMultiplier() * 2);
                             refreshShopPanel();
                             break;

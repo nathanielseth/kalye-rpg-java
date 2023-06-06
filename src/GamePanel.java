@@ -68,12 +68,20 @@ public class GamePanel extends JPanel {
     private static Clip burrowSoundClip;
     private static Clip missSoundClip;
     private static Clip barkSoundClip;
-    private boolean playerHasRabiesEffect = false;
+    private static Clip dengueSoundClip;
+    private boolean hasRabies = false;
     private boolean rabiesVaccinated = false;
     private boolean rugbied;
     private double damageMultiplier = 1.0;
     private JLabel yourPokeKalyeDamageLabel;
     private JLabel enemyDamageLabel;
+    private boolean hasDengue = false;
+    private Timer dengueTimer;
+    private int dengueDamage = 1;
+    private int dengueInterval = 10000;
+    private long dengueStartTime;
+    private ImageIcon emptyIcon = new ImageIcon("media/images/empty.png");
+    private ImageIcon dengueIcon = new ImageIcon("media/images/dengue.png");
 
     void showIntroScreen() {
         this.setBackground(Color.BLACK);
@@ -155,11 +163,11 @@ public class GamePanel extends JPanel {
         playerLevelLabel.setFont(new Font("Impact", Font.PLAIN, 12));
         ImageIcon rabiesIcon = new ImageIcon("empty.png");
         JLabel rabiesLabel = new JLabel(rabiesIcon);
-        rabiesLabel.setToolTipText(selectedPokeKalye + " is infected with rabies.");
-
+        JLabel emptyLabel = new JLabel(emptyIcon);
         playerPanel.add(playerExpBar);
         playerPanel.add(playerLevelLabel);
         playerPanel.add(rabiesLabel);
+        playerPanel.add(emptyLabel);
 
         JPanel imagePanel = new JPanel() {
             @Override
@@ -346,15 +354,7 @@ public class GamePanel extends JPanel {
             timer.start();
             clearDialogue();
         } else if (playerCurrentHealth <= 0 && !gameOver) {
-            fadeOutBattleMusic();
-            gameOver = true;
-            GameOverPanel gameOverScreen = new GameOverPanel();
-            JFrame currentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
-            currentFrame.getContentPane().removeAll();
-            currentFrame.setContentPane(gameOverScreen);
-            currentFrame.pack();
-            currentFrame.revalidate();
-            currentFrame.repaint();
+            playerDefeat();
         }
     }
 
@@ -768,6 +768,16 @@ public class GamePanel extends JPanel {
         System.out.println("Enemy HP: " + enemyCurrentHealth + "/" + enemyMaxHealth);
         System.out.println("Player HP: " + playerCurrentHealth + "/" + playerMaxHealth);
 
+        if (hasDengue) {
+            int elapsedTimeInSeconds = (int) ((System.currentTimeMillis() - dengueStartTime) / 1000);
+            int damageTaken = elapsedTimeInSeconds / 30;
+            playerCurrentHealth -= damageTaken;
+
+            if (playerCurrentHealth < 0) {
+                playerCurrentHealth = 0;
+            }
+        }
+
         this.playerCurrentHealth = playerCurrentHealth;
         this.enemyCurrentHealth = enemyCurrentHealth;
     }
@@ -970,7 +980,7 @@ public class GamePanel extends JPanel {
         if (Math.random() <= chance) {
             int damage = move.getDamage();
 
-            if (playerHasRabiesEffect) {
+            if (hasRabies) {
                 int maxPlayerHealth = getMaxHealth(playerData);
                 if (playerCurrentHealth + 10 > maxPlayerHealth) {
                     playerCurrentHealth = maxPlayerHealth;
@@ -1028,14 +1038,13 @@ public class GamePanel extends JPanel {
         }
         damage *= damageMultiplier;
 
-        // Check if damageMultiplier is greater than 1.0
         if (damageMultiplier > 1.0) {
             int additionalDamage = (int) (Math.random() * 10) + 1;
             damage += additionalDamage;
         }
 
         if (Math.random() <= chance) {
-            if (playerHasRabiesEffect) {
+            if (hasRabies) {
                 damage += 3;
                 playerCurrentHealth -= 3;
                 updateHealthBars();
@@ -1088,6 +1097,8 @@ public class GamePanel extends JPanel {
                 performEnemyBiteMove(enemyMove, chance);
             } else if (enemyMoveName.equals("Purr")) {
                 performEnemyPurrMove(enemyMove);
+            } else if (enemyMoveName.equals("Suck")) {
+                performEnemySuckMove(enemyMove);
             } else {
                 performEnemyRegularMove(enemyMove, chance);
             }
@@ -1099,6 +1110,37 @@ public class GamePanel extends JPanel {
         }
     }
 
+    private void performEnemySuckMove(MovePool.Move move) {
+        int damage = move.getDamage();
+        playerCurrentHealth -= damage;
+
+        if (Math.random() <= 0.2) {
+            applyDengueStatusEffect();
+            Component[] components = playerPanel.getComponents();
+            for (Component component : components) {
+                if (component instanceof JLabel) {
+                    JLabel label = (JLabel) component;
+                    Icon icon = label.getIcon();
+                    if (icon != null && icon.equals(emptyIcon)) {
+                        label.setIcon(dengueIcon);
+                        label.setToolTipText(selectedPokeKalye + " has suffered from Dengue.");
+                        break;
+                    }
+                }
+            }
+        }
+
+        updateHealthBars();
+        dialogueArea.append("\n " + enemyPokeKalye + " used " + move.getName() + "!");
+        System.out.println("Player HP: " + playerCurrentHealth + "/" + getMaxHealth(playerData));
+        System.out.println("Enemy HP: " + enemyCurrentHealth + "/" + getMaxHealth(enemyData));
+
+        if (damage > 0) {
+            animateDamageBlink(yourPokeKalyeImage);
+            playDamageSound(damage);
+        }
+    }
+
     private void performEnemyFleeMove(MovePool.Move move) {
         fadeOutBattleMusic();
         clearDialogue();
@@ -1107,6 +1149,79 @@ public class GamePanel extends JPanel {
         restoreButtons();
         appendToDialogue(enemyPokeKalye + " fled from\n the battle!");
         playFleeUpSound();
+    }
+
+    private void applyDengueStatusEffect() {
+        hasDengue = true;
+        dengueStartTime = System.currentTimeMillis();
+        startDengueTimer();
+    }
+
+    private void startDengueTimer() {
+        playDengueSound();
+        dengueTimer = new Timer(dengueInterval, e -> {
+            playerCurrentHealth -= dengueDamage;
+            updateHealthBars();
+            if (playerCurrentHealth <= 0) {
+                playerDefeat();
+                stopDengueTimer();
+            }
+        });
+        dengueTimer.start();
+    }
+
+    void stopDengueTimer() {
+        stopDengueSound();
+
+        if (dengueTimer != null && dengueTimer.isRunning()) {
+            dengueTimer.stop();
+        }
+    }
+
+    private void playDengueSound() {
+        try {
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("media/audio/dengue.wav"));
+            dengueSoundClip = AudioSystem.getClip();
+            dengueSoundClip.open(audioInputStream);
+            dengueSoundClip.loop(Clip.LOOP_CONTINUOUSLY);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    void stopDengueSound() {
+        if (dengueSoundClip != null && dengueSoundClip.isRunning()) {
+            dengueSoundClip.stop();
+            dengueSoundClip.close();
+        }
+    }
+
+    public boolean setDengue(boolean dengue) {
+        if (dengue != hasDengue) {
+            hasDengue = dengue;
+            if (!hasDengue) {
+                stopDengueTimer();
+                stopDengueSound();
+                removeDengueIcon();
+            }
+            return false;
+        }
+        return true;
+    }
+
+    void removeDengueIcon() {
+        Component[] components = playerPanel.getComponents();
+        for (Component component : components) {
+            if (component instanceof JLabel) {
+                JLabel label = (JLabel) component;
+                Icon icon = label.getIcon();
+                if (icon != null && icon.equals(dengueIcon)) {
+                    label.setIcon(emptyIcon);
+                    label.setToolTipText(null);
+                    break;
+                }
+            }
+        }
     }
 
     private void performEnemyPurrMove(MovePool.Move move) {
@@ -1160,7 +1275,7 @@ public class GamePanel extends JPanel {
 
         if (Math.random() <= chance) {
             if (!rabiesVaccinated && Math.random() <= 0.3) {
-                playerHasRabiesEffect = true;
+                hasRabies = true;
                 Component[] components = playerPanel.getComponents();
                 for (Component component : components) {
                     if (component instanceof JLabel) {
@@ -1171,6 +1286,7 @@ public class GamePanel extends JPanel {
                             Image image = rabiesIcon.getImage().getScaledInstance(16, 16, Image.SCALE_DEFAULT);
                             rabiesIcon = new ImageIcon(image);
                             label.setIcon(rabiesIcon);
+                            label.setToolTipText(selectedPokeKalye + " is infected with rabies.");
                             break;
                         }
                     }
@@ -1273,6 +1389,7 @@ public class GamePanel extends JPanel {
             File burrowSoundFile = new File("media/audio/burrow.wav");
             File missSoundFile = new File("media/audio/miss.wav");
             File barkSoundFile = new File("media/audio/bark.wav");
+            File dengueSoundFile = new File("media/audio/dengue.wav");
 
             clickSoundClip = preloadClip(clickSoundFile);
             koSoundClip = preloadClip(koSoundFile);
@@ -1285,6 +1402,7 @@ public class GamePanel extends JPanel {
             burrowSoundClip = preloadClip(burrowSoundFile);
             missSoundClip = preloadClip(missSoundFile);
             barkSoundClip = preloadClip(barkSoundFile);
+            dengueSoundClip = preloadClip(dengueSoundFile);
         } catch (IOException | LineUnavailableException | UnsupportedAudioFileException e) {
             e.printStackTrace();
         }
@@ -1639,5 +1757,17 @@ public class GamePanel extends JPanel {
             label.setLocation(originalX, originalY);
         });
         thread.start();
+    }
+
+    public void playerDefeat() {
+        fadeOutBattleMusic();
+        gameOver = true;
+        GameOverPanel gameOverScreen = new GameOverPanel();
+        JFrame currentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
+        currentFrame.getContentPane().removeAll();
+        currentFrame.setContentPane(gameOverScreen);
+        currentFrame.pack();
+        currentFrame.revalidate();
+        currentFrame.repaint();
     }
 }

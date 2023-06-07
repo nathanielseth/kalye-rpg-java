@@ -134,7 +134,7 @@ public class Search {
                     "Puspin", "Tutubi", "Paro-paro" };
             String[] moderateEnemies = { "Paniki", "Antik", "Higad", "Salagubang", "Manok", "Ahas", "Tipaklong",
                     "Colored Sisiw", "Tuko", "Bubuyog", "Mandarangkal" };
-            String[] rareEnemies = { "Kambing", "Kabayo", "Daga" };
+            String[] rareEnemies = { "Kabayo", "Daga" };
 
             double random = Math.random();
             if (random < 0.05) {

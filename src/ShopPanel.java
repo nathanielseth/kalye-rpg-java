@@ -73,15 +73,15 @@ public class ShopPanel extends JPanel {
         };
 
         String[] itemDescriptions = {
-                "Drinking this can make your health TUBIG!",
+                "Drinking this can make your experience TUBIG!",
                 "Pag may Shtick-O, matik SWERTE!",
-                "EXP BOOST ba ang hanap mo, bili na ng COKE OMSIM!",
+                "Pampahaba ng buhay ang COKE OMSIM! Bili na!",
                 "Class-A Anti-Rabies m̶a̶d̶e̶ ̶f̶r̶o̶m̶ ̶a̶ ̶s̶h̶a̶d̶y̶ ̶f̶a̶c̶t̶o̶r̶y̶",
                 "The Kalye's #1 seller.",
                 "Mosquito sucks. Buy Dengue Vaccine!",
-                "All-purpose Bye-gon cleaner.",
-                "The most effective Mouse Trap ever.",
-                "Infinity Edge for Infinite Powers."
+                "Sa Bye-gon.. Crit chance, TATAAS!",
+                "Legends say it increases crit damage.",
+                "Infinity Edge for Infinite Powers. Double your damage."
         };
 
         for (int i = 0; i < itemNames.length; i++) {
@@ -121,15 +121,6 @@ public class ShopPanel extends JPanel {
 
                     switch (itemIndex) {
                         case 0: // Ice-y Tubig
-                            gamePanel.setPlayerCurrentHealth(gamePanel.getPlayerCurrentHealth() + 5);
-                            gamePanel.updateHealthBars();
-                            refreshShopPanel();
-                            break;
-                        case 1: // Shtick-O
-                            gamePanel.setPlayerCurrentHealth(gamePanel.getPlayerCurrentHealth() + 15);
-                            refreshShopPanel();
-                            break;
-                        case 2: // Coke Omsim
                             gamePanel.experience += 50;
                             int levelUpExp = gamePanel.getLevelUpExperience(gamePanel.playerLevel);
                             if (gamePanel.experience >= levelUpExp) {
@@ -145,6 +136,18 @@ public class ShopPanel extends JPanel {
                             gamePanel.animateExpBar(gamePanel.playerExpBar, gamePanel.experience,
                                     gamePanel.getLevelUpExperience(gamePanel.playerLevel), 600);
                             gamePanel.playerLevelLabel.setText("LVL " + gamePanel.playerLevel);
+                            break;
+                        case 1: // Shtick-O
+                            gamePanel.increaseEarnedPesosMaxValue(5);
+                            gamePanel.increaseLuck(50);
+                            refreshShopPanel();
+                            break;
+                        case 2: // Coke Omsim
+                            int healthIncrease = 15;
+                            gamePanel.setPlayerCurrentHealth(gamePanel.getPlayerCurrentHealth() + healthIncrease);
+                            gamePanel.setPlayerMaxHealth(gamePanel.getPlayerMaxHealth() + healthIncrease);
+                            gamePanel.updateHealthBars();
+                            refreshShopPanel();
                             break;
                         case 3: // Rabies Vaccine
                             gamePanel.setRabiesVaccinated(true);
@@ -170,9 +173,11 @@ public class ShopPanel extends JPanel {
                             }
                             break;
                         case 6: // Bye-gon
+                            gamePanel.increaseCritRateModifier(0.04);
                             refreshShopPanel();
                             break;
                         case 7: // Mouse Trap
+                            gamePanel.increaseCritDamageModifier(10);
                             refreshShopPanel();
                             break;
                         case 8: // Infinity Edge
@@ -180,7 +185,7 @@ public class ShopPanel extends JPanel {
                             refreshShopPanel();
                             break;
                     }
-                    buyButton.setEnabled(false);
+                    // buyButton.setEnabled(false);
                     pesosLabel.setText("GCash: " + gamePanel.getPesos() + " pesos");
                     gamePanel.updateHealthBars();
                 });

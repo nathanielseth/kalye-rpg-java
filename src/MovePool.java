@@ -1,17 +1,17 @@
 public class MovePool {
     public static final Move KALMOT = new Move("Kalmot", 7, false, 1);
     public static final Move FLEE = new Move("Flee", 0, true, 0.8);
-    public static final Move PURR = new Move("Purr", 0, false, 0.99, Effect.HEAL_HP);
-    public static final Move SNEAK_ATTACK = new Move("Sneak Attack", 50, false, 1);
+    public static final Move PURR = new Move("Purr", 0, false, 0.8, Effect.HEAL_HP);
+    public static final Move SNEAK_ATTACK = new Move("Sneak Attack", 50, false, 0.5);
     public static final Move BITE = new Move("Bite", 4, false, 1, Effect.RABIES);
     public static final Move BITE_TUTA = new Move("Bite", 5, false, 0.7);
     public static final Move TAHOL = new Move("Tahol", 0, true, 1, Effect.MULTIPLY_DAMAGE);
-    public static final Move SPEAR = new Move("Spear", 10, false, 0.7);
-    public static final Move OUTRAGE = new Move("Outrage", 20, false, 1);
+    public static final Move SPEAR = new Move("Spear", 10, false, 0.9);
+    public static final Move OUTRAGE = new Move("Outrage", 40, false, 0.45);
     public static final Move KAGAT = new Move("Kagat", 5, false, 1);
     public static final Move BURROW = new Move("Burrow", 3, true, 0.7, Effect.DODGE_NEXT_MOVE);
-    public static Move GANG_UP = new Move("Gang Up", 10, false, 0.8, Effect.REPEAT_MOVE);
-    public static final Move QUANTUM_BITE = new Move("Quantum Bite", 30, false, 1);
+    public static Move GANG_UP = new Move("Gang Up", 1, false, 0.8, Effect.REPEAT_MOVE);
+    public static final Move QUANTUM_BITE = new Move("Quantum Bite", 40, false, 1);
     public static final Move SCRATCH = new Move("Scratch", 1, false, 0.9);
     public static final Move DAPO = new Move("Dapo", 2, false, 0.7);
     public static final Move DAPO_FLYING = new Move("Dapo", 4, false, 1);

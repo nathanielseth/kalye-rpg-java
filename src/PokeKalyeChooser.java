@@ -23,6 +23,7 @@ public class PokeKalyeChooser extends JFrame {
     private static Clip askalCrySound;
     private static Clip langgamCrySound;
     private Clip musicClip;
+    private Clip currentCrySound;
 
     public PokeKalyeChooser() {
         setTitle("KalyeRPG");
@@ -192,6 +193,7 @@ public class PokeKalyeChooser extends JFrame {
     }
 
     private void updateSelectedPokekalyeLabel(JRadioButton selectedRadioButton) {
+        stopCurrentCrySound();
         if (selectedRadioButton == puspinRadioButton) {
             selectedPokeKalyeLabel.setText("THICC AND QUICC");
             playPuspinCrySound();
@@ -242,6 +244,7 @@ public class PokeKalyeChooser extends JFrame {
         if (puspinCrySound != null) {
             puspinCrySound.setFramePosition(0);
             puspinCrySound.start();
+            currentCrySound = puspinCrySound;
         }
     }
 
@@ -249,6 +252,7 @@ public class PokeKalyeChooser extends JFrame {
         if (askalCrySound != null) {
             askalCrySound.setFramePosition(0);
             askalCrySound.start();
+            currentCrySound = askalCrySound;
         }
     }
 
@@ -256,6 +260,13 @@ public class PokeKalyeChooser extends JFrame {
         if (langgamCrySound != null) {
             langgamCrySound.setFramePosition(0);
             langgamCrySound.start();
+            currentCrySound = langgamCrySound;
+        }
+    }
+
+    private void stopCurrentCrySound() {
+        if (currentCrySound != null && currentCrySound.isRunning()) {
+            currentCrySound.stop();
         }
     }
 

@@ -1,6 +1,8 @@
 import javax.swing.JPanel;
 import javax.swing.JLabel;
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -9,6 +11,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.RenderingHints;
 import java.awt.Window;
 
@@ -40,8 +43,10 @@ public class GameOverPanel extends JPanel {
     private static final int FADE_IN_DURATION = 5000;
     private static final int ANIMATION_DELAY = 3500;
     private static final String QUIT_TEXT = "ESC to quit, ENTER to try again.";
+    private GamePanel gamePanel;
 
     private JLabel randomTextLabel;
+    private JLabel imageLabel;
     private JLabel quitTextLabel;
     private float alpha;
     private String[] randomTexts = {
@@ -49,13 +54,15 @@ public class GameOverPanel extends JPanel {
             "olats...!",
             "bounce back lang...!",
             "Professor Kalye is disappointed...",
-            "so that's it huh...?"
+            "so that's it huh...?",
+            "and you can give... and you can give..."
     };
     private Timer fadeInTimer;
     private Timer typingTimer;
     private Clip musicClip;
 
-    public GameOverPanel() {
+    public GameOverPanel(GamePanel gamePanel) {
+        this.gamePanel = gamePanel;
         setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
 
         randomTextLabel = new JLabel();
@@ -68,6 +75,10 @@ public class GameOverPanel extends JPanel {
 
         setLayout(new GridBagLayout());
         setBackground(BACKGROUND_COLOR);
+
+        String pokeKalyeName = gamePanel.getPokeKalyeName();
+        imageLabel = new JLabel(new ImageIcon("media/images/" + pokeKalyeName + "1.png"));
+        addImageLabel();
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
@@ -205,5 +216,17 @@ public class GameOverPanel extends JPanel {
         if (musicClip != null && musicClip.isRunning()) {
             musicClip.stop();
         }
+    }
+
+    private void addImageLabel() {
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = new Insets(-90, 0, 20, 0);
+
+        add(imageLabel, gbc);
     }
 }

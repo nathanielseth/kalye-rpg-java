@@ -1,3 +1,4 @@
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
@@ -10,9 +11,13 @@ public class Game {
         String playerName = professor.getPlayerName();
         String selectedPokeKalye = PokeKalyeChooser.getSelectedPokeKalye();
 
+        String iconPath = "media/images/KalyeRPG.png";
+        ImageIcon icon = new ImageIcon(iconPath);
+
         JFrame frame = new JFrame("KalyeRPG");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setResizable(false);
+        frame.setIconImage(icon.getImage());
 
         frame.setPreferredSize(new Dimension(600, 400));
 
@@ -28,13 +33,12 @@ public class Game {
 
         GamePanel gamePanel = new GamePanel(playerName, selectedPokeKalye);
 
-        SwingUtilities.invokeLater(() -> {
-            gamePanel.showIntroScreen();
-        });
-
         frame.getContentPane().add(gamePanel);
 
-        frame.pack();
-        frame.setVisible(true);
+        SwingUtilities.invokeLater(() -> {
+            frame.pack();
+            frame.setVisible(true);
+            gamePanel.showIntroScreen();
+        });
     }
 }

@@ -66,9 +66,16 @@ public class Search {
                         String enemyPokeKalye = getRandomEnemyPokeKalye();
                         gamePanel.setEnemyImage(enemyPokeKalye);
 
-                        String dialogue = " " + enemyPokeKalye + " has appeared!\n What will "
-                                + gamePanel.getPokeKalyeName()
-                                + " do?";
+                        String dialogue;
+                        if (enemyPokeKalye.length() > 8) {
+                            dialogue = " A " + enemyPokeKalye + "!\n What will "
+                                    + gamePanel.getPokeKalyeName()
+                                    + " do?";
+                        } else {
+                            dialogue = " " + enemyPokeKalye + " has appeared!\n What will "
+                                    + gamePanel.getPokeKalyeName()
+                                    + " do?";
+                        }
                         gamePanel.setDialogueText(dialogue);
 
                         currentlySearching = false;
@@ -94,7 +101,7 @@ public class Search {
 
     private void playSearchSound() {
         try {
-            searchClip.setFramePosition(0); // Set the frame position to the beginning
+            searchClip.setFramePosition(0);
             searchClip.loop(Clip.LOOP_CONTINUOUSLY);
             while (currentlySearching && !gamePanel.isInBattle()) {
                 Thread.sleep(100);
@@ -130,7 +137,7 @@ public class Search {
             }
         } else if (level >= 10 && level <= 19) {
             String[] veryCommonEnemies = { "Askal", "Palaka" };
-            String[] commonEnemies = { "Flying ipis", "Dagang Kanal", "Bangaw",
+            String[] commonEnemies = { "Flying Ipis", "Dagang Kanal", "Bangaw",
                     "Puspin", "Tutubi", "Paro-paro" };
             String[] moderateEnemies = { "Paniki", "Antik", "Higad", "Salagubang", "Manok", "Ahas", "Tipaklong",
                     "Colored Sisiw", "Tuko", "Bubuyog", "Mandarangkal" };
@@ -147,7 +154,7 @@ public class Search {
                 return getRandomArrayElement(veryCommonEnemies);
             }
         }
-        return "Splinter";
+        return "Professor Splinter";
     }
 
     private String getRandomArrayElement(String[] array) {
@@ -163,7 +170,7 @@ public class Search {
             dots.append(".");
         }
         searchingText = "SEARCHING" + dots;
-        int delay = 153;
+        int delay = 152;
         animationTimer.setDelay(delay);
     }
 }

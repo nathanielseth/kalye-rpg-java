@@ -7,9 +7,12 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.io.File;
 import java.io.IOException;
 
@@ -29,7 +32,7 @@ public class GamePanel extends JPanel {
     private JLabel playerLabel;
     private JPanel playerPanel;
     private JPanel imagePanel;
-    private JProgressBar playerHealthBar;
+    JProgressBar playerHealthBar;
     private int playerCurrentHealth;
     private int playerMaxHealth;
     private JLabel enemyLabel;
@@ -38,7 +41,7 @@ public class GamePanel extends JPanel {
     private JButton movesButton;
     private JButton searchButton;
     private JButton settingsButton;
-    private JButton sariSariButton;
+    JButton sariSariButton;
     private String selectedPokeKalye;
     private boolean inBattle;
     private String enemyPokeKalye = "";
@@ -67,11 +70,11 @@ public class GamePanel extends JPanel {
     private static Clip lowHitSoundClip;
     private static Clip medHitSoundClip;
     private static Clip highHitSoundClip;
-    private static Clip hpDownSoundClip;
     private static Clip burrowSoundClip;
     private static Clip missSoundClip;
     private static Clip barkSoundClip;
     private static Clip dengueSoundClip;
+    private static Clip introSoundClip;
     private boolean hasRabies = false;
     private boolean rabiesVaccinated = false;
     private boolean rugbied;
@@ -83,8 +86,6 @@ public class GamePanel extends JPanel {
     private int dengueDamage = 1;
     private int dengueInterval = 10000;
     private long dengueStartTime;
-    private ImageIcon emptyIcon = new ImageIcon("media/images/empty.png");
-    private ImageIcon dengueIcon = new ImageIcon("media/images/dengue.png");
     private boolean purrOnCooldown = false;
     private int purrCooldown = 0;
     private double critRateModifier = 0.0;
@@ -92,6 +93,9 @@ public class GamePanel extends JPanel {
     private int earnedPesosMaxValue = 10;
     private int luck = 0;
     private JLabel luckyCatButton;
+    private boolean isShopOpen = false;
+    private ImageIcon emptyIcon = new ImageIcon("media/images/empty.png");
+    private ImageIcon dengueIcon = new ImageIcon("media/images/dengue.png");
 
     void showIntroScreen() {
         this.setBackground(Color.BLACK);
@@ -110,7 +114,6 @@ public class GamePanel extends JPanel {
         introFrame.pack();
         introFrame.setLocationRelativeTo(null);
         introFrame.setVisible(true);
-
         Timer timer = new Timer(2000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -132,6 +135,7 @@ public class GamePanel extends JPanel {
         this.playerCurrentHealth = getMaxHealth(playerData);
         search = new Search(this);
         preloadSounds();
+        showIntroScreen();
 
         playerMaxHealth = getMaxHealth(playerData);
         int enemyMaxHealth = getMaxHealth(enemyData);
@@ -224,6 +228,7 @@ public class GamePanel extends JPanel {
         enemyHealthBar = new JProgressBar(0, enemyMaxHealth);
         enemyHealthBar.setBorder(blackBorder);
         enemyHealthBar.setPreferredSize(new Dimension(140, 16));
+
         enemyLabel = new JLabel(enemyData.getName().toUpperCase());
         enemyLabel.setForeground(Color.WHITE);
 
@@ -307,9 +312,16 @@ public class GamePanel extends JPanel {
             @Override
             public void mouseClicked(MouseEvent e) {
                 playLuckyCatSound();
-                int pesoAmount = luckyRandom(10, 50);
+                int pesoAmount = luckyRandom(1, 40);
                 increasePesos(pesoAmount);
                 luckyCatButton.setVisible(false);
+                if (Math.random() < 0.6) {
+                    int healthIncrease = luckyRandom(1, 40);
+                    if (getPlayerCurrentHealth() < getPlayerMaxHealth()) {
+                        setPlayerCurrentHealth(getPlayerCurrentHealth() + healthIncrease);
+                    }
+                    updateHealthBars();
+                }
             }
         });
 
@@ -333,20 +345,28 @@ public class GamePanel extends JPanel {
         });
         searchButton.addActionListener(e -> {
             luckyCatButton.setVisible(false);
+            searchButton.setEnabled(false);
+            sariSariButton.setBackground(Color.WHITE);
             search.performSearch();
             playButtonClickSound();
         });
         settingsButton.addActionListener(e -> {
             openSettingsPanel();
             playButtonClickSound();
+            repaint();
+            revalidate();
         });
         sariSariButton.addActionListener(e -> {
+            isShopOpen = true;
+            pauseMusic();
             openShopPanel();
             playButtonClickSound();
+            repaint();
+            revalidate();
         });
         buttonsPanel.revalidate();
         buttonsPanel.repaint();
-        showIntroScreen();
+        playIntroSound();
     }
 
     public int getLevel() {
@@ -365,13 +385,15 @@ public class GamePanel extends JPanel {
         if (enemyCurrentHealth <= 0) {
             playEnemyDefeatedSound();
             int levelUpExp = getLevelUpExperience(playerLevel);
-            experience += getRandomNumber(45, 75);
+            experience += getRandomNumber(35, 75);
             if (experience >= levelUpExp) {
                 playerLevel++;
                 experience -= levelUpExp;
                 evolvePokeKalye();
                 animateLevelUp(playerLevelLabel);
                 playLevelUpSound();
+                playerCurrentHealth += 5;
+                updateHealthBars();
             }
             int earnedPesos = getRandomNumber(1, earnedPesosMaxValue);
             pesos += earnedPesos;
@@ -381,11 +403,7 @@ public class GamePanel extends JPanel {
             Timer timer = new Timer(50, new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    purrCooldown--;
-                    if (purrCooldown <= 0) {
-                        purrOnCooldown = false;
-                    }
-                    appendToDialogue("Prof RP caught the\n " + enemyPokeKalye + " for you!");
+                    displayAfterBattleDialogue();
                     setInBattle(false);
                     searchButton.setEnabled(true);
                     restoreButtons();
@@ -489,6 +507,11 @@ public class GamePanel extends JPanel {
         System.out.println("Enemy HP: " + enemyCurrentHealth + "/" + enemyMaxHealth);
         playBattleMusic();
         enableSearchButton(false);
+        if (enemyData.getName().equals("Professor Splinter")) {
+            enemyHealthBar.setPreferredSize(new Dimension(230, 16));
+        } else {
+            enemyHealthBar.setPreferredSize(new Dimension(140, 16));
+        }
     }
 
     public void setDialogueText(String dialogue) {
@@ -551,8 +574,19 @@ public class GamePanel extends JPanel {
     public void setEnemyData(PokeKalyeData.PokeKalye enemyData) {
         this.enemyData = enemyData;
         this.enemyMaxHealth = getMaxHealth(enemyData);
-        int enemyHpIncrease = playerLevel - 1;
+        int enemyHpIncrease = getLevel() - 1;
         enemyMaxHealth += enemyHpIncrease;
+
+        if (getLevel() >= 6) {
+            int levelDifference = getLevel() - 6;
+            int healthIncrease = levelDifference * 5;
+            enemyMaxHealth += healthIncrease;
+        }
+        if (playerLevel >= 10) {
+            int levelDifference = playerLevel - 10;
+            int healthIncrease = levelDifference * 20;
+            enemyMaxHealth += healthIncrease;
+        }
         if (damageMultiplier > 1.0) {
             enemyMaxHealth += 5;
         }
@@ -564,8 +598,12 @@ public class GamePanel extends JPanel {
             enemyMaxHealth += 20;
         }
         this.enemyCurrentHealth = enemyMaxHealth;
+        if (enemyData.getName().equals("Professor Splinter")) {
+            enemyCurrentHealth += 5;
+        }
         enemyHealthBar.setMaximum(enemyMaxHealth);
         enemyHealthBar.setValue(enemyCurrentHealth);
+
     }
 
     public int getEnemyCurrentHealth() {
@@ -695,8 +733,8 @@ public class GamePanel extends JPanel {
                 case "Kabayo":
                     maxHealth = PokeKalyeData.KABAYO.getMaxHealth();
                     break;
-                case "Master Splinter":
-                    maxHealth = PokeKalyeData.MASTER_SPLINTER.getMaxHealth();
+                case "Professor Splinter":
+                    maxHealth = PokeKalyeData.PROFESSOR_SPLINTER.getMaxHealth();
                     break;
                 default:
                     break;
@@ -743,8 +781,8 @@ public class GamePanel extends JPanel {
             case "Langaw":
                 enemyData = PokeKalyeData.LANGAW;
                 break;
-            case "Master Splinter":
-                enemyData = PokeKalyeData.MASTER_SPLINTER;
+            case "Professor Splinter":
+                enemyData = PokeKalyeData.PROFESSOR_SPLINTER;
                 break;
             case "Kuting":
                 enemyData = PokeKalyeData.KUTING;
@@ -995,12 +1033,10 @@ public class GamePanel extends JPanel {
             performTaholMove(move);
         } else if (moveName.equals("Purr")) {
             if (purrOnCooldown) {
-                appendToDialogue("Purr is on cooldown.");
+                appendToDialogue("\n Purr is on cooldown.");
                 return;
             }
             performPurrMove(move, chance);
-            purrOnCooldown = true;
-            purrCooldown = 1;
         } else if (moveName.equals("Gang Up")) {
             performGangUpMove(move, chance);
         } else {
@@ -1012,22 +1048,36 @@ public class GamePanel extends JPanel {
             enemyTurn();
             checkBattleResult();
             setMoveButtonsEnabled(true);
+            if (purrOnCooldown) {
+                purrCooldown--;
+                if (purrCooldown <= 0) {
+                    purrOnCooldown = false;
+                }
+            }
         });
         timer.setRepeats(false);
         timer.start();
     }
 
     private void performFleeMove(MovePool.Move move) {
-        fadeOutBattleMusic();
-        setInBattle(false);
-        searchButton.setEnabled(true);
-        restoreButtons();
-        appendToDialogue(selectedPokeKalye + " fled from\n the battle!");
-        playFleeUpSound();
+        boolean moveMissed = Math.random() <= 0.1;
+
+        if (!moveMissed) {
+            fadeOutBattleMusic();
+            setInBattle(false);
+            searchButton.setEnabled(true);
+            restoreButtons();
+            appendToDialogue("\n " + selectedPokeKalye + " fled from\n the battle!");
+            playFleeUpSound();
+            luckyCatButton.setVisible(false);
+        } else {
+            appendToDialogue("\n " + selectedPokeKalye + ", flee pa more!");
+            playMissSound();
+        }
     }
 
     private void performPurrMove(MovePool.Move move, double chance) {
-        int maxHealAmount = 71;
+        int maxHealAmount = 81;
         int healAmount = (int) (Math.random() * maxHealAmount) + 1;
 
         double modifiedChance = chance * (1 - healAmount / (double) maxHealAmount);
@@ -1040,65 +1090,60 @@ public class GamePanel extends JPanel {
                 playerCurrentHealth += healAmount;
             }
             updateHealthBars();
-            appendToDialogue(selectedPokeKalye + " used " + move.getName() + "!");
+            appendToDialogue("\n " + selectedPokeKalye + " used " + move.getName() + "!");
             playBurrowSound();
         } else {
-            appendToDialogue("Purr failed!");
+            appendToDialogue("\n Purr failed!");
             playMissSound();
         }
+        purrOnCooldown = true;
+        purrCooldown = 2;
     }
 
     private void performBurrowMove(MovePool.Move move, double chance) {
-        if (Math.random() <= chance) {
-            int damage = move.getDamage();
+        double modifiedChance = chance;
+        double playerHealthPercentage = (double) playerCurrentHealth / getMaxHealth(playerData);
+        if (playerHealthPercentage <= 0.33) {
+            modifiedChance += 0.1;
+        }
 
-            if (hasRabies) {
-                int maxPlayerHealth = getMaxHealth(playerData);
-                if (playerCurrentHealth + 10 > maxPlayerHealth) {
-                    playerCurrentHealth = maxPlayerHealth;
-                    updateHealthBars();
-                } else {
-                    playerCurrentHealth += 10;
-                    updateHealthBars();
-                }
-                enemyCurrentHealth -= damage;
+        if (Math.random() <= modifiedChance) {
+            int damage = move.getDamage();
+            boolean hasRabiesBeforeMove = hasRabies;
+
+            int maxPlayerHealth = getMaxHealth(playerData);
+            if (playerCurrentHealth + 10 > maxPlayerHealth) {
+                playerCurrentHealth = maxPlayerHealth;
                 updateHealthBars();
-                appendToDialogue(selectedPokeKalye + " used " + move.getName() + "!");
-                System.out.println("Enemy HP: " + enemyCurrentHealth + "/" + enemyMaxHealth);
-                System.out.println("Player HP: " + playerCurrentHealth + "/" + getMaxHealth(playerData));
-                if (damage > 0) {
-                    animateDamageBlink(enemyImageLabel);
-                    playDamageSound(damage);
-                }
             } else {
-                enemyCurrentHealth -= damage;
+                playerCurrentHealth += 10;
                 updateHealthBars();
-                int maxPlayerHealth = getMaxHealth(playerData);
-                if (playerCurrentHealth + 10 > maxPlayerHealth) {
-                    playerCurrentHealth = maxPlayerHealth;
-                    updateHealthBars();
-                } else {
-                    playerCurrentHealth += 10;
-                    updateHealthBars();
-                }
-                playBurrowSound();
-                appendToDialogue(selectedPokeKalye + " used " + move.getName() + "!");
-                System.out.println("Enemy HP: " + enemyCurrentHealth + "/" + enemyMaxHealth);
-                System.out.println("Player HP: " + playerCurrentHealth + "/" + getMaxHealth(playerData));
-                if (damage > 0) {
-                    animateDamageBlink(enemyImageLabel);
-                    playDamageSound(damage);
-                }
+            }
+
+            if (hasRabiesBeforeMove) {
+                damage += 3;
+                playerCurrentHealth -= 3;
+                updateHealthBars();
+            }
+            enemyCurrentHealth -= damage;
+            updateHealthBars();
+            appendToDialogue("\n " + selectedPokeKalye + " used " + move.getName() + "!");
+            System.out.println("Enemy HP: " + enemyCurrentHealth + "/" + enemyMaxHealth);
+            System.out.println("Player HP: " + playerCurrentHealth + "/" + getMaxHealth(playerData));
+            playBurrowSound();
+            if (damage > 0) {
+                animateDamageBlink(enemyImageLabel);
+                playDamageSound(damage);
             }
         } else {
-            appendToDialogue("Burrow failed!");
+            appendToDialogue("\n Burrow failed!");
             playMissSound();
         }
     }
 
     private void performTaholMove(MovePool.Move move) {
         tripleDamageNextMove = true;
-        appendToDialogue(selectedPokeKalye + " used " + move.getName() + "!");
+        appendToDialogue("\n " + selectedPokeKalye + " used " + move.getName() + "!");
         playBarkSound();
     }
 
@@ -1129,16 +1174,25 @@ public class GamePanel extends JPanel {
             }
             enemyCurrentHealth -= damage;
             updateHealthBars();
-            appendToDialogue(selectedPokeKalye + " used " + move.getName() + "!");
+            String moveName = move.getName();
+            if (damage >= 1 && damage <= 5) {
+                appendToDialogue("\n " + selectedPokeKalye + " used " + moveName.toLowerCase() + "!");
+            } else if (damage >= 12) {
+                appendToDialogue("\n " + selectedPokeKalye + " used " + moveName.toUpperCase() + "!");
+            } else if (damage >= 6 && damage <= 11) {
+                appendToDialogue("\n " + selectedPokeKalye + " used " + moveName + "!");
+            }
+
             System.out.println("Enemy HP: " + enemyCurrentHealth + "/" + enemyMaxHealth);
             System.out.println("Player HP: " + playerCurrentHealth + "/" + getMaxHealth(playerData));
+
             if (damage > 0) {
                 animateDamageBlink(enemyImageLabel);
                 playDamageSound(damage);
                 showDamageLabel(enemyDamageLabel, damage, isCrit);
             }
         } else {
-            appendToDialogue(selectedPokeKalye + " missed!");
+            appendToDialogue("\n " + selectedPokeKalye + " missed!");
             playMissSound();
         }
     }
@@ -1147,7 +1201,7 @@ public class GamePanel extends JPanel {
         int damage = move.getDamage();
 
         if (tripleDamageNextMove) {
-            damage *= 3;
+            damage *= 2.5;
             tripleDamageNextMove = false;
         }
         damage *= damageMultiplier;
@@ -1163,7 +1217,7 @@ public class GamePanel extends JPanel {
         }
         boolean isCrit = Math.random() <= critChance;
         if (isCrit) {
-            damage *= 2;
+            damage *= 2 + critDamageModifier;
         }
 
         if (Math.random() <= chance) {
@@ -1173,7 +1227,7 @@ public class GamePanel extends JPanel {
                 updateHealthBars();
                 enemyCurrentHealth -= damage;
                 updateHealthBars();
-                appendToDialogue(selectedPokeKalye + " used " + move.getName() + "!");
+                appendToDialogue("\n " + selectedPokeKalye + " used " + move.getName() + "!");
                 System.out.println("Enemy HP: " + enemyCurrentHealth + "/" + enemyMaxHealth);
                 System.out.println("Player HP: " + playerCurrentHealth + "/" + getMaxHealth(playerData));
                 if (damage > 0) {
@@ -1184,7 +1238,7 @@ public class GamePanel extends JPanel {
             } else {
                 enemyCurrentHealth -= damage;
                 updateHealthBars();
-                appendToDialogue(selectedPokeKalye + " used " + move.getName() + "!");
+                appendToDialogue("\n " + selectedPokeKalye + " used " + move.getName() + "!");
                 System.out.println("Enemy HP: " + enemyCurrentHealth + "/" + enemyMaxHealth);
                 if (damage > 0) {
                     animateDamageBlink(enemyImageLabel);
@@ -1193,7 +1247,7 @@ public class GamePanel extends JPanel {
                 }
             }
         } else {
-            appendToDialogue(selectedPokeKalye + " missed!");
+            appendToDialogue("\n " + selectedPokeKalye + " missed!");
             playMissSound();
         }
     }
@@ -1205,12 +1259,12 @@ public class GamePanel extends JPanel {
             MovePool.Move enemyMove = enemyMoves[randomIndex];
             String enemyMoveName = enemyMove.getName();
 
+            double chance = enemyMove.getChance();
+
             if (enemyMoveName.equals("Flee")) {
-                performEnemyFleeMove(enemyMove);
+                performEnemyFleeMove(enemyMove, chance);
                 return;
             }
-
-            double chance = enemyMove.getChance();
 
             if (enemyMoveName.equals("Burrow")) {
                 performEnemyBurrowMove(enemyMove, chance);
@@ -1221,7 +1275,7 @@ public class GamePanel extends JPanel {
             } else if (enemyMoveName.equals("Purr") && enemyCurrentHealth < enemyData.getMaxHealth()) {
                 performEnemyPurrMove(enemyMove);
             } else if (enemyMoveName.equals("Suck")) {
-                performEnemySuckMove(enemyMove);
+                performEnemySuckMove(enemyMove, chance);
             } else {
                 performEnemyRegularMove(enemyMove, chance);
             }
@@ -1233,45 +1287,54 @@ public class GamePanel extends JPanel {
         }
     }
 
-    private void performEnemySuckMove(MovePool.Move move) {
-        int damage = move.getDamage();
-        playerCurrentHealth -= damage;
+    private void performEnemySuckMove(MovePool.Move move, double chance) {
+        if (Math.random() <= chance) {
+            int damage = move.getDamage();
+            playerCurrentHealth -= damage;
 
-        if (Math.random() <= 0.2) {
-            applyDengueStatusEffect();
-            Component[] components = playerPanel.getComponents();
-            for (Component component : components) {
-                if (component instanceof JLabel) {
-                    JLabel label = (JLabel) component;
-                    Icon icon = label.getIcon();
-                    if (icon != null && icon.equals(emptyIcon)) {
-                        label.setIcon(dengueIcon);
-                        label.setToolTipText(selectedPokeKalye + " has suffered a Dengue.");
-                        break;
+            if (Math.random() <= 0.2) {
+                applyDengueStatusEffect();
+                Component[] components = playerPanel.getComponents();
+                for (Component component : components) {
+                    if (component instanceof JLabel) {
+                        JLabel label = (JLabel) component;
+                        Icon icon = label.getIcon();
+                        if (icon != null && icon.equals(emptyIcon)) {
+                            label.setIcon(dengueIcon);
+                            label.setToolTipText("Your PokeKalye has suffered Dengue.");
+                            break;
+                        }
                     }
                 }
             }
-        }
 
-        updateHealthBars();
-        dialogueArea.append("\n " + enemyPokeKalye + " used " + move.getName() + "!");
-        System.out.println("Player HP: " + playerCurrentHealth + "/" + getMaxHealth(playerData));
-        System.out.println("Enemy HP: " + enemyCurrentHealth + "/" + getMaxHealth(enemyData));
+            updateHealthBars();
+            dialogueArea.append("\n " + enemyPokeKalye + " used " + move.getName() + "!");
+            System.out.println("Player HP: " + playerCurrentHealth + "/" + getMaxHealth(playerData));
+            System.out.println("Enemy HP: " + enemyCurrentHealth + "/" + getMaxHealth(enemyData));
 
-        if (damage > 0) {
-            animateDamageBlink(yourPokeKalyeImage);
-            playDamageSound(damage);
+            if (damage > 0) {
+                animateDamageBlink(yourPokeKalyeImage);
+                playDamageSound(damage);
+            }
+        } else {
+            dialogueArea.append("\n " + enemyPokeKalye + " missed!");
         }
     }
 
-    private void performEnemyFleeMove(MovePool.Move move) {
-        fadeOutBattleMusic();
-        clearDialogue();
-        setInBattle(false);
-        searchButton.setEnabled(true);
-        restoreButtons();
-        appendToDialogue(enemyPokeKalye + " fled from\n the battle!");
-        playFleeUpSound();
+    private void performEnemyFleeMove(MovePool.Move move, double chance) {
+        if (Math.random() <= chance) {
+            fadeOutBattleMusic();
+            clearDialogue();
+            setInBattle(false);
+            searchButton.setEnabled(true);
+            restoreButtons();
+            appendToDialogue("\n " + enemyPokeKalye + " fled from\n the battle!");
+            playFleeUpSound();
+            luckyCatButton.setVisible(false);
+        } else {
+            dialogueArea.append("\n " + enemyPokeKalye + ", flee pa more!");
+        }
     }
 
     private void applyDengueStatusEffect() {
@@ -1378,6 +1441,7 @@ public class GamePanel extends JPanel {
             dialogueArea.append("\n " + enemyPokeKalye + " used " + move.getName() + "!");
             System.out.println("Player HP: " + playerCurrentHealth + "/" + getMaxHealth(playerData));
             System.out.println("Enemy HP: " + enemyCurrentHealth + "/" + getMaxHealth(enemyData));
+            playBurrowSound();
             if (damage > 0) {
                 animateDamageBlink(yourPokeKalyeImage);
                 playDamageSound(damage);
@@ -1397,7 +1461,7 @@ public class GamePanel extends JPanel {
         int damage = move.getDamage();
 
         if (Math.random() <= chance) {
-            if (!rabiesVaccinated && Math.random() <= 0.3) {
+            if (!rabiesVaccinated && !hasRabies && Math.random() <= 0.2) {
                 hasRabies = true;
                 Component[] components = playerPanel.getComponents();
                 for (Component component : components) {
@@ -1409,7 +1473,7 @@ public class GamePanel extends JPanel {
                             Image image = rabiesIcon.getImage().getScaledInstance(16, 16, Image.SCALE_DEFAULT);
                             rabiesIcon = new ImageIcon(image);
                             label.setIcon(rabiesIcon);
-                            label.setToolTipText(selectedPokeKalye + " is infected with rabies.");
+                            label.setToolTipText("Your PokeKalye is infected with rabies.");
                             break;
                         }
                     }
@@ -1437,13 +1501,15 @@ public class GamePanel extends JPanel {
 
         double critChance = 0.05;
         if (damageMultiplier > 1.0) {
-            critChance = 0.5;
+            critChance = 0.06;
         }
         if (playerCurrentHealth > getMaxHealth(playerData)) {
             critChance += 0.2;
         }
-
         boolean isCrit = Math.random() <= critChance;
+        if (playerLevel <= 10 && playerCurrentHealth <= 0.3 * getMaxHealth(playerData)) {
+            chance -= 0.2;
+        }
         if (isCrit) {
             if (damageMultiplier > 1.0) {
                 damage *= 3;
@@ -1452,9 +1518,20 @@ public class GamePanel extends JPanel {
             }
         }
 
+        if (playerLevel >= 5) {
+            int levelDifference = playerLevel - 5;
+            damage += levelDifference * 2;
+        }
+
         if (Math.random() <= chance) {
             playerCurrentHealth -= damage;
-            dialogueArea.append("\n " + enemyPokeKalye + " used " + move.getName() + "!");
+            String enemyName = enemyPokeKalye;
+            if (enemyPokeKalye.length() > 8) {
+                enemyName = "It used " + move.getName() + "!";
+            } else {
+                enemyName += " used " + move.getName() + "!";
+            }
+            dialogueArea.append("\n " + enemyName);
             updateHealthBars();
             System.out.println("Player HP: " + playerCurrentHealth + "/" + getMaxHealth(playerData));
             if (damage > 0) {
@@ -1493,10 +1570,23 @@ public class GamePanel extends JPanel {
         buttonsPanel.add(sariSariButton);
         buttonsPanel.add(settingsButton);
 
-        if (luck == 0 || (int) (Math.random() * (424 / luck)) == 0) {
-            luckyCatButton.setVisible(true);
+        if (getLuck() == 0) {
+            if ((double) getPlayerCurrentHealth() / getPlayerMaxHealth() <= 0.3) {
+                luckyCatButton.setVisible(Math.random() < 0.11);
+            } else {
+                luckyCatButton.setVisible(Math.random() < 0.01);
+            }
         } else {
-            luckyCatButton.setVisible(false);
+            if ((double) getPlayerCurrentHealth() / getPlayerMaxHealth() <= 0.3) {
+                luckyCatButton.setVisible(Math.random() < (getLuck() * 0.011));
+            } else {
+                luckyCatButton.setVisible(Math.random() < (getLuck() * 0.01));
+            }
+        }
+
+        if (getPlayerCurrentHealth() > getPlayerMaxHealth()) {
+            setPlayerCurrentHealth(getPlayerMaxHealth());
+            updateHealthBars();
         }
 
         buttonsPanel.revalidate();
@@ -1504,7 +1594,7 @@ public class GamePanel extends JPanel {
     }
 
     int getLevelUpExperience(int level) {
-        return 100 + (level - 1) * 50;
+        return 100 + (level - 1) * 10;
     }
 
     private Random random = new Random();
@@ -1514,44 +1604,60 @@ public class GamePanel extends JPanel {
     }
 
     private void appendToDialogue(String text) {
-        dialogueArea.append("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n " + text);
+        dialogueArea.append("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n " + text);
         dialogueArea.setCaretPosition(dialogueArea.getDocument().getLength());
     }
 
     private void clearDialogue() {
-        dialogueArea.setText(" What will " + selectedPokeKalye + " do?");
+        String dialogue = " What will ";
+
+        if (selectedPokeKalye.equals("Puspin Boots")) {
+            dialogue += "the great\n Puspin Boots do?";
+        } else if (selectedPokeKalye.equals("Ant-Man")) {
+            dialogue = " What's it gonna be,\n Ant-Man?";
+        } else if (selectedPokeKalye.equals("Big Dog")) {
+            dialogue += "the\n Big Dog do?";
+        } else {
+            dialogue += selectedPokeKalye + " do?";
+        }
+
+        dialogueArea.setText(dialogue);
     }
 
     private void preloadSounds() {
-        try {
-            File clickSoundFile = new File("media/audio/click.wav");
-            File koSoundFile = new File("media/audio/ko.wav");
-            File levelUpSoundFile = new File("media/audio/levelup.wav");
-            File fleeSoundFile = new File("media/audio/flee.wav");
-            File lowHitSoundFile = new File("media/audio/lowHit.wav");
-            File medHitSoundFile = new File("media/audio/medHit.wav");
-            File highHitSoundFile = new File("media/audio/highHit.wav");
-            File hpDownSoundFile = new File("media/audio/hpDown.wav");
-            File burrowSoundFile = new File("media/audio/burrow.wav");
-            File missSoundFile = new File("media/audio/miss.wav");
-            File barkSoundFile = new File("media/audio/bark.wav");
-            File dengueSoundFile = new File("media/audio/dengue.wav");
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.submit(() -> {
+            try {
+                File clickSoundFile = new File("media/audio/click.wav");
+                File koSoundFile = new File("media/audio/ko.wav");
+                File levelUpSoundFile = new File("media/audio/levelup.wav");
+                File fleeSoundFile = new File("media/audio/flee.wav");
+                File lowHitSoundFile = new File("media/audio/lowHit.wav");
+                File medHitSoundFile = new File("media/audio/medHit.wav");
+                File highHitSoundFile = new File("media/audio/highHit.wav");
+                File burrowSoundFile = new File("media/audio/burrow.wav");
+                File missSoundFile = new File("media/audio/miss.wav");
+                File barkSoundFile = new File("media/audio/bark.wav");
+                File dengueSoundFile = new File("media/audio/dengue.wav");
+                File introSoundFile = new File("media/audio/intro.wav");
 
-            clickSoundClip = preloadClip(clickSoundFile);
-            koSoundClip = preloadClip(koSoundFile);
-            levelUpSoundClip = preloadClip(levelUpSoundFile);
-            fleeSoundClip = preloadClip(fleeSoundFile);
-            lowHitSoundClip = preloadClip(lowHitSoundFile);
-            medHitSoundClip = preloadClip(medHitSoundFile);
-            highHitSoundClip = preloadClip(highHitSoundFile);
-            hpDownSoundClip = preloadClip(hpDownSoundFile);
-            burrowSoundClip = preloadClip(burrowSoundFile);
-            missSoundClip = preloadClip(missSoundFile);
-            barkSoundClip = preloadClip(barkSoundFile);
-            dengueSoundClip = preloadClip(dengueSoundFile);
-        } catch (IOException | LineUnavailableException | UnsupportedAudioFileException e) {
-            e.printStackTrace();
-        }
+                clickSoundClip = preloadClip(clickSoundFile);
+                koSoundClip = preloadClip(koSoundFile);
+                levelUpSoundClip = preloadClip(levelUpSoundFile);
+                fleeSoundClip = preloadClip(fleeSoundFile);
+                lowHitSoundClip = preloadClip(lowHitSoundFile);
+                medHitSoundClip = preloadClip(medHitSoundFile);
+                highHitSoundClip = preloadClip(highHitSoundFile);
+                burrowSoundClip = preloadClip(burrowSoundFile);
+                missSoundClip = preloadClip(missSoundFile);
+                barkSoundClip = preloadClip(barkSoundFile);
+                dengueSoundClip = preloadClip(dengueSoundFile);
+                introSoundClip = preloadClip(introSoundFile);
+            } catch (IOException | LineUnavailableException | UnsupportedAudioFileException e) {
+                e.printStackTrace();
+            }
+        });
+        executor.shutdown();
     }
 
     private Clip preloadClip(File audioFile)
@@ -1569,8 +1675,23 @@ public class GamePanel extends JPanel {
             loopingMusicClip = AudioSystem.getClip();
             loopingMusicClip.open(audioStream);
             loopingMusicClip.loop(Clip.LOOP_CONTINUOUSLY);
+            if (isShopOpen) {
+                pauseMusic();
+            }
         } catch (LineUnavailableException | IOException | UnsupportedAudioFileException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void pauseMusic() {
+        if (loopingMusicClip != null && loopingMusicClip.isRunning()) {
+            loopingMusicClip.stop();
+        }
+    }
+
+    public void resumeMusic() {
+        if (inBattle && loopingMusicClip != null && !loopingMusicClip.isRunning()) {
+            loopingMusicClip.start();
         }
     }
 
@@ -1624,6 +1745,13 @@ public class GamePanel extends JPanel {
         }
     }
 
+    void playIntroSound() {
+        if (introSoundClip != null) {
+            introSoundClip.setFramePosition(0);
+            introSoundClip.start();
+        }
+    }
+
     void playLevelUpSound() {
         if (levelUpSoundClip != null) {
             levelUpSoundClip.setFramePosition(0);
@@ -1643,71 +1771,65 @@ public class GamePanel extends JPanel {
             playLowHitSound();
         } else if (damage >= 6 && damage <= 11) {
             playMedHitSound();
-            playHpDownSound();
         } else if (damage >= 12) {
             playHighHitSound();
-            playHpDownSound();
         }
     }
 
     private void playLowHitSound() {
         if (lowHitSoundClip != null) {
             lowHitSoundClip.setFramePosition(0);
-            Thread soundThread = new Thread(() -> {
+            new Thread(() -> {
                 lowHitSoundClip.start();
                 try {
-                    Thread.sleep(lowHitSoundClip.getMicrosecondLength() / 1);
+                    Thread.sleep(lowHitSoundClip.getMicrosecondLength() / 1000);
+                    Thread.sleep(200);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 } finally {
-                    lowHitSoundClip.close();
+                    lowHitSoundClip.stop();
+                    lowHitSoundClip.flush();
+                    lowHitSoundClip.setFramePosition(0);
                 }
-            });
-
-            soundThread.start();
+            }).start();
         }
     }
 
     private void playMedHitSound() {
         if (medHitSoundClip != null) {
             medHitSoundClip.setFramePosition(0);
-            Thread soundThread = new Thread(() -> {
+            new Thread(() -> {
                 medHitSoundClip.start();
                 try {
-                    Thread.sleep(medHitSoundClip.getMicrosecondLength() / 1);
+                    Thread.sleep(medHitSoundClip.getMicrosecondLength() / 1000);
+                    Thread.sleep(200);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 } finally {
-                    medHitSoundClip.close();
+                    medHitSoundClip.stop();
+                    medHitSoundClip.flush();
+                    medHitSoundClip.setFramePosition(0);
                 }
-            });
-
-            soundThread.start();
+            }).start();
         }
     }
 
     private void playHighHitSound() {
         if (highHitSoundClip != null) {
             highHitSoundClip.setFramePosition(0);
-            Thread soundThread = new Thread(() -> {
+            new Thread(() -> {
                 highHitSoundClip.start();
                 try {
-                    Thread.sleep(highHitSoundClip.getMicrosecondLength() / 1);
+                    Thread.sleep(highHitSoundClip.getMicrosecondLength() / 1000);
+                    Thread.sleep(200);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 } finally {
-                    highHitSoundClip.close();
+                    highHitSoundClip.stop();
+                    highHitSoundClip.flush();
+                    highHitSoundClip.setFramePosition(0);
                 }
-            });
-
-            soundThread.start();
-        }
-    }
-
-    private void playHpDownSound() {
-        if (hpDownSoundClip != null) {
-            hpDownSoundClip.setFramePosition(0);
-            hpDownSoundClip.start();
+            }).start();
         }
     }
 
@@ -1963,13 +2085,12 @@ public class GamePanel extends JPanel {
     public void playerDefeat() {
         fadeOutBattleMusic();
         gameOver = true;
-        GameOverPanel gameOverScreen = new GameOverPanel();
-        JFrame currentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
-        currentFrame.getContentPane().removeAll();
-        currentFrame.setContentPane(gameOverScreen);
-        currentFrame.pack();
-        currentFrame.revalidate();
-        currentFrame.repaint();
+        GameOverPanel gameOverScreen = new GameOverPanel(this);
+        Container parent = this.getParent();
+        parent.removeAll();
+        parent.add(gameOverScreen);
+        parent.revalidate();
+        parent.repaint();
     }
 
     public void increaseCritRateModifier(double value) {
@@ -1984,6 +2105,10 @@ public class GamePanel extends JPanel {
         earnedPesosMaxValue += value;
     }
 
+    public int getLuck() {
+        return luck;
+    }
+
     public void increaseLuck(int value) {
         luck += value;
     }
@@ -1994,5 +2119,62 @@ public class GamePanel extends JPanel {
 
     public void increasePesos(int amount) {
         pesos += amount;
+    }
+
+    public void setShopOpen(boolean isOpen) {
+        isShopOpen = isOpen;
+    }
+
+    private void displayAfterBattleDialogue() {
+        int level = playerLevel;
+        String enemyPokeKalyeName = enemyPokeKalye;
+        String dialogue;
+
+        if (level >= 1 && level <= 5) {
+            dialogue = "\n Prof RP caught the\n " + enemyPokeKalyeName + " for you!";
+        } else if (level >= 6 && level <= 10) {
+            String[] dialogueOptions = {
+                    "Kailangan natin\n mahuli ang mga to..\n maaasahan ba kita?",
+                    "\n Prof RP caught the\n " + enemyPokeKalyeName + " for you!",
+                    "Your mother said\n \"Di mo pwede iuwi si\n " + selectedPokeKalye
+                            + " sa bahay.\"",
+                    "\n Kalye North.. Kalye South..\n Kalye West....",
+                    "\n Pampaswerte daw yung\n Shtick-O, natry mo na?"
+            };
+            dialogue = getRandomDialogueWithReuse(dialogueOptions, 0.6);
+        } else if (level >= 11 && level <= 15) {
+            String[] dialogueOptions = {
+                    "\n " + enemyPokeKalyeName + " has been caught!",
+                    "\n Let me just get these\n PokeKalyes to my Lab!",
+                    "\n I think that's enough now.\n Thank you.",
+                    "\n You can leave now.",
+                    "\n I warned you.",
+                    "NO!\n WHY ARE YOU CATCHING THEM?\n THEY'RE ALL MINE!"
+            };
+            dialogue = getRandomDialogueWithoutReuse(dialogueOptions);
+        } else if (level >= 16 && level <= 19) {
+            dialogue = "\n " + enemyPokeKalyeName + " has been caught!";
+        } else {
+            dialogue = "";
+        }
+
+        appendToDialogue(dialogue);
+    }
+
+    private String getRandomDialogueWithReuse(String[] dialogueOptions, double specialCaseProbability) {
+        List<String> availableDialogues = new ArrayList<>(Arrays.asList(dialogueOptions));
+        Collections.shuffle(availableDialogues);
+        boolean includeSpecialCase = Math.random() < specialCaseProbability;
+        if (includeSpecialCase) {
+            String specialCaseDialogue = "Prof RP caught the\n " + enemyPokeKalye + " for you!";
+            availableDialogues.add(0, specialCaseDialogue);
+        }
+        return availableDialogues.get(0);
+    }
+
+    private String getRandomDialogueWithoutReuse(String[] dialogueOptions) {
+        List<String> availableDialogues = new ArrayList<>(Arrays.asList(dialogueOptions));
+        Collections.shuffle(availableDialogues);
+        return availableDialogues.remove(0);
     }
 }

@@ -94,7 +94,7 @@ public class ShopPanel extends JPanel {
             itemLabel.setHorizontalAlignment(SwingConstants.CENTER);
             itemPanel.add(itemLabel, BorderLayout.NORTH);
 
-            JLabel itemPrice = new JLabel(((i + 1) * 10) + " pesos");
+            JLabel itemPrice = new JLabel(getItemPrice(i) + " pesos");
             itemPrice.setHorizontalAlignment(SwingConstants.CENTER);
             itemPanel.add(itemPrice, BorderLayout.SOUTH);
 
@@ -109,14 +109,14 @@ public class ShopPanel extends JPanel {
             String itemDescription = itemDescriptions[i];
             itemPanel.setToolTipText(itemDescription);
 
-            if (gamePanel.getPesos() < ((i + 1) * 10) || (i == 4 && rugbySoldOut)) {
+            if (gamePanel.getPesos() < getItemPrice(i) || !canAffordAnyItem(gamePanel.getPesos(), itemNames)) {
                 buyButton.setEnabled(false);
             } else {
                 int itemIndex = i;
 
                 buyButton.addActionListener(e -> {
                     playBuySound();
-                    int price = (itemIndex + 1) * 10;
+                    int price = getItemPrice(itemIndex);
                     gamePanel.setPesos(gamePanel.getPesos() - price);
 
                     switch (itemIndex) {
@@ -139,13 +139,12 @@ public class ShopPanel extends JPanel {
                             break;
                         case 1: // Shtick-O
                             gamePanel.increaseEarnedPesosMaxValue(5);
-                            gamePanel.increaseLuck(50);
+                            gamePanel.increaseLuck(15);
                             refreshShopPanel();
                             break;
                         case 2: // Coke Omsim
-                            int healthIncrease = 15;
+                            int healthIncrease = 50;
                             gamePanel.setPlayerCurrentHealth(gamePanel.getPlayerCurrentHealth() + healthIncrease);
-                            gamePanel.setPlayerMaxHealth(gamePanel.getPlayerMaxHealth() + healthIncrease);
                             gamePanel.updateHealthBars();
                             refreshShopPanel();
                             break;
@@ -173,7 +172,7 @@ public class ShopPanel extends JPanel {
                             }
                             break;
                         case 6: // Bye-gon
-                            gamePanel.increaseCritRateModifier(0.04);
+                            gamePanel.increaseCritRateModifier(0.15);
                             refreshShopPanel();
                             break;
                         case 7: // Mouse Trap
@@ -181,13 +180,14 @@ public class ShopPanel extends JPanel {
                             refreshShopPanel();
                             break;
                         case 8: // Infinity Edge
-                            gamePanel.setDamageMultiplier(gamePanel.getDamageMultiplier() * 2);
+                            gamePanel.setDamageMultiplier(gamePanel.getDamageMultiplier() * 1.5);
                             refreshShopPanel();
                             break;
                     }
                     // buyButton.setEnabled(false);
                     pesosLabel.setText("GCash: " + gamePanel.getPesos() + " pesos");
                     gamePanel.updateHealthBars();
+                    refreshShopPanel();
                 });
             }
 
@@ -203,8 +203,11 @@ public class ShopPanel extends JPanel {
         setupButtonMouseListener(backButton);
         shopContentPanel.add(backButton, BorderLayout.SOUTH);
         backButton.addActionListener(e -> {
+            gamePanel.sariSariButton.setBackground(Color.WHITE);
             playButtonClickSound();
             stopMusic();
+            gamePanel.setShopOpen(false);
+            gamePanel.resumeMusic();
             JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
             Container contentPane = frame.getContentPane();
             contentPane.removeAll();
@@ -231,6 +234,31 @@ public class ShopPanel extends JPanel {
 
         setPreferredSize(new Dimension(600, 400));
         playMusic("media/audio/shop.wav");
+    }
+
+    public int getItemPrice(int itemIndex) {
+        switch (itemIndex) {
+            case 0: // Ice-y Tubig
+                return 10;
+            case 1: // Shtick-O
+                return 25;
+            case 2: // Coke Omsim
+                return 30;
+            case 3: // Rabies Vaccine
+                return 30;
+            case 4: // Rugby
+                return 50;
+            case 5: // Dengue Vaccine
+                return 55;
+            case 6: // Bye-gon
+                return 100;
+            case 7: // Mouse Trap
+                return 120;
+            case 8: // Infinity Edge
+                return 200;
+            default:
+                return 0;
+        }
     }
 
     protected void paintComponent(Graphics g) {
@@ -338,4 +366,12 @@ public class ShopPanel extends JPanel {
         repaint();
     }
 
+    private boolean canAffordAnyItem(int currentPesos, String[] itemNames) {
+        for (int i = 0; i < itemNames.length; i++) {
+            if (currentPesos >= getItemPrice(i)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

@@ -5,6 +5,10 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import java.io.File;
 
 public class Professor extends JFrame {
     private JLabel professorImageLabel;
@@ -16,13 +20,20 @@ public class Professor extends JFrame {
     private Timer typingTimer;
     private String currentDialogue;
     private int currentCharIndex;
+    private Clip hoverSound;
+    private Clip clickSound;
 
     public Professor() {
         setTitle("KalyeRPG");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(600, 400);
         setLayout(new BorderLayout());
-
+        try {
+            hoverSound = loadSound("media/audio/hover.wav");
+            clickSound = loadSound("media/audio/click.wav");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         JPanel containerPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -52,11 +63,15 @@ public class Professor extends JFrame {
         continueButton.setEnabled(false);
         add(continueButton, BorderLayout.SOUTH);
 
-        continueButton.addActionListener(e -> advanceDialogue());
+        continueButton.addActionListener(e -> {
+            advanceDialogue();
+            playSound(clickSound);
+        });
 
         continueButton.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 continueButton.setBackground(new Color(102, 255, 51));
+                playSound(hoverSound);
             }
 
             public void mouseExited(java.awt.event.MouseEvent evt) {
@@ -69,6 +84,7 @@ public class Professor extends JFrame {
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     advanceDialogue();
+                    playSound(clickSound);
                 }
             }
         });
@@ -309,5 +325,18 @@ public class Professor extends JFrame {
 
     public String getSelectedPokeKalye() {
         return PokeKalyeChooser.getSelectedPokeKalye();
+    }
+
+    private Clip loadSound(String soundPath) throws Exception {
+        AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File(soundPath).getAbsoluteFile());
+        Clip clip = AudioSystem.getClip();
+        clip.open(audioInputStream);
+        return clip;
+    }
+
+    private void playSound(Clip sound) {
+        sound.stop();
+        sound.setFramePosition(0);
+        sound.start();
     }
 }

@@ -2,15 +2,6 @@
 <classpath>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="lib/gdx-backend-lwjgl-natives.jar"/>
-	<classpathentry kind="lib" path="lib/gdx-backend-lwjgl.jar"/>
-	<classpathentry kind="lib" path="lib/gdx-freetype-natives.jar"/>
-	<classpathentry kind="lib" path="lib/gdx-freetype.jar"/>
-	<classpathentry kind="lib" path="lib/gdx-natives.jar"/>
-	<classpathentry kind="lib" path="lib/gdx-sources.jar"/>
-	<classpathentry kind="lib" path="lib/gdx-tools.jar"/>
-	<classpathentry kind="lib" path="lib/gdx.jar"/>
-	<classpathentry kind="lib" path="lib/tween-engine-api-sources.jar"/>
-	<classpathentry kind="lib" path="lib/tween-engine-api.jar"/>
+	<classpathentry kind="lib" path="lib/jl1.0.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

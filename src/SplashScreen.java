@@ -23,7 +23,10 @@ public class SplashScreen {
     }
 
     public SplashScreen() throws IOException {
+        String iconPath = "media/images/KalyeRPG.png";
+        ImageIcon icon = new ImageIcon(iconPath);
         JFrame splashFrame = createSplashFrame("media/images/PokeKalye.png", 300, 300);
+        splashFrame.setIconImage(icon.getImage());
         Timer timer = new Timer(7000, e -> {
             splashFrame.dispose(); // 7000 pag final na
             showSecondSplash();

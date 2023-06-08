@@ -16,4 +16,4 @@ KalyeRPG serves as both a school project and a personal endeavor. Although the g
 The gameplay of KalyeRPG, although simple in concept, is intentionally designed to be challenging, requiring players to strategize and make optimal decisions to progress. Although luck plays a significant role, skill and strategic thinking are key factors for reaching the end. The game does not feature savestates, and if the player character is defeated, it results in a game over.
 
 ## Disclaimer
-This project is a purely educational and personal, meant for entertainment purposes.
+This project is purely educational and personal, meant for entertainment purposes.

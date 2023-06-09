@@ -28,6 +28,9 @@ public class Professor extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(600, 400);
         setLayout(new BorderLayout());
+        String iconPath = "media/images/KalyeRPG.png";
+        ImageIcon icon = new ImageIcon(iconPath);
+        setIconImage(icon.getImage());
         try {
             hoverSound = loadSound("media/audio/hover.wav");
             clickSound = loadSound("media/audio/click.wav");

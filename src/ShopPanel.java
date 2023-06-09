@@ -94,7 +94,8 @@ public class ShopPanel extends JPanel {
             itemLabel.setHorizontalAlignment(SwingConstants.CENTER);
             itemPanel.add(itemLabel, BorderLayout.NORTH);
 
-            JLabel itemPrice = new JLabel(getItemPrice(i) + " pesos");
+            int price = getItemPrice(i); // Get the price from getItemPrice()
+            JLabel itemPrice = new JLabel(price + " pesos");
             itemPrice.setHorizontalAlignment(SwingConstants.CENTER);
             itemPanel.add(itemPrice, BorderLayout.SOUTH);
 
@@ -109,16 +110,14 @@ public class ShopPanel extends JPanel {
             String itemDescription = itemDescriptions[i];
             itemPanel.setToolTipText(itemDescription);
 
-            if (gamePanel.getPesos() < getItemPrice(i) || !canAffordAnyItem(gamePanel.getPesos(), itemNames)) {
+            if (gamePanel.getPesos() < price || !canAffordAnyItem(gamePanel.getPesos(), itemNames)) {
                 buyButton.setEnabled(false);
             } else {
                 int itemIndex = i;
 
                 buyButton.addActionListener(e -> {
                     playBuySound();
-                    int price = getItemPrice(itemIndex);
                     gamePanel.setPesos(gamePanel.getPesos() - price);
-
                     switch (itemIndex) {
                         case 0: // Ice-y Tubig
                             gamePanel.experience += 50;
@@ -138,7 +137,7 @@ public class ShopPanel extends JPanel {
                             gamePanel.playerLevelLabel.setText("LVL " + gamePanel.playerLevel);
                             break;
                         case 1: // Shtick-O
-                            gamePanel.increaseEarnedPesosMaxValue(5);
+                            gamePanel.increaseEarnedPesosMaxValue(1);
                             gamePanel.increaseLuck(15);
                             refreshShopPanel();
                             break;
@@ -172,15 +171,15 @@ public class ShopPanel extends JPanel {
                             }
                             break;
                         case 6: // Bye-gon
-                            gamePanel.increaseCritRateModifier(0.15);
+                            gamePanel.increaseCritRateModifier(0.10);
                             refreshShopPanel();
                             break;
                         case 7: // Mouse Trap
-                            gamePanel.increaseCritDamageModifier(10);
+                            gamePanel.increaseCritDamageModifier(2);
                             refreshShopPanel();
                             break;
                         case 8: // Infinity Edge
-                            gamePanel.setDamageMultiplier(gamePanel.getDamageMultiplier() * 1.5);
+                            gamePanel.setDamageMultiplier(gamePanel.getDamageMultiplier() * 1.25);
                             refreshShopPanel();
                             break;
                     }
@@ -253,9 +252,9 @@ public class ShopPanel extends JPanel {
             case 6: // Bye-gon
                 return 100;
             case 7: // Mouse Trap
-                return 120;
+                return 150;
             case 8: // Infinity Edge
-                return 200;
+                return 250;
             default:
                 return 0;
         }

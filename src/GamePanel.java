@@ -96,6 +96,7 @@ public class GamePanel extends JPanel {
     private boolean isShopOpen = false;
     private ImageIcon emptyIcon = new ImageIcon("media/images/empty.png");
     private ImageIcon dengueIcon = new ImageIcon("media/images/dengue.png");
+    private List<String> usedDialogues = new ArrayList<>();
 
     void showIntroScreen() {
         this.setBackground(Color.BLACK);
@@ -269,6 +270,8 @@ public class GamePanel extends JPanel {
 
         JScrollPane dialogueScrollPane = new JScrollPane(dialogueArea);
         dialogueScrollPane.setPreferredSize(new Dimension(170, getHeight()));
+        // dialogueScrollPane.setBorder(BorderFactory.createMatteBorder(4, 4, 4, 4,
+        // Color.WHITE));
 
         this.buttonsPanel = new JPanel();
         buttonsPanel.setLayout(new GridLayout(1, 4, 10, 0));
@@ -315,7 +318,7 @@ public class GamePanel extends JPanel {
                 int pesoAmount = luckyRandom(1, 40);
                 increasePesos(pesoAmount);
                 luckyCatButton.setVisible(false);
-                if (Math.random() < 0.6) {
+                if (Math.random() < 0.69) {
                     int healthIncrease = luckyRandom(1, 40);
                     if (getPlayerCurrentHealth() < getPlayerMaxHealth()) {
                         setPlayerCurrentHealth(getPlayerCurrentHealth() + healthIncrease);
@@ -584,7 +587,7 @@ public class GamePanel extends JPanel {
         }
         if (playerLevel >= 10) {
             int levelDifference = playerLevel - 10;
-            int healthIncrease = levelDifference * 20;
+            int healthIncrease = levelDifference * 30;
             enemyMaxHealth += healthIncrease;
         }
         if (damageMultiplier > 1.0) {
@@ -1498,6 +1501,7 @@ public class GamePanel extends JPanel {
 
     private void performEnemyRegularMove(MovePool.Move move, double chance) {
         int damage = move.getDamage();
+        int originalDamage = damage;
 
         double critChance = 0.05;
         if (damageMultiplier > 1.0) {
@@ -1518,12 +1522,13 @@ public class GamePanel extends JPanel {
             }
         }
 
-        if (playerLevel >= 5) {
-            int levelDifference = playerLevel - 5;
-            damage += levelDifference * 2;
-        }
-
         if (Math.random() <= chance) {
+            if (originalDamage > 0) {
+                if (playerLevel >= 5) {
+                    int levelDifference = playerLevel - 6;
+                    damage += levelDifference * 2;
+                }
+            }
             playerCurrentHealth -= damage;
             String enemyName = enemyPokeKalye;
             if (enemyPokeKalye.length() > 8) {
@@ -2084,6 +2089,7 @@ public class GamePanel extends JPanel {
 
     public void playerDefeat() {
         fadeOutBattleMusic();
+        stopDengueTimer();
         gameOver = true;
         GameOverPanel gameOverScreen = new GameOverPanel(this);
         Container parent = this.getParent();
@@ -2131,29 +2137,29 @@ public class GamePanel extends JPanel {
         String dialogue;
 
         if (level >= 1 && level <= 5) {
-            dialogue = "\n Prof RP caught the\n " + enemyPokeKalyeName + " for you!";
+            dialogue = "\nProf RP caught the\n" + enemyPokeKalyeName + " for you!";
         } else if (level >= 6 && level <= 10) {
             String[] dialogueOptions = {
-                    "Kailangan natin\n mahuli ang mga to..\n maaasahan ba kita?",
-                    "\n Prof RP caught the\n " + enemyPokeKalyeName + " for you!",
-                    "Your mother said\n \"Di mo pwede iuwi si\n " + selectedPokeKalye
+                    "Kailangan natin\nmahuli ang mga to..\nmaaasahan ba kita?",
+                    "\nProf RP caught the\n" + enemyPokeKalyeName + " for you!",
+                    "Your mother said\n\"Di mo pwede iuwi si\n" + selectedPokeKalye
                             + " sa bahay.\"",
-                    "\n Kalye North.. Kalye South..\n Kalye West....",
-                    "\n Pampaswerte daw yung\n Shtick-O, natry mo na?"
+                    "\nKalye North.. Kalye South..\nKalye West....",
+                    "\nPampaswerte daw yung\nShtick-O, natry mo na?"
             };
-            dialogue = getRandomDialogueWithReuse(dialogueOptions, 0.6);
+            dialogue = getRandomDialogueWithReuse(dialogueOptions);
         } else if (level >= 11 && level <= 15) {
             String[] dialogueOptions = {
-                    "\n " + enemyPokeKalyeName + " has been caught!",
-                    "\n Let me just get these\n PokeKalyes to my Lab!",
-                    "\n I think that's enough now.\n Thank you.",
-                    "\n You can leave now.",
-                    "\n I warned you.",
-                    "NO!\n WHY ARE YOU CATCHING THEM?\n THEY'RE ALL MINE!"
+                    "\n" + enemyPokeKalyeName + " has been caught!",
+                    "\nLet me just get these\nPokeKalyes to my Lab!",
+                    "\nI think that's enough now.\nThank you.",
+                    "\nYou can leave now.",
+                    "\nI warned you.",
+                    "NO!\nWHY ARE YOU CATCHING THEM?\nTHEY'RE ALL MINE!"
             };
-            dialogue = getRandomDialogueWithoutReuse(dialogueOptions);
+            dialogue = getNextSequentialDialogue(dialogueOptions, level - 11);
         } else if (level >= 16 && level <= 19) {
-            dialogue = "\n " + enemyPokeKalyeName + " has been caught!";
+            dialogue = "\n" + enemyPokeKalyeName + " has been caught!";
         } else {
             dialogue = "";
         }
@@ -2161,20 +2167,23 @@ public class GamePanel extends JPanel {
         appendToDialogue(dialogue);
     }
 
-    private String getRandomDialogueWithReuse(String[] dialogueOptions, double specialCaseProbability) {
+    private String getRandomDialogueWithReuse(String[] dialogueOptions) {
         List<String> availableDialogues = new ArrayList<>(Arrays.asList(dialogueOptions));
+        availableDialogues.removeAll(usedDialogues);
         Collections.shuffle(availableDialogues);
-        boolean includeSpecialCase = Math.random() < specialCaseProbability;
-        if (includeSpecialCase) {
-            String specialCaseDialogue = "Prof RP caught the\n " + enemyPokeKalye + " for you!";
-            availableDialogues.add(0, specialCaseDialogue);
-        }
-        return availableDialogues.get(0);
+        String dialogue = availableDialogues.get(0);
+        usedDialogues.add(dialogue);
+        return dialogue;
     }
 
-    private String getRandomDialogueWithoutReuse(String[] dialogueOptions) {
-        List<String> availableDialogues = new ArrayList<>(Arrays.asList(dialogueOptions));
-        Collections.shuffle(availableDialogues);
-        return availableDialogues.remove(0);
+    private String getNextSequentialDialogue(String[] dialogueOptions, int index) {
+        if (index >= 0 && index < dialogueOptions.length) {
+            String dialogue = dialogueOptions[index];
+            if (!usedDialogues.contains(dialogue)) {
+                usedDialogues.add(dialogue);
+                return dialogue;
+            }
+        }
+        return "";
     }
 }

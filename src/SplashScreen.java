@@ -1,9 +1,9 @@
 import java.awt.Dimension;
-import java.awt.Image;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import javax.imageio.ImageIO;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -25,10 +25,11 @@ public class SplashScreen {
     public SplashScreen() throws IOException {
         String iconPath = "media/images/KalyeRPG.png";
         ImageIcon icon = new ImageIcon(iconPath);
-        JFrame splashFrame = createSplashFrame("media/images/PokeKalye.png", 300, 300);
+        JFrame splashFrame = createSplashFrame("media/images/PokeKalye.gif", 300, 300);
         splashFrame.setIconImage(icon.getImage());
-        Timer timer = new Timer(7000, e -> {
-            splashFrame.dispose(); // 7000 pag final na
+        playAudio("media/audio/splashTheme.wav");
+        Timer timer = new Timer(7500, e -> {
+            splashFrame.dispose();
             showSecondSplash();
         });
         timer.setRepeats(false);
@@ -55,10 +56,10 @@ public class SplashScreen {
 
     private JFrame createSplashFrame(String imagePath, int width, int height) throws IOException {
         JFrame splashFrame = new JFrame();
+        splashFrame.setLayout(null);
         JLabel splashLabel = new JLabel();
-        Image splashImage = createImage(imagePath, width, height);
-        ImageIcon splashIcon = new ImageIcon(splashImage);
-
+        splashLabel.setBounds(0, 0, width, height);
+        ImageIcon splashIcon = new ImageIcon(imagePath);
         splashLabel.setIcon(splashIcon);
         splashFrame.add(splashLabel);
         splashFrame.setUndecorated(true);
@@ -67,16 +68,19 @@ public class SplashScreen {
         return splashFrame;
     }
 
-    private Image createImage(String imagePath, int width, int height) throws IOException {
-        File file = new File(imagePath);
-        if (!file.exists()) {
-            throw new IllegalArgumentException("Image null: " + imagePath);
-        }
-        BufferedImage img = ImageIO.read(file);
-        return img.getScaledInstance(width, height, Image.SCALE_SMOOTH);
-    }
-
     private void launchGame() {
         Professor.main(null);
+    }
+
+    private void playAudio(String audioPath) {
+        try {
+            File audioFile = new File(audioPath);
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(audioFile);
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioInputStream);
+            clip.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -30,6 +30,9 @@ public class PokeKalyeChooser extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(600, 400);
         setLayout(null);
+        String iconPath = "media/images/KalyeRPG.png";
+        ImageIcon icon = new ImageIcon(iconPath);
+        setIconImage(icon.getImage());
 
         setContentPane(new JLabel(new ImageIcon("media/images/bg.png")));
 

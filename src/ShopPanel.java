@@ -142,7 +142,7 @@ public class ShopPanel extends JPanel {
                             refreshShopPanel();
                             break;
                         case 2: // Coke Omsim
-                            int healthIncrease = 50;
+                            int healthIncrease = 30;
                             gamePanel.setPlayerCurrentHealth(gamePanel.getPlayerCurrentHealth() + healthIncrease);
                             gamePanel.updateHealthBars();
                             refreshShopPanel();
@@ -171,7 +171,7 @@ public class ShopPanel extends JPanel {
                             }
                             break;
                         case 6: // Bye-gon
-                            gamePanel.increaseCritRateModifier(0.10);
+                            gamePanel.increaseCritRateModifier(0.15);
                             refreshShopPanel();
                             break;
                         case 7: // Mouse Trap
@@ -179,7 +179,7 @@ public class ShopPanel extends JPanel {
                             refreshShopPanel();
                             break;
                         case 8: // Infinity Edge
-                            gamePanel.setDamageMultiplier(gamePanel.getDamageMultiplier() * 1.25);
+                            gamePanel.setDamageMultiplier(gamePanel.getDamageMultiplier() * 1.5);
                             refreshShopPanel();
                             break;
                     }

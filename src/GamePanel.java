@@ -27,7 +27,7 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 public class GamePanel extends JPanel {
-    public int playerLevel = 1;
+    public int playerLevel = 20;
     public int experience;
     private JLabel playerLabel;
     private JPanel playerPanel;
@@ -50,7 +50,7 @@ public class GamePanel extends JPanel {
     JLabel playerLevelLabel;
     private int enemyCurrentHealth;
     private JLabel battleStatusLabel;
-    private int pesos = 0;
+    private int pesos = 10000;
     private Search search;
     private JLabel enemyImageLabel;
     private List<JButton> moveButtons;
@@ -90,13 +90,17 @@ public class GamePanel extends JPanel {
     private int purrCooldown = 0;
     private double critRateModifier = 0.0;
     private int critDamageModifier = 0;
-    private int earnedPesosMaxValue = 10;
+    private int earnedPesosMaxValue = 13;
     private int luck = 0;
     private JLabel luckyCatButton;
     private boolean isShopOpen = false;
     private ImageIcon emptyIcon = new ImageIcon("media/images/empty.png");
     private ImageIcon dengueIcon = new ImageIcon("media/images/dengue.png");
     private List<String> usedDialogues = new ArrayList<>();
+    private int enemyMeditateCooldown = 0;
+    private long startTime;
+    private boolean gameCompleted = false;
+    private float alpha = 1.0f;
 
     void showIntroScreen() {
         this.setBackground(Color.BLACK);
@@ -137,6 +141,7 @@ public class GamePanel extends JPanel {
         search = new Search(this);
         preloadSounds();
         showIntroScreen();
+        startTime = System.currentTimeMillis();
 
         playerMaxHealth = getMaxHealth(playerData);
         int enemyMaxHealth = getMaxHealth(enemyData);
@@ -188,19 +193,22 @@ public class GamePanel extends JPanel {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
+                Graphics2D g2d = (Graphics2D) g;
                 g.setColor(new Color(240, 221, 226));
                 g.fillRect(0, 0, getWidth(), getHeight());
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
             }
         };
         imagePanel.setLayout(null);
         imagePanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         enemyImageLabel = new JLabel(new ImageIcon("images/empty.png"));
-        enemyImageLabel.setBounds(240, 120, 100, 100);
+        enemyImageLabel.setBounds(240, 100, 100, 150);
         imagePanel.add(enemyImageLabel);
 
         yourPokeKalyeImage = new JLabel(new ImageIcon("media/images/" + selectedPokeKalye + "User.png"));
-        yourPokeKalyeImage.setBounds(70, 10, 100, 100);
+        yourPokeKalyeImage.setBounds(60, 10, 100, 100);
         imagePanel.add(yourPokeKalyeImage);
 
         yourPokeKalyeDamageLabel = new JLabel();
@@ -403,17 +411,35 @@ public class GamePanel extends JPanel {
             playerExpBar.setMaximum(getLevelUpExperience(playerLevel));
             animateExpBar(playerExpBar, experience, getLevelUpExperience(playerLevel), 600);
             playerLevelLabel.setText("LVL " + playerLevel);
-            Timer timer = new Timer(50, new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    displayAfterBattleDialogue();
-                    setInBattle(false);
-                    searchButton.setEnabled(true);
-                    restoreButtons();
-                }
-            });
-            timer.setRepeats(false);
-            timer.start();
+            if (enemyPokeKalye.equals("Professor Splinter")) {
+                Timer victoryTimer = new Timer(4000, new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        playerVictory();
+                    }
+                });
+                setGameCompleted();
+                buttonsPanel.removeAll();
+                moveButtons.clear();
+                buttonsPanel.revalidate();
+                buttonsPanel.repaint();
+                playBossDefeat();
+                search.stopBossMusic();
+                victoryTimer.setRepeats(false);
+                victoryTimer.start();
+            } else {
+                Timer timer = new Timer(50, new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        displayAfterBattleDialogue();
+                        setInBattle(false);
+                        searchButton.setEnabled(true);
+                        restoreButtons();
+                    }
+                });
+                timer.setRepeats(false);
+                timer.start();
+            }
             clearDialogue();
         } else if (playerCurrentHealth <= 0 && !gameOver) {
             playerDefeat();
@@ -467,7 +493,6 @@ public class GamePanel extends JPanel {
                     }
                 }
             });
-
             moveButtons.add(moveButton);
             buttonsPanel.add(moveButton);
         }
@@ -504,17 +529,26 @@ public class GamePanel extends JPanel {
         setEnemyData(enemyData);
         updateHealthBars();
         enemyLabel.setText(enemyData.getName().toUpperCase());
-        ImageIcon enemyImage = new ImageIcon("media/images/" + enemyPokeKalye + "2.png");
+
+        String imagePath = "media/images/" + enemyPokeKalye + "2.png";
+        ImageIcon enemyImage;
+
+        if (enemyData.getName().equals("Professor Splinter")) {
+            imagePath = "media/images/ProfessorSplinter.png";
+            enemyImage = new ImageIcon(imagePath);
+            enemyImageLabel.setBounds(240, 70, 100, 150);
+            enemyHealthBar.setPreferredSize(new Dimension(230, 16));
+        } else {
+            enemyImage = new ImageIcon(imagePath);
+            enemyHealthBar.setPreferredSize(new Dimension(140, 16));
+
+            playBattleMusic();
+        }
+
         enemyImageLabel.setIcon(enemyImage);
         setInBattle(true);
         System.out.println("Enemy HP: " + enemyCurrentHealth + "/" + enemyMaxHealth);
-        playBattleMusic();
         enableSearchButton(false);
-        if (enemyData.getName().equals("Professor Splinter")) {
-            enemyHealthBar.setPreferredSize(new Dimension(230, 16));
-        } else {
-            enemyHealthBar.setPreferredSize(new Dimension(140, 16));
-        }
     }
 
     public void setDialogueText(String dialogue) {
@@ -1203,20 +1237,19 @@ public class GamePanel extends JPanel {
     private void performRegularMove(MovePool.Move move, double chance) {
         int damage = move.getDamage();
 
-        if (tripleDamageNextMove) {
-            damage *= 2.5;
-            tripleDamageNextMove = false;
-        }
         damage *= damageMultiplier;
 
+        if (tripleDamageNextMove) {
+            damage *= 3;
+            tripleDamageNextMove = false;
+        }
         if (damageMultiplier > 1.0) {
             int additionalDamage = (int) (Math.random() * 10) + 1;
             damage += additionalDamage;
         }
-
         double critChance = 0.05 + critRateModifier;
         if (selectedPokeKalye.equals("Puspin Boots")) {
-            critChance += 0.1 + critDamageModifier;
+            critChance += 0.1 + critRateModifier;
         }
         boolean isCrit = Math.random() <= critChance;
         if (isCrit) {
@@ -1257,36 +1290,103 @@ public class GamePanel extends JPanel {
 
     private void enemyTurn() {
         if (enemyCurrentHealth > 0) {
-            MovePool.Move[] enemyMoves = enemyData.getMoves();
-            int randomIndex = (int) (Math.random() * enemyMoves.length);
-            MovePool.Move enemyMove = enemyMoves[randomIndex];
-            String enemyMoveName = enemyMove.getName();
-
-            double chance = enemyMove.getChance();
-
-            if (enemyMoveName.equals("Flee")) {
-                performEnemyFleeMove(enemyMove, chance);
-                return;
-            }
-
-            if (enemyMoveName.equals("Burrow")) {
-                performEnemyBurrowMove(enemyMove, chance);
-            } else if (enemyMoveName.equals("Tahol")) {
-                performEnemyTaholMove(enemyMove);
-            } else if (enemyMoveName.equals("Bite")) {
-                performEnemyBiteMove(enemyMove, chance);
-            } else if (enemyMoveName.equals("Purr") && enemyCurrentHealth < enemyData.getMaxHealth()) {
-                performEnemyPurrMove(enemyMove);
-            } else if (enemyMoveName.equals("Suck")) {
-                performEnemySuckMove(enemyMove, chance);
+            if (enemyMeditateCooldown > 0) {
+                dialogueArea.append("\n Splinter is meditating.");
+                enemyMeditateCooldown--;
             } else {
-                performEnemyRegularMove(enemyMove, chance);
+                MovePool.Move[] enemyMoves = enemyData.getMoves();
+                int randomIndex = (int) (Math.random() * enemyMoves.length);
+                MovePool.Move enemyMove = enemyMoves[randomIndex];
+                String enemyMoveName = enemyMove.getName();
+
+                double chance = enemyMove.getChance();
+
+                if (enemyMoveName.equals("Flee")) {
+                    performEnemyFleeMove(enemyMove, chance);
+                    return;
+                }
+
+                if (enemyMoveName.equals("Burrow")) {
+                    performEnemyBurrowMove(enemyMove, chance);
+                } else if (enemyMoveName.equals("Tahol")) {
+                    performEnemyTaholMove(enemyMove);
+                } else if (enemyMoveName.equals("Bite")) {
+                    performEnemyBiteMove(enemyMove, chance);
+                } else if (enemyMoveName.equals("Purr") && enemyCurrentHealth < enemyData.getMaxHealth()) {
+                    performEnemyPurrMove(enemyMove);
+                } else if (enemyMoveName.equals("Suck")) {
+                    performEnemySuckMove(enemyMove, chance);
+                } else if (enemyMoveName.equals("Meditate")) {
+                    performEnemyMeditateMove(enemyMove);
+                } else if (enemyMoveName.equals("Sewer Focus")) {
+                    performEnemySewerFocusMove(enemyMove, chance);
+                } else {
+                    performEnemyRegularMove(enemyMove, chance);
+                }
             }
         }
 
         if (enemyCurrentHealth <= 0) {
             inBattle = false;
             fadeOutBattleMusic();
+        }
+    }
+
+    private void performEnemySewerFocusMove(MovePool.Move move, double chance) {
+        int numUpdates = 5;
+        int damage = move.getDamage();
+
+        for (int i = 0; i < numUpdates; i++) {
+            if (Math.random() < chance) {
+                boolean isCrit = Math.random() < 0.2;
+
+                if (damage > 0) {
+                    if (isCrit) {
+                        damage *= 2;
+                    }
+
+                    animateDamageBlink(yourPokeKalyeImage);
+                    playDamageSound(damage);
+                    showDamageLabel(yourPokeKalyeDamageLabel, damage, isCrit);
+                }
+
+                playerCurrentHealth -= damage;
+                if (playerCurrentHealth < 0) {
+                    playerCurrentHealth = 0;
+                }
+
+                updateHealthBars();
+
+                try {
+                    Thread.sleep(110);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                dialogueArea.append("\n Splinter's Sewer Focus missed!");
+            }
+        }
+
+        dialogueArea.append("\n Splinter used Sewer Focus!");
+        if (playerCurrentHealth <= 0) {
+            inBattle = false;
+            fadeOutBattleMusic();
+        }
+    }
+
+    private void performEnemyMeditateMove(MovePool.Move move) {
+        if (enemyMeditateCooldown > 0) {
+            performEnemyRegularMove(move, 1.0);
+            dialogueArea.append("\n Splinter is meditating.");
+        } else {
+            int healAmount = (int) (Math.random() * 501) + 200;
+            enemyCurrentHealth += healAmount;
+            enemyMeditateCooldown = (int) (Math.random() * 2);
+            dialogueArea.append("\n Splinter used " + move.getName() + ".");
+            updateHealthBars();
+            playMeditateSound();
+            System.out.println("Player HP: " + playerCurrentHealth + "/" + getMaxHealth(playerData));
+            System.out.println("Enemy HP: " + enemyCurrentHealth + "/" + getMaxHealth(enemyData));
         }
     }
 
@@ -1531,7 +1631,9 @@ public class GamePanel extends JPanel {
             }
             playerCurrentHealth -= damage;
             String enemyName = enemyPokeKalye;
-            if (enemyPokeKalye.length() > 8) {
+            if (enemyPokeKalye.equals("Splinter")) {
+                enemyName = " Splinter " + move.getName() + ".";
+            } else if (enemyPokeKalye.length() > 8) {
                 enemyName = "It used " + move.getName() + "!";
             } else {
                 enemyName += " used " + move.getName() + "!";
@@ -1614,16 +1716,20 @@ public class GamePanel extends JPanel {
     }
 
     private void clearDialogue() {
-        String dialogue = " What will ";
+        String dialogue = "";
 
-        if (selectedPokeKalye.equals("Puspin Boots")) {
-            dialogue += "the great\n Puspin Boots do?";
-        } else if (selectedPokeKalye.equals("Ant-Man")) {
-            dialogue = " What's it gonna be,\n Ant-Man?";
-        } else if (selectedPokeKalye.equals("Big Dog")) {
-            dialogue += "the\n Big Dog do?";
+        if (gameCompleted) {
+            dialogue = " Congratulations!\n You beat the game!";
         } else {
-            dialogue += selectedPokeKalye + " do?";
+            if (selectedPokeKalye.equals("Puspin Boots")) {
+                dialogue = " What will the great\n Puspin Boots do?";
+            } else if (selectedPokeKalye.equals("Ant-Man")) {
+                dialogue = " What's it gonna be,\n Ant-Man?";
+            } else if (selectedPokeKalye.equals("Big Dog")) {
+                dialogue = " What will the\n Big Dog do?";
+            } else {
+                dialogue = " What will " + selectedPokeKalye + " do?";
+            }
         }
 
         dialogueArea.setText(dialogue);
@@ -1872,6 +1978,32 @@ public class GamePanel extends JPanel {
         }
     }
 
+    public void playBossDefeat() {
+        try {
+            String audioFilePath = "media/audio/splinterDeath.wav";
+            File audioFile = new File(audioFilePath);
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
+
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioStream);
+            clip.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void playMeditateSound() {
+        try {
+            File soundFile = new File("media/audio/meditate.wav");
+            AudioInputStream audioIn = AudioSystem.getAudioInputStream(soundFile);
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioIn);
+            clip.start();
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void playLuckyCatSound() {
         try {
             File soundFile = new File("media/audio/luckycat.wav");
@@ -2087,7 +2219,23 @@ public class GamePanel extends JPanel {
         }
     }
 
+    public void playerVictory() {
+        search.stopBossMusic();
+        fadeOutBattleMusic();
+        stopDengueTimer();
+        gameCompleted = true;
+        long endTime = System.currentTimeMillis();
+        long elapsedTime = endTime - startTime;
+        GameCompletedPanel gameCompletedScreen = new GameCompletedPanel(this, elapsedTime);
+        Container parent = this.getParent();
+        parent.removeAll();
+        parent.add(gameCompletedScreen);
+        parent.revalidate();
+        parent.repaint();
+    }
+
     public void playerDefeat() {
+        search.stopBossMusic();
         fadeOutBattleMusic();
         stopDengueTimer();
         gameOver = true;
@@ -2137,29 +2285,29 @@ public class GamePanel extends JPanel {
         String dialogue;
 
         if (level >= 1 && level <= 5) {
-            dialogue = "\nProf RP caught the\n" + enemyPokeKalyeName + " for you!";
+            dialogue = "\n Prof RP caught the\n " + enemyPokeKalyeName + " for you!";
         } else if (level >= 6 && level <= 10) {
             String[] dialogueOptions = {
-                    "Kailangan natin\nmahuli ang mga to..\nmaaasahan ba kita?",
-                    "\nProf RP caught the\n" + enemyPokeKalyeName + " for you!",
-                    "Your mother said\n\"Di mo pwede iuwi si\n" + selectedPokeKalye
+                    "Kailangan natin\n mahuli ang mga to..\n maaasahan ba kita?",
+                    "\n Prof RP caught the\n" + enemyPokeKalyeName + " for you!",
+                    "Your mother said\n \"Di mo pwede iuwi si\n " + selectedPokeKalye
                             + " sa bahay.\"",
-                    "\nKalye North.. Kalye South..\nKalye West....",
-                    "\nPampaswerte daw yung\nShtick-O, natry mo na?"
+                    "\n Queensrow North...\n Kalye West....",
+                    "\n Pampaswerte daw yung\nShtick-O, natry mo na?"
             };
             dialogue = getRandomDialogueWithReuse(dialogueOptions);
         } else if (level >= 11 && level <= 15) {
             String[] dialogueOptions = {
-                    "\n" + enemyPokeKalyeName + " has been caught!",
-                    "\nLet me just get these\nPokeKalyes to my Lab!",
-                    "\nI think that's enough now.\nThank you.",
-                    "\nYou can leave now.",
-                    "\nI warned you.",
-                    "NO!\nWHY ARE YOU CATCHING THEM?\nTHEY'RE ALL MINE!"
+                    "\n " + enemyPokeKalyeName + " has been caught!",
+                    "\n Let me just get these\n PokeKalyes to my Lab!",
+                    "\n I think that's enough now.\n Thank you.",
+                    "\n You can leave now.",
+                    "\n I warned you.",
+                    "NO!\n WHY ARE YOU CATCHING THEM?\n THEY'RE ALL MINE!"
             };
             dialogue = getNextSequentialDialogue(dialogueOptions, level - 11);
         } else if (level >= 16 && level <= 19) {
-            dialogue = "\n" + enemyPokeKalyeName + " has been caught!";
+            dialogue = "\n " + enemyPokeKalyeName + " has been caught!";
         } else {
             dialogue = "";
         }
@@ -2185,5 +2333,17 @@ public class GamePanel extends JPanel {
             }
         }
         return "";
+    }
+
+    public long getStartTime() {
+        return startTime;
+    }
+
+    private void setGameCompleted() {
+        gameCompleted = true;
+        buttonsPanel.removeAll();
+        moveButtons.clear();
+        buttonsPanel.revalidate();
+        buttonsPanel.repaint();
     }
 }

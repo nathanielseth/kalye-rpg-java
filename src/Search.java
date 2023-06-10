@@ -11,11 +11,13 @@ public class Search {
     private int dotsCount = 0;
     private String searchingText = "Searching";
     private Clip searchClip;
+    private Clip bossMusicClip;
 
     public Search(GamePanel gamePanel) {
         this.gamePanel = gamePanel;
         currentlySearching = false;
         loadSearchSound();
+        loadBossMusic();
     }
 
     private void loadSearchSound() {
@@ -101,12 +103,16 @@ public class Search {
 
     private void playSearchSound() {
         try {
-            searchClip.setFramePosition(0);
-            searchClip.loop(Clip.LOOP_CONTINUOUSLY);
-            while (currentlySearching && !gamePanel.isInBattle()) {
-                Thread.sleep(100);
+            if (gamePanel.getLevel() == 20) {
+                playBossMusic();
+            } else {
+                searchClip.setFramePosition(0);
+                searchClip.loop(Clip.LOOP_CONTINUOUSLY);
+                while (currentlySearching && !gamePanel.isInBattle()) {
+                    Thread.sleep(100);
+                }
+                searchClip.stop();
             }
-            searchClip.stop();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -173,4 +179,31 @@ public class Search {
         int delay = 152;
         animationTimer.setDelay(delay);
     }
+
+    private void loadBossMusic() {
+        try {
+            File soundFile = new File("media/audio/bossMusic.wav");
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(soundFile);
+            bossMusicClip = AudioSystem.getClip();
+            bossMusicClip.open(audioInputStream);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void playBossMusic() {
+        try {
+            bossMusicClip.setFramePosition(0);
+            bossMusicClip.loop(Clip.LOOP_CONTINUOUSLY);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void stopBossMusic() {
+        if (bossMusicClip != null && bossMusicClip.isRunning()) {
+            bossMusicClip.stop();
+        }
+    }
+
 }

@@ -26,7 +26,7 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 public class GamePanel extends JPanel {
-    public int playerLevel = 10;
+    public int playerLevel = 1;
     public int experience;
     private JLabel playerLabel;
     private JPanel playerPanel;
@@ -49,7 +49,7 @@ public class GamePanel extends JPanel {
     JLabel playerLevelLabel;
     private int enemyCurrentHealth;
     private JLabel battleStatusLabel;
-    private int pesos = 1000;
+    private int pesos = 0;
     private Search search;
     private JLabel enemyImageLabel;
     private List<JButton> moveButtons;

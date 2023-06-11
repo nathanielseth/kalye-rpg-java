@@ -145,7 +145,7 @@ public class Search {
             String[] veryCommonEnemies = { "Askal", "Palaka" };
             String[] commonEnemies = { "Flying Ipis", "Dagang Kanal", "Bangaw",
                     "Puspin", "Tutubi", "Paro-paro" };
-            String[] moderateEnemies = { "Paniki", "Antik", "Higad", "Salagubang", "Manok", "Ahas", "Tipaklong",
+            String[] moderateEnemies = { "Paniki", "Higad", "Salagubang", "Manok", "Ahas", "Tipaklong",
                     "Colored Sisiw", "Tuko", "Bubuyog", "Mandarangkal" };
             String[] rareEnemies = { "Kabayo", "Daga" };
 

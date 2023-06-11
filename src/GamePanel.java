@@ -16,7 +16,6 @@ import java.util.concurrent.Executors;
 import java.io.File;
 import java.io.IOException;
 
-import javax.swing.Timer;
 import javax.swing.border.Border;
 
 import javax.sound.sampled.AudioInputStream;
@@ -27,7 +26,7 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 public class GamePanel extends JPanel {
-    public int playerLevel = 20;
+    public int playerLevel = 10;
     public int experience;
     private JLabel playerLabel;
     private JPanel playerPanel;
@@ -50,7 +49,7 @@ public class GamePanel extends JPanel {
     JLabel playerLevelLabel;
     private int enemyCurrentHealth;
     private JLabel battleStatusLabel;
-    private int pesos = 10000;
+    private int pesos = 1000;
     private Search search;
     private JLabel enemyImageLabel;
     private List<JButton> moveButtons;
@@ -60,7 +59,7 @@ public class GamePanel extends JPanel {
     private PokeKalyeData.PokeKalye enemyData;
     private boolean playerTurn = true;
     private boolean gameOver = false;
-    private boolean tripleDamageNextMove = false;
+    private boolean taholDmgBoost = false;
     private JLabel yourPokeKalyeImage;
     private Clip loopingMusicClip;
     private static Clip clickSoundClip;
@@ -543,6 +542,14 @@ public class GamePanel extends JPanel {
             enemyHealthBar.setPreferredSize(new Dimension(140, 16));
 
             playBattleMusic();
+            String cryPath = "media/audio/Cries/" + enemyPokeKalye + "Cry.wav";
+            try {
+                Clip clip = AudioSystem.getClip();
+                clip.open(AudioSystem.getAudioInputStream(new File(cryPath)));
+                clip.start();
+            } catch (Exception e) {
+                System.err.println("Error playing audio: " + e.getMessage());
+            }
         }
 
         enemyImageLabel.setIcon(enemyImage);
@@ -616,7 +623,7 @@ public class GamePanel extends JPanel {
 
         if (getLevel() >= 6) {
             int levelDifference = getLevel() - 6;
-            int healthIncrease = levelDifference * 5;
+            int healthIncrease = levelDifference * 3;
             enemyMaxHealth += healthIncrease;
         }
         if (playerLevel >= 10) {
@@ -1179,7 +1186,7 @@ public class GamePanel extends JPanel {
     }
 
     private void performTaholMove(MovePool.Move move) {
-        tripleDamageNextMove = true;
+        taholDmgBoost = true;
         appendToDialogue("\n " + selectedPokeKalye + " used " + move.getName() + "!");
         playBarkSound();
     }
@@ -1239,9 +1246,9 @@ public class GamePanel extends JPanel {
 
         damage *= damageMultiplier;
 
-        if (tripleDamageNextMove) {
-            damage *= 3;
-            tripleDamageNextMove = false;
+        if (taholDmgBoost) {
+            damage *= 2.5;
+            taholDmgBoost = false;
         }
         if (damageMultiplier > 1.0) {
             int additionalDamage = (int) (Math.random() * 10) + 1;
@@ -2289,7 +2296,7 @@ public class GamePanel extends JPanel {
         } else if (level >= 6 && level <= 10) {
             String[] dialogueOptions = {
                     "Kailangan natin\n mahuli ang mga to..\n maaasahan ba kita?",
-                    "\n Prof RP caught the\n" + enemyPokeKalyeName + " for you!",
+                    "\n Prof RP caught the\n " + enemyPokeKalyeName + " for you!",
                     "Your mother said\n \"Di mo pwede iuwi si\n " + selectedPokeKalye
                             + " sa bahay.\"",
                     "\n Queensrow North...\n Kalye West....",
@@ -2316,8 +2323,14 @@ public class GamePanel extends JPanel {
     }
 
     private String getRandomDialogueWithReuse(String[] dialogueOptions) {
+        String enemyPokeKalyeName = enemyPokeKalye;
         List<String> availableDialogues = new ArrayList<>(Arrays.asList(dialogueOptions));
         availableDialogues.removeAll(usedDialogues);
+
+        if (availableDialogues.isEmpty()) {
+            return "\n Prof RP caught the\n " + enemyPokeKalyeName + " for you!";
+        }
+
         Collections.shuffle(availableDialogues);
         String dialogue = availableDialogues.get(0);
         usedDialogues.add(dialogue);

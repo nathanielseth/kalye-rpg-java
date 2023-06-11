@@ -4,10 +4,10 @@ public class MovePool {
     public static final Move PURR = new Move("Purr", 0, false, 0.8, Effect.HEAL_HP);
     public static final Move SNEAK_ATTACK = new Move("Sneak Attack", 40, false, 1.0);
     public static final Move BITE = new Move("Bite", 5, false, 1, Effect.RABIES);
-    public static final Move BITE_TUTA = new Move("Bite", 5, false, 0.7);
+    public static final Move BITE_TUTA = new Move("Bite", 4, false, 0.7);
     public static final Move TAHOL = new Move("Tahol", 0, true, 1, Effect.MULTIPLY_DAMAGE);
     public static final Move SPEAR = new Move("Spear", 10, false, 0.95);
-    public static final Move OUTRAGE = new Move("Outrage", 50, false, 0.8);
+    public static final Move OUTRAGE = new Move("Outrage", 40, false, 0.9);
     public static final Move KAGAT = new Move("Kagat", 5, false, 1);
     public static final Move BURROW = new Move("Burrow", 3, true, 0.7, Effect.DODGE_NEXT_MOVE);
     public static Move GANG_UP = new Move("Gang Up", 1, false, 0.85, Effect.REPEAT_MOVE);
@@ -31,8 +31,8 @@ public class MovePool {
     public static final Move FLEE_LANGAW = new Move("Flee", 0, true, 0.6);
     public static final Move DAPO_LANGAW = new Move("Dapo", 4, false, 1);
 
-    public static final Move RAT_ATTACK = new Move("Rat Attack", 40, false, 1);
-    public static final Move SEWER_FOCUS = new Move("Sewer Focus", 10, false, 1, Effect.BLOCK_MOVE);
+    public static final Move RAT_ATTACK = new Move("Rat Attack", 60, false, 1);
+    public static final Move SEWER_FOCUS = new Move("Sewer Focus", 20, false, 1, Effect.BLOCK_MOVE);
     public static final Move MEDITATE = new Move("Meditate", 0, false, 0.6, Effect.HEAL_HP);
     public static final Move NGATNGAT_PROFESSOR_SPLINTER = new Move("Ngatngat", 24, false, 1);
 

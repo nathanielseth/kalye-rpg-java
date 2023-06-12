@@ -7,8 +7,6 @@ import java.awt.Toolkit;
 
 public class Game {
     public static void main(String[] args) {
-        Professor professor = new Professor();
-        String playerName = professor.getPlayerName();
         String selectedPokeKalye = PokeKalyeChooser.getSelectedPokeKalye();
 
         String iconPath = "media/images/KalyeRPG.png";
@@ -31,7 +29,7 @@ public class Game {
 
         frame.setLocation(x, y);
 
-        GamePanel gamePanel = new GamePanel(playerName, selectedPokeKalye);
+        GamePanel gamePanel = new GamePanel(selectedPokeKalye);
 
         frame.getContentPane().add(gamePanel);
 

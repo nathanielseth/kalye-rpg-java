@@ -129,7 +129,7 @@ public class GamePanel extends JPanel {
         timer.start();
     }
 
-    public GamePanel(String playerName, String selectedPokeKalye) {
+    public GamePanel(String selectedPokeKalye) {
         this.enemyPokeKalye = "";
         search = new Search(this);
         this.selectedPokeKalye = selectedPokeKalye;
@@ -149,7 +149,7 @@ public class GamePanel extends JPanel {
         moveButtons = new ArrayList<>();
 
         setLayout(new BorderLayout());
-        setPreferredSize(new Dimension(600, 400));
+        setPreferredSize(new Dimension(700, 500));
 
         JPanel battlePanel = new JPanel();
         battlePanel.setLayout(new BorderLayout());
@@ -1106,7 +1106,10 @@ public class GamePanel extends JPanel {
     private void performFleeMove(MovePool.Move move) {
         boolean moveMissed = Math.random() <= 0.1;
 
-        if (!moveMissed) {
+        if (enemyPokeKalye.equals("Professor Splinter")) {
+            appendToDialogue("\n YOU CAN'T RUN FROM ME.");
+            playMissSound();
+        } else if (!moveMissed) {
             fadeOutBattleMusic();
             setInBattle(false);
             searchButton.setEnabled(true);

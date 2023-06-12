@@ -6,7 +6,7 @@ public class PokeKalyeData {
         public static final PokeKalye PUSPIN_BOOTS = new PokeKalye("Puspin Boots", 70, MovePool.KALMOT, MovePool.FLEE,
                         MovePool.PURR, MovePool.SNEAK_ATTACK);
         public static final PokeKalye TUTA = new PokeKalye("Tuta", 18, MovePool.BITE_TUTA, MovePool.TAHOL);
-        public static final PokeKalye ASKAL = new PokeKalye("Askal", 30, MovePool.BITE, MovePool.TAHOL,
+        public static final PokeKalye ASKAL = new PokeKalye("Askal", 35, MovePool.BITE, MovePool.TAHOL,
                         MovePool.SPEAR);
         public static final PokeKalye BIG_DOG = new PokeKalye("Big Dog", 120, MovePool.BITE_TUTA, MovePool.TAHOL,
                         MovePool.SPEAR, MovePool.OUTRAGE);

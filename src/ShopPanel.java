@@ -179,7 +179,7 @@ public class ShopPanel extends JPanel {
                             refreshShopPanel();
                             break;
                         case 8: // Infinity Edge
-                            gamePanel.setDamageMultiplier(gamePanel.getDamageMultiplier() * 1.5);
+                            gamePanel.setDamageMultiplier(gamePanel.getDamageMultiplier() * 1.25);
                             refreshShopPanel();
                             break;
                     }
@@ -289,10 +289,7 @@ public class ShopPanel extends JPanel {
             AudioInputStream audioStream = AudioSystem.getAudioInputStream(musicFile);
             musicClip = AudioSystem.getClip();
             musicClip.open(audioStream);
-
             musicClip.loop(Clip.LOOP_CONTINUOUSLY);
-
-            musicClip.start();
         } catch (LineUnavailableException | IOException | UnsupportedAudioFileException e) {
             e.printStackTrace();
         }

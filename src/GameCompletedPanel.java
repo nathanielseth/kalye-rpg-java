@@ -8,10 +8,10 @@ import javax.sound.sampled.*;
 public class GameCompletedPanel extends JPanel {
     private static final int PANEL_WIDTH = 600;
     private static final int PANEL_HEIGHT = 400;
-    private static final Color BACKGROUND_COLOR = Color.BLACK;
+    private static final Color BACKGROUND_COLOR = new Color(82, 113, 255);
     private static final Color TEXT_COLOR = Color.WHITE;
-    private static final Font BIG_FONT = new Font("Impact", Font.BOLD, 70);
-    private static final Font SMALL_FONT = new Font("Courier New", Font.PLAIN, 15);
+    private static final Font BIG_FONT = new Font("Impact", Font.BOLD, 73);
+    private static final Font SMALL_FONT = new Font("Courier New", Font.PLAIN, 19);
     private static final int FADE_IN_DELAY = 100;
     private static final int FADE_IN_DURATION = 5000;
     private static final String COMPLETED_TEXT = "You have saved the PoKeKalyes of Queensrow!";
@@ -26,6 +26,7 @@ public class GameCompletedPanel extends JPanel {
     private Clip musicClip;
 
     public GameCompletedPanel(GamePanel gamePanel, long elapsedTime) {
+        playMusic("media/audio/route.wav");
         this.gamePanel = gamePanel;
         this.elapsedTime = elapsedTime;
         setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
@@ -79,7 +80,6 @@ public class GameCompletedPanel extends JPanel {
         });
         fadeInTimer.setRepeats(true);
         fadeInTimer.start();
-        playMusic("media/audio/over.wav");
 
         Action quitAction = new AbstractAction() {
             @Override
@@ -102,8 +102,8 @@ public class GameCompletedPanel extends JPanel {
         getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "quit");
         getActionMap().put("quit", quitAction);
 
-        getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "restart");
-        getActionMap().put("restart", restartAction);
+        getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "quit");
+        getActionMap().put("quit", restartAction);
     }
 
     private void displayTimeCompleted() {

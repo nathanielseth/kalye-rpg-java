@@ -8,7 +8,11 @@ import java.util.List;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+
 import java.io.File;
+import java.io.IOException;
 
 public class Professor extends JFrame {
     private JLabel professorImageLabel;
@@ -22,6 +26,7 @@ public class Professor extends JFrame {
     private int currentCharIndex;
     private Clip hoverSound;
     private Clip clickSound;
+    private Clip backgroundMusic;
 
     public Professor() {
         setTitle("KalyeRPG");
@@ -31,6 +36,7 @@ public class Professor extends JFrame {
         String iconPath = "media/images/KalyeRPG.png";
         ImageIcon icon = new ImageIcon(iconPath);
         setIconImage(icon.getImage());
+        playMusic("media/audio/professorTheme.wav");
         try {
             hoverSound = loadSound("media/audio/hover.wav");
             clickSound = loadSound("media/audio/click.wav");
@@ -121,6 +127,7 @@ public class Professor extends JFrame {
                 }
             } else if (dialogueIndex >= 7) {
                 if (isNameValid()) {
+                    stopMusic();
                     dispose();
                     PokeKalyeChooser.main(null);
                 } else {
@@ -341,5 +348,22 @@ public class Professor extends JFrame {
         sound.stop();
         sound.setFramePosition(0);
         sound.start();
+    }
+
+    private void stopMusic() {
+        if (backgroundMusic != null && backgroundMusic.isRunning()) {
+            backgroundMusic.stop();
+        }
+    }
+
+    private void playMusic(String musicPath) {
+        try {
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File(musicPath).getAbsoluteFile());
+            backgroundMusic = AudioSystem.getClip();
+            backgroundMusic.open(audioInputStream);
+            backgroundMusic.loop(Clip.LOOP_CONTINUOUSLY);
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+            e.printStackTrace();
+        }
     }
 }

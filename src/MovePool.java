@@ -11,7 +11,7 @@ public class MovePool {
     public static final Move KAGAT = new Move("Kagat", 5, false, 1);
     public static final Move BURROW = new Move("Burrow", 3, true, 0.7, Effect.DODGE_NEXT_MOVE);
     public static Move GANG_UP = new Move("Gang Up", 1, false, 0.85, Effect.REPEAT_MOVE);
-    public static final Move QUANTUM_BITE = new Move("Quantum Bite", 60, false, 0.95);
+    public static final Move QUANTUM_BITE = new Move("Quantum Bite", 55, false, 0.95);
     public static final Move SCRATCH = new Move("Scratch", 1, false, 0.9);
     public static final Move DAPO = new Move("Dapo", 2, false, 0.7);
     public static final Move DAPO_FLYING = new Move("Dapo", 4, false, 1);

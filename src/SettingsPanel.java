@@ -1,46 +1,44 @@
 import javax.swing.*;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.PlainDocument;
-
+import javax.swing.text.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
+import java.io.*;
 
 public class SettingsPanel extends JFrame {
-    private JButton backButton;
+    private GamePanel gamePanel;
     private JToggleButton musicToggle;
     private JToggleButton sfxToggle;
+    private JComboBox<String> graphicsComboBox;
     private JTextField cheatCodesTextField;
+    private JButton backButton;
 
-    public SettingsPanel() {
+    public SettingsPanel(GamePanel gamePanel) {
+        this.gamePanel = gamePanel;
         setTitle("Settings");
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
         setPreferredSize(new Dimension(300, 300));
         getContentPane().setBackground(new Color(82, 113, 255));
+
         JPanel settingsPanel = new JPanel();
         settingsPanel.setLayout(new GridBagLayout());
         settingsPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         settingsPanel.setBackground(new Color(82, 113, 255));
+
         JLabel settingsLabel = new JLabel("SETTINGS", SwingConstants.CENTER);
         settingsLabel.setFont(new Font("Impact", Font.BOLD, 39));
         settingsLabel.setForeground(Color.WHITE);
 
         JLabel musicLabel = new JLabel("Music");
-        musicToggle = new JToggleButton("On");
-        musicToggle.addActionListener(new ToggleButtonListener(musicToggle));
+        musicToggle = createToggleButton("On");
         musicToggle.setBackground(new Color(102, 255, 51));
 
         JLabel sfxLabel = new JLabel("SFX");
-        sfxToggle = new JToggleButton("On");
-        sfxToggle.addActionListener(new ToggleButtonListener(sfxToggle));
+        sfxToggle = createToggleButton("On");
         sfxToggle.setBackground(new Color(102, 255, 51));
 
         JLabel graphicsLabel = new JLabel("Graphics");
-        JComboBox<String> graphicsComboBox = new JComboBox<>(new String[] { "Normal", "Sprite" });
+        graphicsComboBox = new JComboBox<>(new String[] { "Normal", "Sprite" });
 
         JLabel cheatCodesLabel = new JLabel("Cheat Codes");
         cheatCodesTextField = new JTextField();
@@ -58,6 +56,7 @@ public class SettingsPanel extends JFrame {
         graphicsLabel.setForeground(labelColor);
         cheatCodesLabel.setFont(labelFont);
         cheatCodesLabel.setForeground(labelColor);
+
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -105,7 +104,13 @@ public class SettingsPanel extends JFrame {
         settingsPanel.add(cheatCodesTextField, gbc);
 
         backButton = new JButton("OK");
-        backButton.addActionListener(e -> dispose());
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                restoreButton();
+                dispose();
+            }
+        });
         backButton.setBackground(Color.WHITE);
         backButton.addMouseListener(new ButtonHoverAdapter());
 
@@ -117,7 +122,26 @@ public class SettingsPanel extends JFrame {
         add(mainPanel, BorderLayout.CENTER);
 
         pack();
-        setLocationRelativeTo(null); // Center the frame on the screen
+        setLocationRelativeTo(null);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                restoreButton();
+            }
+        });
+
+        loadStateFromFile();
+    }
+
+    private JToggleButton createToggleButton(String text) {
+        JToggleButton toggleButton = new JToggleButton(text);
+        toggleButton.addActionListener(new ToggleButtonListener(toggleButton));
+        toggleButton.setBackground(Color.WHITE);
+        return toggleButton;
+    }
+
+    private void restoreButton() {
+        gamePanel.enableButtons();
     }
 
     private class ToggleButtonListener implements ActionListener {
@@ -129,13 +153,9 @@ public class SettingsPanel extends JFrame {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (toggleButton.isSelected()) {
-                toggleButton.setText("Off");
-                toggleButton.setBackground(Color.WHITE);
-            } else {
-                toggleButton.setText("On");
-                toggleButton.setBackground(new Color(102, 255, 51));
-            }
+            toggleButton.setText(toggleButton.isSelected() ? "On" : "Off");
+            toggleButton.setBackground(toggleButton.isSelected() ? new Color(102, 255, 51) : Color.WHITE);
+            saveStateToFile();
         }
     }
 
@@ -153,13 +173,6 @@ public class SettingsPanel extends JFrame {
         }
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            SettingsPanel settingsPanel = new SettingsPanel();
-            settingsPanel.setVisible(true);
-        });
-    }
-
     private static class JTextFieldLimit extends PlainDocument {
         private final int limit;
 
@@ -175,6 +188,58 @@ public class SettingsPanel extends JFrame {
             if ((getLength() + str.length()) <= limit) {
                 super.insertString(offset, str, attr);
             }
+        }
+    }
+
+    private void saveStateToFile() {
+        try {
+            File file = new File("settings.txt");
+            FileWriter writer = new FileWriter(file);
+
+            writer.write("Music:" + (musicToggle.isSelected() ? "On" : "Off") + "\n");
+            writer.write("SFX:" + (sfxToggle.isSelected() ? "On" : "Off") + "\n");
+            writer.write("Graphics:" + graphicsComboBox.getSelectedItem() + "\n");
+            // Add code to save other toggle button states if needed
+
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void loadStateFromFile() {
+        try {
+            File file = new File("settings.txt");
+            if (file.exists()) {
+                BufferedReader reader = new BufferedReader(new FileReader(file));
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String[] parts = line.split(":");
+                    if (parts.length == 2) {
+                        String toggleName = parts[0];
+                        String toggleState = parts[1];
+                        if (toggleName.equals("Music")) {
+                            boolean musicEnabled = toggleState.equals("On");
+                            musicToggle.setSelected(musicEnabled);
+                            musicToggle.setText(musicEnabled ? "On" : "Off");
+                            musicToggle.setBackground(musicEnabled ? new Color(102, 255, 51) : Color.WHITE);
+                            gamePanel.setMusicEnabled(musicEnabled);
+                        } else if (toggleName.equals("SFX")) {
+                            boolean sfxEnabled = toggleState.equals("On");
+                            sfxToggle.setSelected(sfxEnabled);
+                            sfxToggle.setText(sfxEnabled ? "On" : "Off");
+                            sfxToggle.setBackground(sfxEnabled ? new Color(102, 255, 51) : Color.WHITE);
+                            // Add code to handle other toggle buttons if needed
+                        } else if (toggleName.equals("Graphics")) {
+                            graphicsComboBox.setSelectedItem(toggleState);
+                        }
+                    }
+                }
+
+                reader.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

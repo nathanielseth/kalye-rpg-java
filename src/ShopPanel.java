@@ -120,7 +120,7 @@ public class ShopPanel extends JPanel {
                     gamePanel.setPesos(gamePanel.getPesos() - price);
                     switch (itemIndex) {
                         case 0: // Ice-y Tubig
-                            gamePanel.experience += 50;
+                            gamePanel.experience += 90;
                             int levelUpExp = gamePanel.getLevelUpExperience(gamePanel.playerLevel);
                             if (gamePanel.experience >= levelUpExp) {
                                 gamePanel.playerLevel++;
@@ -138,7 +138,7 @@ public class ShopPanel extends JPanel {
                             break;
                         case 1: // Shtick-O
                             gamePanel.increaseEarnedPesosMaxValue(1);
-                            gamePanel.increaseLuck(15);
+                            gamePanel.increaseLuck(10);
                             refreshShopPanel();
                             break;
                         case 2: // Coke Omsim
@@ -175,11 +175,11 @@ public class ShopPanel extends JPanel {
                             refreshShopPanel();
                             break;
                         case 7: // Mouse Trap
-                            gamePanel.increaseCritDamageModifier(2);
+                            gamePanel.increaseCritDamageModifier(10);
                             refreshShopPanel();
                             break;
                         case 8: // Infinity Edge
-                            gamePanel.setDamageMultiplier(gamePanel.getDamageMultiplier() * 1.25);
+                            gamePanel.setDamageMultiplier(gamePanel.getDamageMultiplier() * 2);
                             refreshShopPanel();
                             break;
                     }

@@ -39,7 +39,6 @@ public class GamePanel extends JPanel {
     private JTextArea dialogueArea;
     private JButton movesButton;
     private JButton searchButton;
-    private JButton settingsButton;
     JButton sariSariButton;
     private String selectedPokeKalye;
     private boolean inBattle;
@@ -99,7 +98,9 @@ public class GamePanel extends JPanel {
     private int enemyMeditateCooldown = 0;
     private long startTime;
     private boolean gameCompleted = false;
-    private float alpha = 1.0f;
+    private int enemyDamageReductionCounter;
+    private double enemyDamageReductionPercentage;
+    private boolean musicEnabled = true;
 
     void showIntroScreen() {
         this.setBackground(Color.BLACK);
@@ -288,15 +289,12 @@ public class GamePanel extends JPanel {
         movesButton = new JButton("Moves");
         searchButton = new JButton("Search");
         sariSariButton = new JButton("Sari-Sari");
-        settingsButton = new JButton("Settings");
 
         movesButton.setBackground(Color.WHITE);
         searchButton.setBackground(Color.WHITE);
-        settingsButton.setBackground(Color.WHITE);
         sariSariButton.setBackground(Color.WHITE);
 
         searchButton.setEnabled(false);
-        settingsButton.setEnabled(false);
         sariSariButton.setEnabled(false);
 
         movesButton.setEnabled(inBattle);
@@ -338,12 +336,10 @@ public class GamePanel extends JPanel {
         movesButton.addMouseListener(buttonMouseListener);
         searchButton.addMouseListener(buttonMouseListener);
         sariSariButton.addMouseListener(buttonMouseListener);
-        settingsButton.addMouseListener(buttonMouseListener);
 
         buttonsPanel.add(movesButton);
         buttonsPanel.add(searchButton);
         buttonsPanel.add(sariSariButton);
-        buttonsPanel.add(settingsButton);
 
         add(battlePanel, BorderLayout.CENTER);
         add(dialogueScrollPane, BorderLayout.WEST);
@@ -354,17 +350,12 @@ public class GamePanel extends JPanel {
             playButtonClickSound();
         });
         searchButton.addActionListener(e -> {
-            luckyCatButton.setVisible(false);
             searchButton.setEnabled(false);
+            fadeOutBattleMusic();
+            luckyCatButton.setVisible(false);
             sariSariButton.setBackground(Color.WHITE);
             search.performSearch();
             playButtonClickSound();
-        });
-        settingsButton.addActionListener(e -> {
-            openSettingsPanel();
-            playButtonClickSound();
-            repaint();
-            revalidate();
         });
         sariSariButton.addActionListener(e -> {
             isShopOpen = true;
@@ -395,7 +386,15 @@ public class GamePanel extends JPanel {
         if (enemyCurrentHealth <= 0) {
             playEnemyDefeatedSound();
             int levelUpExp = getLevelUpExperience(playerLevel);
-            experience += getRandomNumber(35, 75);
+            int minExperience = 35;
+            int maxExperience = 75;
+            if (enemyPokeKalye.equals("Askal") || enemyPokeKalye.equals("Tuta") || enemyPokeKalye.equals("Lamok")
+                    || enemyPokeKalye.equals("Ahas") || enemyPokeKalye.equals("Bubuyog")) {
+                minExperience = 45;
+                maxExperience = 95;
+            }
+
+            experience += getRandomNumber(minExperience, maxExperience);
             if (experience >= levelUpExp) {
                 playerLevel++;
                 experience -= levelUpExp;
@@ -440,6 +439,7 @@ public class GamePanel extends JPanel {
                 timer.start();
             }
             clearDialogue();
+            enemyDamageReductionCounter = 0;
         } else if (playerCurrentHealth <= 0 && !gameOver) {
             playerDefeat();
         }
@@ -596,15 +596,9 @@ public class GamePanel extends JPanel {
         return searchButton;
     }
 
-    private void enableButtons() {
+    void enableButtons() {
         searchButton.setEnabled(true);
-        settingsButton.setEnabled(true);
         sariSariButton.setEnabled(true);
-    }
-
-    private void openSettingsPanel() {
-        SettingsPanel settingsPanel = new SettingsPanel();
-        settingsPanel.setVisible(true);
     }
 
     public void setSearchLabelText(String text) {
@@ -623,10 +617,15 @@ public class GamePanel extends JPanel {
 
         if (getLevel() >= 6) {
             int levelDifference = getLevel() - 6;
-            int healthIncrease = levelDifference * 3;
+            int healthIncrease = levelDifference * 2;
             enemyMaxHealth += healthIncrease;
         }
         if (playerLevel >= 10) {
+            int levelDifference = playerLevel - 10;
+            int healthIncrease = levelDifference * 10;
+            enemyMaxHealth += healthIncrease;
+        }
+        if (playerLevel >= 15) {
             int levelDifference = playerLevel - 10;
             int healthIncrease = levelDifference * 30;
             enemyMaxHealth += healthIncrease;
@@ -1064,11 +1063,6 @@ public class GamePanel extends JPanel {
         clearDialogue();
         String moveName = move.getName();
 
-        if (moveName.equals("Flee")) {
-            performFleeMove(move);
-            return;
-        }
-
         double chance = move.getChance();
 
         if (moveName.equals("Burrow")) {
@@ -1082,7 +1076,14 @@ public class GamePanel extends JPanel {
             }
             performPurrMove(move, chance);
         } else if (moveName.equals("Gang Up")) {
-            performGangUpMove(move, chance);
+            performGangUpMove(move, move.getChance());
+        } else if (moveName.equals("Flee")) {
+            performFleeMove(move);
+            return;
+        } else if (moveName.equals("Quantum Burrow")) {
+            performQuantumBurrowMove(move, chance);
+        } else if (moveName.equals("Hiss")) {
+            performHissMove(move);
         } else {
             performRegularMove(move, chance);
         }
@@ -1109,6 +1110,7 @@ public class GamePanel extends JPanel {
         if (enemyPokeKalye.equals("Professor Splinter")) {
             appendToDialogue("\n YOU CAN'T RUN FROM ME.");
             playMissSound();
+            enemyTurn();
         } else if (!moveMissed) {
             fadeOutBattleMusic();
             setInBattle(false);
@@ -1120,6 +1122,7 @@ public class GamePanel extends JPanel {
         } else {
             appendToDialogue("\n " + selectedPokeKalye + ", flee pa more!");
             playMissSound();
+            enemyTurn();
         }
     }
 
@@ -1188,10 +1191,59 @@ public class GamePanel extends JPanel {
         }
     }
 
+    private void performQuantumBurrowMove(MovePool.Move move, double chance) {
+        double modifiedChance = chance;
+        double playerHealthPercentage = (double) playerCurrentHealth / getMaxHealth(playerData);
+        if (playerHealthPercentage <= 0.33) {
+            modifiedChance += 0.1;
+        }
+
+        if (Math.random() <= modifiedChance) {
+            int damage = move.getDamage();
+            boolean hasRabiesBeforeMove = hasRabies;
+
+            int maxPlayerHealth = getMaxHealth(playerData);
+            int healAmount = 50; // The amount to heal
+
+            if (playerCurrentHealth + healAmount > maxPlayerHealth) {
+                playerCurrentHealth = maxPlayerHealth;
+                updateHealthBars();
+            } else {
+                playerCurrentHealth += healAmount;
+                updateHealthBars();
+            }
+
+            if (hasRabiesBeforeMove) {
+                damage += 3;
+                playerCurrentHealth -= 3;
+                updateHealthBars();
+            }
+            enemyCurrentHealth -= damage;
+            updateHealthBars();
+            appendToDialogue("\n " + selectedPokeKalye + " used " + move.getName() + "!");
+            System.out.println("Enemy HP: " + enemyCurrentHealth + "/" + enemyMaxHealth);
+            System.out.println("Player HP: " + playerCurrentHealth + "/" + getMaxHealth(playerData));
+            playBurrowSound();
+            if (damage > 0) {
+                animateDamageBlink(enemyImageLabel);
+                playDamageSound(damage);
+            }
+        } else {
+            appendToDialogue("\n Quantum Burrow failed!");
+            playMissSound();
+        }
+    }
+
     private void performTaholMove(MovePool.Move move) {
         taholDmgBoost = true;
         appendToDialogue("\n " + selectedPokeKalye + " used " + move.getName() + "!");
         playBarkSound();
+    }
+
+    private void performHissMove(MovePool.Move move) {
+        enemyDamageReductionCounter = 3;
+        enemyDamageReductionPercentage = 0.5;
+        appendToDialogue("\n " + selectedPokeKalye + " used " + move.getName() + "!");
     }
 
     private void performGangUpMove(MovePool.Move move, double chance) {
@@ -1210,12 +1262,13 @@ public class GamePanel extends JPanel {
         double critChance = 0.06 + critRateModifier;
         boolean isCrit = Math.random() <= critChance;
         if (isCrit) {
-            damage *= 2 + critDamageModifier;
+            damage += critDamageModifier;
+            damage *= 2;
         }
 
         if (Math.random() <= chance) {
             if (hasRabies) {
-                damage += 3;
+                damage += 5;
                 playerCurrentHealth -= 3;
                 updateHealthBars();
             }
@@ -1263,12 +1316,13 @@ public class GamePanel extends JPanel {
         }
         boolean isCrit = Math.random() <= critChance;
         if (isCrit) {
-            damage *= 2 + critDamageModifier;
+            damage += critDamageModifier;
+            damage *= 2;
         }
 
         if (Math.random() <= chance) {
             if (hasRabies) {
-                damage += 3;
+                damage += 5;
                 playerCurrentHealth -= 3;
                 updateHealthBars();
                 enemyCurrentHealth -= damage;
@@ -1614,7 +1668,9 @@ public class GamePanel extends JPanel {
         int originalDamage = damage;
 
         double critChance = 0.05;
-        if (damageMultiplier > 1.0) {
+        if (enemyPokeKalye.equals("Professor Splinter")) {
+            critChance = 0.6;
+        } else if (damageMultiplier > 1.0) {
             critChance = 0.06;
         }
         if (playerCurrentHealth > getMaxHealth(playerData)) {
@@ -1632,11 +1688,17 @@ public class GamePanel extends JPanel {
             }
         }
 
+        if (enemyDamageReductionCounter > 0) {
+            damage *= (1 - enemyDamageReductionPercentage);
+            enemyDamageReductionCounter--;
+        }
+
         if (Math.random() <= chance) {
             if (originalDamage > 0) {
                 if (playerLevel >= 5) {
                     int levelDifference = playerLevel - 6;
-                    damage += levelDifference * 2;
+                    double scalingFactor = 1.25;
+                    damage += (int) (levelDifference * scalingFactor);
                 }
             }
             playerCurrentHealth -= damage;
@@ -1674,18 +1736,15 @@ public class GamePanel extends JPanel {
 
         movesButton.setEnabled(inBattle);
         searchButton.setEnabled(true);
-        settingsButton.setEnabled(true);
         sariSariButton.setEnabled(true);
 
         movesButton.setBackground(Color.WHITE);
         searchButton.setBackground(Color.WHITE);
-        settingsButton.setBackground(Color.WHITE);
         sariSariButton.setBackground(Color.WHITE);
 
         buttonsPanel.add(movesButton);
         buttonsPanel.add(searchButton);
         buttonsPanel.add(sariSariButton);
-        buttonsPanel.add(settingsButton);
 
         if (getLuck() == 0) {
             if ((double) getPlayerCurrentHealth() / getPlayerMaxHealth() <= 0.3) {
@@ -1790,17 +1849,19 @@ public class GamePanel extends JPanel {
     }
 
     private void playBattleMusic() {
-        try {
-            File musicFile = new File("media/audio/battle.wav");
-            AudioInputStream audioStream = AudioSystem.getAudioInputStream(musicFile);
-            loopingMusicClip = AudioSystem.getClip();
-            loopingMusicClip.open(audioStream);
-            loopingMusicClip.loop(Clip.LOOP_CONTINUOUSLY);
-            if (isShopOpen) {
-                pauseMusic();
+        if (musicEnabled && (loopingMusicClip == null || !loopingMusicClip.isRunning())) {
+            try {
+                File musicFile = new File("media/audio/battle.wav");
+                AudioInputStream audioStream = AudioSystem.getAudioInputStream(musicFile);
+                loopingMusicClip = AudioSystem.getClip();
+                loopingMusicClip.open(audioStream);
+                loopingMusicClip.loop(Clip.LOOP_CONTINUOUSLY);
+                if (isShopOpen) {
+                    pauseMusic();
+                }
+            } catch (LineUnavailableException | IOException | UnsupportedAudioFileException e) {
+                e.printStackTrace();
             }
-        } catch (LineUnavailableException | IOException | UnsupportedAudioFileException e) {
-            e.printStackTrace();
         }
     }
 
@@ -1813,6 +1874,15 @@ public class GamePanel extends JPanel {
     public void resumeMusic() {
         if (inBattle && loopingMusicClip != null && !loopingMusicClip.isRunning()) {
             loopingMusicClip.start();
+        }
+    }
+
+    public void setMusicEnabled(boolean enabled) {
+        musicEnabled = enabled;
+        if (musicEnabled) {
+            resumeMusic();
+        } else {
+            pauseMusic();
         }
     }
 

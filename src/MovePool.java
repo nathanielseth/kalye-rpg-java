@@ -6,11 +6,12 @@ public class MovePool {
     public static final Move BITE = new Move("Bite", 5, false, 1, Effect.RABIES);
     public static final Move BITE_TUTA = new Move("Bite", 4, false, 0.7);
     public static final Move TAHOL = new Move("Tahol", 0, true, 1, Effect.MULTIPLY_DAMAGE);
-    public static final Move SPEAR = new Move("Spear", 10, false, 0.95);
-    public static final Move OUTRAGE = new Move("Outrage", 40, false, 0.9);
+    public static final Move SPEAR = new Move("Spear", 10, false, 1);
+    public static final Move OUTRAGE = new Move("Outrage", 45, false, 0.8);
     public static final Move KAGAT = new Move("Kagat", 5, false, 1);
     public static final Move BURROW = new Move("Burrow", 3, true, 0.7, Effect.DODGE_NEXT_MOVE);
-    public static Move GANG_UP = new Move("Gang Up", 1, false, 0.85, Effect.REPEAT_MOVE);
+    public static final Move BURROW_ANTMAN = new Move("Quantum Burrow", 10, true, 0.95, Effect.DODGE_NEXT_MOVE);
+    public static Move GANG_UP = new Move("Gang Up", 1, false, 1, Effect.REPEAT_MOVE);
     public static final Move QUANTUM_BITE = new Move("Quantum Bite", 55, false, 0.95);
     public static final Move SCRATCH = new Move("Scratch", 1, false, 0.9);
     public static final Move DAPO = new Move("Dapo", 2, false, 0.7);
@@ -41,6 +42,7 @@ public class MovePool {
     public static final Move SLITHER = new Move("Slither", 5, true, 0.9);
     public static final Move KAGAT_SNAKE = new Move("Kagat", 9, false, 0.7);
     public static final Move HISS = new Move("Hiss", 0, true, 1);
+    public static final Move HISS_PUSPIN = new Move("Hiss", 0, true, 0.8);
     public static final Move DAPO_HIGAD = new Move("Dapo", 8, true, 0.5);
     public static final Move KARATE_CHOP = new Move("Karate Chop", 8, false, 0.4);
     public static final Move TADYAK = new Move("Tadyak", 30, false, 0.5);
@@ -110,17 +112,17 @@ public class MovePool {
             case "Kuting":
                 return new Move[] { KALMOT, FLEE };
             case "Puspin Boots":
-                return new Move[] { KALMOT, FLEE, PURR, SNEAK_ATTACK };
+                return new Move[] { HISS_PUSPIN, FLEE, PURR, SNEAK_ATTACK };
             case "Tuta":
                 return new Move[] { BITE_TUTA, TAHOL };
             case "Big Dog":
-                return new Move[] { BITE_TUTA, TAHOL, SPEAR, OUTRAGE };
+                return new Move[] { FLEE, TAHOL, SPEAR, OUTRAGE };
             case "Langgam":
                 return new Move[] { KAGAT, BURROW };
             case "Antik":
                 return new Move[] { KAGAT, BURROW, GANG_UP };
             case "Ant-Man":
-                return new Move[] { KAGAT, BURROW, GANG_UP, QUANTUM_BITE };
+                return new Move[] { FLEE, BURROW_ANTMAN, GANG_UP, QUANTUM_BITE };
             case "Ipis":
                 return new Move[] { SCRATCH, DAPO, FLEE };
             case "Flying Ipis":

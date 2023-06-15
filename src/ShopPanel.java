@@ -68,20 +68,20 @@ public class ShopPanel extends JPanel {
                 "Rugby",
                 "Dengue Vaccine",
                 "Bye-gon",
-                "Mouse Trap",
+                "Lato-Lato",
                 "Infinity Edge"
         };
 
         String[] itemDescriptions = {
                 "Drinking this can make your experience TUBIG!",
                 "Pag may Shtick-O, matik SWERTE!",
-                "Pampahaba ng buhay ang COKE OMSIM! Bili na!",
+                "Pampahaba ng BUHAY ang COKE OMSIM! Bili na!",
                 "Class-A Anti-Rabies m̶a̶d̶e̶ ̶f̶r̶o̶m̶ ̶a̶ ̶s̶h̶a̶d̶y̶ ̶f̶a̶c̶t̶o̶r̶y̶",
                 "The Kalye's #1 seller.",
                 "Mosquito sucks. Buy Dengue Vaccine!",
-                "Sa Bye-gon.. Crit chance, TATAAS!",
-                "Legends say it increases crit damage.",
-                "Infinity Edge for Infinite Powers. Double your damage."
+                "Sa Bye-gon.. CRIT CHANCE, TATAAS!",
+                "Make your CRIT DAMAGE be LOUDER..?!",
+                "Infinity Edge for INFINITE Powers. DOUBLE your damage."
         };
 
         for (int i = 0; i < itemNames.length; i++) {
@@ -137,7 +137,7 @@ public class ShopPanel extends JPanel {
                             gamePanel.playerLevelLabel.setText("LVL " + gamePanel.playerLevel);
                             break;
                         case 1: // Shtick-O
-                            gamePanel.increaseEarnedPesosMaxValue(1);
+                            gamePanel.increaseEarnedPesosMaxValue(2);
                             gamePanel.increaseLuck(10);
                             refreshShopPanel();
                             break;
@@ -179,7 +179,7 @@ public class ShopPanel extends JPanel {
                             refreshShopPanel();
                             break;
                         case 8: // Infinity Edge
-                            gamePanel.setDamageMultiplier(gamePanel.getDamageMultiplier() * 2);
+                            gamePanel.setDamageMultiplier(gamePanel.getDamageMultiplier() + 2.0);
                             refreshShopPanel();
                             break;
                     }

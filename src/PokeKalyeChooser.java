@@ -5,6 +5,11 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import javax.swing.*;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DocumentFilter;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
@@ -24,6 +29,7 @@ public class PokeKalyeChooser extends JFrame {
     private static Clip langgamCrySound;
     private Clip musicClip;
     private Clip currentCrySound;
+    public static String pokeKalyeName;
 
     public PokeKalyeChooser() {
         setTitle("KalyeRPG");
@@ -70,22 +76,6 @@ public class PokeKalyeChooser extends JFrame {
 
         startButton.setBackground(Color.WHITE);
 
-        startButton.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                if (puspinRadioButton.isSelected() || askalRadioButton.isSelected()
-                        || langgamRadioButton.isSelected()) {
-                    startButton.setBackground(new Color(102, 255, 51));
-                    playHoverSound();
-                }
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                startButton.setBackground(Color.WHITE);
-            }
-        });
-
         ActionListener radioButtonListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -103,20 +93,96 @@ public class PokeKalyeChooser extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 playClickSound();
-                int choice = JOptionPane.showConfirmDialog(
-                        PokeKalyeChooser.this,
-                        "Start your journey with " + getSelectedPokeKalye()
-                                + "? You cannot change this later.",
-                        "Professor Kalye Asks",
-                        JOptionPane.YES_NO_OPTION,
-                        JOptionPane.PLAIN_MESSAGE);
 
-                if (choice == JOptionPane.YES_OPTION) {
+                JTextField nameField = new JTextField(8);
+                nameField.setPreferredSize(new Dimension(150, 25));
+                ((AbstractDocument) nameField.getDocument()).setDocumentFilter(new DocumentFilter() {
+                    @Override
+                    public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
+                            throws BadLocationException {
+                        int currentLength = fb.getDocument().getLength();
+                        int maxLength = 8;
+                        int newLength = currentLength - length + text.length();
+
+                        if (newLength <= maxLength) {
+                            super.replace(fb, offset, length, text, attrs);
+                        }
+                    }
+                });
+
+                JPanel inputPanel = new JPanel();
+                inputPanel.add(new JLabel("Give a name to " + getSelectedPokeKalye() + "?"));
+                inputPanel.add(nameField);
+
+                JButton okButton = new JButton("OK");
+                okButton.setPreferredSize(new Dimension(140, okButton.getPreferredSize().height));
+
+                okButton.setBackground(Color.WHITE);
+
+                okButton.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        String inputName = nameField.getText();
+                        if (inputName == null || inputName.isEmpty()) {
+                            inputName = getSelectedPokeKalye();
+                        }
+
+                        pokeKalyeName = inputName;
+
+                        stopMusic();
+                        playClickSound();
+                        launchGame(pokeKalyeName);
+                        dispose();
+                    }
+                });
+
+                okButton.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseEntered(MouseEvent e) {
+                        okButton.setBackground(new Color(102, 255, 51));
+                        playHoverSound();
+                    }
+
+                    @Override
+                    public void mouseExited(MouseEvent e) {
+                        okButton.setBackground(Color.WHITE);
+                    }
+                });
+
+                Object[] options = { okButton };
+
+                int result = JOptionPane.showOptionDialog(PokeKalyeChooser.this, inputPanel, "Enter Name",
+                        JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, null);
+
+                if (result == JOptionPane.OK_OPTION) {
+                    String inputName = nameField.getText();
+                    if (inputName == null || inputName.isEmpty()) {
+                        inputName = getSelectedPokeKalye();
+                    }
+
+                    pokeKalyeName = inputName;
+
                     stopMusic();
                     playClickSound();
-                    launchGame();
+                    launchGame(pokeKalyeName);
                     dispose();
                 }
+            }
+        });
+
+        startButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                if (puspinRadioButton.isSelected() || askalRadioButton.isSelected()
+                        || langgamRadioButton.isSelected()) {
+                    startButton.setBackground(new Color(102, 255, 51));
+                    playHoverSound();
+                }
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                startButton.setBackground(Color.WHITE);
             }
         });
 
@@ -222,8 +288,8 @@ public class PokeKalyeChooser extends JFrame {
         }
     }
 
-    private static void launchGame() {
-        Game.main(null);
+    private static void launchGame(String pokeKalyeName) {
+        Game.main(new String[] { pokeKalyeName });
     }
 
     public static void main(String[] args) {

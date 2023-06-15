@@ -33,16 +33,17 @@ public class Search {
 
     public void performSearch() {
         if (gamePanel.isInBattle()) {
+            gamePanel.enableSearchButton(false);
             JOptionPane.showMessageDialog(gamePanel, "You are already in battle!");
             return;
         }
-
         SwingWorker<Void, Void> searchWorker = new SwingWorker<>() {
             @Override
             protected Void doInBackground() throws Exception {
                 gamePanel.enableSearchButton(false);
                 currentlySearching = true;
                 gamePanel.setSearchLabelText("SEARCHING...");
+                gamePanel.setEnemyLabelText("");
                 gamePanel.showSearchingLabel(true);
 
                 animationTimer = new Timer(500, e -> {
@@ -51,12 +52,9 @@ public class Search {
                 });
                 animationTimer.setInitialDelay(0);
                 animationTimer.start();
-
                 gamePanel.revalidate();
                 gamePanel.repaint();
-
                 int searchTime = (int) (Math.random() * 5000) + 1000;
-
                 Timer timer = new Timer(searchTime, new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -65,18 +63,23 @@ public class Search {
                         gamePanel.showSearchingLabel(false);
                         animationTimer.stop();
 
-                        String enemyPokeKalye = getRandomEnemyPokeKalye();
-                        gamePanel.setEnemyImage(enemyPokeKalye);
+                        String enemyPokeKalye = getRandomEnemyPokeKalye(gamePanel.getArea(), gamePanel.getLevel());
+                        if (enemyPokeKalye == null) {
+                            gamePanel.setEnemyLabelText("but nobody came.");
+                            currentlySearching = false;
+                            gamePanel.enableSearchButton(true);
+                            gamePanel.setAreasButtonEnabled(true);
+                            return;
+                        }
 
+                        gamePanel.setEnemyImage(enemyPokeKalye);
                         String dialogue;
                         if (enemyPokeKalye.length() > 8) {
-                            dialogue = " A " + enemyPokeKalye + "!\n What will "
-                                    + gamePanel.getPokeKalyeName()
+                            dialogue = " A " + enemyPokeKalye + "!\n What will " + gamePanel.getPokeKalyeName()
                                     + " do?";
                         } else {
                             dialogue = " " + enemyPokeKalye + " has appeared!\n What will "
-                                    + gamePanel.getPokeKalyeName()
-                                    + " do?";
+                                    + gamePanel.getPokeKalyeName() + " do?";
                         }
                         gamePanel.setDialogueText(dialogue);
 
@@ -86,9 +89,7 @@ public class Search {
                 });
                 timer.setRepeats(false);
                 timer.start();
-
                 playSearchSound();
-
                 return null;
             }
 
@@ -97,7 +98,6 @@ public class Search {
                 gamePanel.enableSearchButton(true);
             }
         };
-
         searchWorker.execute();
     }
 
@@ -122,45 +122,75 @@ public class Search {
         return gamePanel.isInBattle() || currentlySearching;
     }
 
-    private String getRandomEnemyPokeKalye() {
-        int level = gamePanel.getLevel();
-        if (level < 10) {
-            String[] veryCommonEnemies = { "Ipis", "Daga" };
-            String[] commonEnemies = { "Lamok", "Langaw", "Tuta", "Ibon" };
-            String[] moderateEnemies = { "Kuting", "Manok", "Gagamba", "Butiki", "Kuto", "Paro-paro", "Bubuyog" };
-            String[] rareEnemies = { "Salagubang", "Langgam", "Palaka", "Ahas", "Higad", "Tipaklong", "Askal",
-                    "Mandarangkal" };
-
-            double random = Math.random();
-            if (random < 0.08) {
-                return getRandomArrayElement(rareEnemies);
-            } else if (random < 0.4) {
-                return getRandomArrayElement(moderateEnemies);
-            } else if (random < 0.7) {
-                return getRandomArrayElement(commonEnemies);
+    private String getRandomEnemyPokeKalye(String area, int level) {
+        if (area.equals("Kalsada Central")) {
+            if (level >= 1 && level <= 10) {
+                String[] veryCommonEnemies = { "Ipis", "Daga" };
+                String[] commonEnemies = { "Lamok", "Langaw", "Tuta", "Ibon" };
+                String[] moderateEnemies = { "Kuting", "Manok", "Gagamba", "Butiki", "Kuto", "Paro-paro", "Bubuyog" };
+                String[] rareEnemies = { "Langgam", "Ahas", "Higad", "Tipaklong", "Askal" };
+                double random = Math.random();
+                if (random < 0.08) {
+                    return getRandomArrayElement(rareEnemies);
+                } else if (random < 0.4) {
+                    return getRandomArrayElement(moderateEnemies);
+                } else if (random < 0.7) {
+                    return getRandomArrayElement(commonEnemies);
+                } else {
+                    return getRandomArrayElement(veryCommonEnemies);
+                }
             } else {
-                return getRandomArrayElement(veryCommonEnemies);
+                return null;
             }
-        } else if (level >= 10 && level <= 19) {
-            String[] veryCommonEnemies = { "Askal", "Palaka" };
-            String[] commonEnemies = { "Flying Ipis", "Dagang Kanal", "Bangaw",
-                    "Puspin", "Tutubi", "Paro-paro" };
-            String[] moderateEnemies = { "Paniki", "Higad", "Salagubang", "Manok", "Ahas", "Tipaklong",
-                    "Colored Sisiw", "Tuko", "Bubuyog", "Mandarangkal" };
-            String[] rareEnemies = { "Kabayo", "Daga" };
-
-            double random = Math.random();
-            if (random < 0.05) {
-                return getRandomArrayElement(rareEnemies);
-            } else if (random < 0.5) {
-                return getRandomArrayElement(moderateEnemies);
-            } else if (random < 0.8) {
-                return getRandomArrayElement(commonEnemies);
+        } else if (area.equals("Kalye West")) {
+            if (level >= 1 && level <= 15) {
+                String[] veryCommonEnemies = { "Askal", "Palaka" };
+                String[] commonEnemies = { "Lamok", "Langaw", "Tuta", "Ibon" };
+                String[] moderateEnemies = { "Kuting", "Manok", "Gagamba", "Tuko", "Daga", "Dagang Kanal", "Bubuyog" };
+                String[] rareEnemies = { "Salagubang", "Langgam", "Palaka", "Ahas", "Higad", "Tipaklong", "Ipis",
+                        "Mandarangkal", "Colored Sisiw" };
+                double random = Math.random();
+                if (random < 0.05) {
+                    return getRandomArrayElement(rareEnemies);
+                } else if (random < 0.5) {
+                    return getRandomArrayElement(moderateEnemies);
+                } else if (random < 0.8) {
+                    return getRandomArrayElement(commonEnemies);
+                } else {
+                    return getRandomArrayElement(veryCommonEnemies);
+                }
             } else {
-                return getRandomArrayElement(veryCommonEnemies);
+                return null;
+            }
+        } else if (area.equals("Gedli East")) {
+            if (level >= 10 && level <= 19) {
+                String[] veryCommonEnemies = { "Askal", "Puspin" };
+                String[] commonEnemies = { "Flying Ipis", "Dagang Kanal", "Bangaw",
+                        "Palaka", "Tutubi", "Paro-paro" };
+                String[] moderateEnemies = { "Paniki", "Higad", "Salagubang", "Manok", "Ahas", "Tipaklong",
+                        "Colored Sisiw", "Tuko", "Bubuyog", "Mandarangkal" };
+                String[] rareEnemies = { "Kabayo", "Daga" };
+                double random = Math.random();
+                if (random < 0.05) {
+                    return getRandomArrayElement(rareEnemies);
+                } else if (random < 0.5) {
+                    return getRandomArrayElement(moderateEnemies);
+                } else if (random < 0.8) {
+                    return getRandomArrayElement(commonEnemies);
+                } else {
+                    return getRandomArrayElement(veryCommonEnemies);
+                }
+            } else {
+                return null;
+            }
+        } else if (area.equals("Professor's Lab")) {
+            if (level >= 20) {
+                return "Professor Splinter";
+            } else {
+                return null;
             }
         }
-        return "Professor Splinter";
+        return null;
     }
 
     private String getRandomArrayElement(String[] array) {

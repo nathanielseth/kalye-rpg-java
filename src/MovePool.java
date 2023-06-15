@@ -6,11 +6,11 @@ public class MovePool {
     public static final Move BITE = new Move("Bite", 5, false, 1, Effect.RABIES);
     public static final Move BITE_TUTA = new Move("Bite", 4, false, 0.7);
     public static final Move TAHOL = new Move("Tahol", 0, true, 1, Effect.MULTIPLY_DAMAGE);
-    public static final Move SPEAR = new Move("Spear", 10, false, 1);
+    public static final Move SPEAR = new Move("Spear", 11, false, 1);
     public static final Move OUTRAGE = new Move("Outrage", 45, false, 0.8);
     public static final Move KAGAT = new Move("Kagat", 5, false, 1);
     public static final Move BURROW = new Move("Burrow", 3, true, 0.7, Effect.DODGE_NEXT_MOVE);
-    public static final Move BURROW_ANTMAN = new Move("Quantum Burrow", 10, true, 0.95, Effect.DODGE_NEXT_MOVE);
+    public static final Move BURROW_ANTMAN = new Move("Quantum Burrow", 10, true, 0.8, Effect.DODGE_NEXT_MOVE);
     public static Move GANG_UP = new Move("Gang Up", 1, false, 1, Effect.REPEAT_MOVE);
     public static final Move QUANTUM_BITE = new Move("Quantum Bite", 55, false, 0.95);
     public static final Move SCRATCH = new Move("Scratch", 1, false, 0.9);
@@ -46,7 +46,7 @@ public class MovePool {
     public static final Move DAPO_HIGAD = new Move("Dapo", 8, true, 0.5);
     public static final Move KARATE_CHOP = new Move("Karate Chop", 8, false, 0.4);
     public static final Move TADYAK = new Move("Tadyak", 30, false, 0.5);
-    public static final Move STING = new Move("Sting", 9, false, 0.65);
+    public static final Move STING = new Move("Sting", 8, false, 0.65);
     public static final Move BUZZ = new Move("Buzz", 0, false, 0.8);
 
     public static class Move {

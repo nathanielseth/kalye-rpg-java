@@ -8,6 +8,7 @@ import java.awt.Toolkit;
 public class Game {
     public static void main(String[] args) {
         String selectedPokeKalye = PokeKalyeChooser.getSelectedPokeKalye();
+        String pokeKalyeName = PokeKalyeChooser.pokeKalyeName;
 
         String iconPath = "media/images/KalyeRPG.png";
         ImageIcon icon = new ImageIcon(iconPath);
@@ -29,7 +30,7 @@ public class Game {
 
         frame.setLocation(x, y);
 
-        GamePanel gamePanel = new GamePanel(selectedPokeKalye);
+        GamePanel gamePanel = new GamePanel(selectedPokeKalye, pokeKalyeName);
 
         frame.getContentPane().add(gamePanel);
 

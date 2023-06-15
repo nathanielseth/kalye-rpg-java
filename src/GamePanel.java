@@ -38,9 +38,11 @@ public class GamePanel extends JPanel {
     private JProgressBar enemyHealthBar;
     private JTextArea dialogueArea;
     private JButton movesButton;
-    private JButton searchButton;
+    JButton searchButton;
+    private JButton areasButton;
     JButton sariSariButton;
     private String selectedPokeKalye;
+    private String pokeKalyeName;
     private boolean inBattle;
     private String enemyPokeKalye = "";
     private int enemyMaxHealth;
@@ -71,6 +73,7 @@ public class GamePanel extends JPanel {
     private static Clip burrowSoundClip;
     private static Clip missSoundClip;
     private static Clip barkSoundClip;
+    private static Clip hissSoundClip;
     private static Clip dengueSoundClip;
     private static Clip introSoundClip;
     private boolean hasRabies = false;
@@ -100,7 +103,7 @@ public class GamePanel extends JPanel {
     private boolean gameCompleted = false;
     private int enemyDamageReductionCounter;
     private double enemyDamageReductionPercentage;
-    private boolean musicEnabled = true;
+    String area = "Kalsada Central";
 
     void showIntroScreen() {
         this.setBackground(Color.BLACK);
@@ -130,9 +133,10 @@ public class GamePanel extends JPanel {
         timer.start();
     }
 
-    public GamePanel(String selectedPokeKalye) {
+    public GamePanel(String selectedPokeKalye, String pokeKalyeName) {
         this.enemyPokeKalye = "";
         search = new Search(this);
+        this.pokeKalyeName = pokeKalyeName;
         this.selectedPokeKalye = selectedPokeKalye;
         this.playerData = new PokeKalyeData.PokeKalye(selectedPokeKalye, 0, MovePool.getMoves(selectedPokeKalye));
         this.enemyData = new PokeKalyeData.PokeKalye(enemyPokeKalye, 0, MovePool.getMoves(enemyPokeKalye));
@@ -163,7 +167,7 @@ public class GamePanel extends JPanel {
 
         Border blackBorder = BorderFactory.createLineBorder(Color.WHITE);
 
-        playerLabel = new JLabel(selectedPokeKalye.toUpperCase());
+        playerLabel = new JLabel(pokeKalyeName.toUpperCase());
         playerLabel.setForeground(Color.WHITE);
         playerHealthBar = new JProgressBar(0, playerMaxHealth);
         playerHealthBar.setForeground(new Color(102, 255, 51));
@@ -271,7 +275,7 @@ public class GamePanel extends JPanel {
         battlePanel.add(imagePanel, BorderLayout.CENTER);
         battlePanel.add(enemyPanel, BorderLayout.SOUTH);
 
-        dialogueArea = new JTextArea(" What will " + selectedPokeKalye + " do?");
+        dialogueArea = new JTextArea(" What will " + pokeKalyeName + " do?");
         dialogueArea.setEditable(false);
         dialogueArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
         dialogueArea.setBackground(new Color(240, 221, 226));
@@ -289,13 +293,21 @@ public class GamePanel extends JPanel {
         movesButton = new JButton("Moves");
         searchButton = new JButton("Search");
         sariSariButton = new JButton("Sari-Sari");
+        areasButton = new JButton("Areas");
+
+        JButton kalsadaCentralButton = new JButton("Kalsada Central");
+        JButton kalyeWestButton = new JButton("Kalye West");
+        JButton gedliEastButton = new JButton("Gedli East");
+        JButton professorsLabButton = new JButton("Professor's Lab");
 
         movesButton.setBackground(Color.WHITE);
         searchButton.setBackground(Color.WHITE);
         sariSariButton.setBackground(Color.WHITE);
+        areasButton.setBackground(Color.WHITE);
 
         searchButton.setEnabled(false);
         sariSariButton.setEnabled(false);
+        areasButton.setEnabled(false);
 
         movesButton.setEnabled(inBattle);
 
@@ -336,10 +348,12 @@ public class GamePanel extends JPanel {
         movesButton.addMouseListener(buttonMouseListener);
         searchButton.addMouseListener(buttonMouseListener);
         sariSariButton.addMouseListener(buttonMouseListener);
+        areasButton.addMouseListener(buttonMouseListener);
 
         buttonsPanel.add(movesButton);
         buttonsPanel.add(searchButton);
         buttonsPanel.add(sariSariButton);
+        buttonsPanel.add(areasButton);
 
         add(battlePanel, BorderLayout.CENTER);
         add(dialogueScrollPane, BorderLayout.WEST);
@@ -350,6 +364,7 @@ public class GamePanel extends JPanel {
             playButtonClickSound();
         });
         searchButton.addActionListener(e -> {
+            areasButton.setEnabled(false);
             searchButton.setEnabled(false);
             fadeOutBattleMusic();
             luckyCatButton.setVisible(false);
@@ -364,6 +379,152 @@ public class GamePanel extends JPanel {
             playButtonClickSound();
             repaint();
             revalidate();
+            System.out.println(luck);
+        });
+        areasButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println(area);
+                playButtonClickSound();
+                buttonsPanel.removeAll();
+
+                kalsadaCentralButton.setBackground(Color.WHITE);
+                kalyeWestButton.setBackground(Color.WHITE);
+                gedliEastButton.setBackground(Color.WHITE);
+                professorsLabButton.setBackground(Color.WHITE);
+
+                buttonsPanel.add(kalsadaCentralButton);
+                buttonsPanel.add(kalyeWestButton);
+                buttonsPanel.add(gedliEastButton);
+                buttonsPanel.add(professorsLabButton);
+                if (getLevel() >= 5) {
+                    kalyeWestButton.setEnabled(true);
+                } else {
+                    kalyeWestButton.setEnabled(false);
+                }
+                if (getLevel() >= 10) {
+                    gedliEastButton.setEnabled(true);
+                } else {
+                    gedliEastButton.setEnabled(false);
+                }
+
+                if (area.equals("Kalsada Central")) {
+                    kalsadaCentralButton.setBackground(new Color(82, 113, 255));
+                } else if (area.equals("Kalye West")) {
+                    kalyeWestButton.setBackground(new Color(82, 113, 255));
+                } else if (area.equals("Gedli East")) {
+                    gedliEastButton.setBackground(new Color(82, 113, 255));
+                } else if (area.equals("Professor's Lab")) {
+                    professorsLabButton.setBackground(new Color(82, 113, 255));
+                }
+                luckyCatButton.setVisible(false);
+                buttonsPanel.revalidate();
+                buttonsPanel.repaint();
+            }
+        });
+
+        kalsadaCentralButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                switchToKalsadaCentral();
+                restoreButtons();
+                luckyCatButton.setVisible(false);
+            }
+        });
+
+        kalyeWestButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                switchToKalyeWest();
+                restoreButtons();
+                luckyCatButton.setVisible(false);
+            }
+        });
+
+        gedliEastButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                switchToGedliEast();
+                restoreButtons();
+                luckyCatButton.setVisible(false);
+            }
+        });
+
+        professorsLabButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                switchToProfessorsLab();
+                restoreButtons();
+                luckyCatButton.setVisible(false);
+            }
+        });
+
+        kalsadaCentralButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                if (!area.equals("Kalsada Central")) {
+                    kalsadaCentralButton.setBackground(new Color(102, 255, 51));
+                    playHoverSound();
+                }
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                if (!area.equals("Kalsada Central")) {
+                    kalsadaCentralButton.setBackground(Color.WHITE);
+                }
+            }
+        });
+
+        kalyeWestButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                if (!area.equals("Kalye West") && kalyeWestButton.isEnabled()) {
+                    kalyeWestButton.setBackground(new Color(102, 255, 51));
+                    playHoverSound();
+                }
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                if (!area.equals("Kalye West") && kalyeWestButton.isEnabled()) {
+                    kalyeWestButton.setBackground(Color.WHITE);
+                }
+            }
+        });
+
+        gedliEastButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                if (!area.equals("Gedli East") && gedliEastButton.isEnabled()) {
+                    gedliEastButton.setBackground(new Color(102, 255, 51));
+                    playHoverSound();
+                }
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                if (!area.equals("Gedli East") && gedliEastButton.isEnabled()) {
+                    gedliEastButton.setBackground(Color.WHITE);
+                }
+            }
+        });
+
+        professorsLabButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                if (!area.equals("Professor's Lab")) {
+                    professorsLabButton.setBackground(new Color(102, 255, 51));
+                    playHoverSound();
+                }
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                if (!area.equals("Professor's Lab")) {
+                    professorsLabButton.setBackground(Color.WHITE);
+                }
+            }
         });
         buttonsPanel.revalidate();
         buttonsPanel.repaint();
@@ -406,6 +567,14 @@ public class GamePanel extends JPanel {
             }
             int earnedPesos = getRandomNumber(1, earnedPesosMaxValue);
             pesos += earnedPesos;
+
+            int previousLuck = luck;
+            boolean luckModified = false;
+            if (pesos < 0 && luck >= 0) {
+                luck = 0;
+                luckModified = true;
+            }
+
             playerExpBar.setMaximum(getLevelUpExperience(playerLevel));
             animateExpBar(playerExpBar, experience, getLevelUpExperience(playerLevel), 600);
             playerLevelLabel.setText("LVL " + playerLevel);
@@ -431,13 +600,16 @@ public class GamePanel extends JPanel {
                     public void actionPerformed(ActionEvent e) {
                         displayAfterBattleDialogue();
                         setInBattle(false);
-                        searchButton.setEnabled(true);
                         restoreButtons();
                     }
                 });
                 timer.setRepeats(false);
                 timer.start();
             }
+            if (luckModified && pesos >= 0) {
+                luck = previousLuck;
+            }
+
             clearDialogue();
             enemyDamageReductionCounter = 0;
         } else if (playerCurrentHealth <= 0 && !gameOver) {
@@ -456,7 +628,7 @@ public class GamePanel extends JPanel {
             numMoves = 3;
         }
 
-        if (playerLevel >= 10) {
+        if (playerLevel >= 10 || selectedPokeKalye.equals("Puspin Boots")) {
             numMoves = 4;
         }
 
@@ -555,7 +727,7 @@ public class GamePanel extends JPanel {
         enemyImageLabel.setIcon(enemyImage);
         setInBattle(true);
         System.out.println("Enemy HP: " + enemyCurrentHealth + "/" + enemyMaxHealth);
-        enableSearchButton(false);
+        searchButton.setEnabled(false);
     }
 
     public void setDialogueText(String dialogue) {
@@ -583,6 +755,8 @@ public class GamePanel extends JPanel {
         this.inBattle = inBattle;
         if (inBattle) {
             initializeEnemyData(enemyPokeKalye);
+            searchButton.setEnabled(false);
+            areasButton.setEnabled(false);
         } else {
             enemyData = null;
         }
@@ -599,10 +773,16 @@ public class GamePanel extends JPanel {
     void enableButtons() {
         searchButton.setEnabled(true);
         sariSariButton.setEnabled(true);
+        areasButton.setEnabled(true);
     }
 
     public void setSearchLabelText(String text) {
         searchingLabel.setText(text);
+    }
+
+    public void setEnemyLabelText(String text) {
+        enemyLabel.setVisible(true);
+        enemyLabel.setText(text);
     }
 
     public void showSearchingLabel(boolean show) {
@@ -1116,11 +1296,11 @@ public class GamePanel extends JPanel {
             setInBattle(false);
             searchButton.setEnabled(true);
             restoreButtons();
-            appendToDialogue("\n " + selectedPokeKalye + " fled from\n the battle!");
+            appendToDialogue("\n " + pokeKalyeName + " fled from\n the battle!");
             playFleeUpSound();
             luckyCatButton.setVisible(false);
         } else {
-            appendToDialogue("\n " + selectedPokeKalye + ", flee pa more!");
+            appendToDialogue("\n " + pokeKalyeName + ", flee pa more!");
             playMissSound();
             enemyTurn();
         }
@@ -1140,7 +1320,7 @@ public class GamePanel extends JPanel {
                 playerCurrentHealth += healAmount;
             }
             updateHealthBars();
-            appendToDialogue("\n " + selectedPokeKalye + " used " + move.getName() + "!");
+            appendToDialogue("\n " + pokeKalyeName + " used " + move.getName() + "!");
             playBurrowSound();
         } else {
             appendToDialogue("\n Purr failed!");
@@ -1177,7 +1357,7 @@ public class GamePanel extends JPanel {
             }
             enemyCurrentHealth -= damage;
             updateHealthBars();
-            appendToDialogue("\n " + selectedPokeKalye + " used " + move.getName() + "!");
+            appendToDialogue("\n " + pokeKalyeName + " used " + move.getName() + "!");
             System.out.println("Enemy HP: " + enemyCurrentHealth + "/" + enemyMaxHealth);
             System.out.println("Player HP: " + playerCurrentHealth + "/" + getMaxHealth(playerData));
             playBurrowSound();
@@ -1203,7 +1383,7 @@ public class GamePanel extends JPanel {
             boolean hasRabiesBeforeMove = hasRabies;
 
             int maxPlayerHealth = getMaxHealth(playerData);
-            int healAmount = 50; // The amount to heal
+            int healAmount = 50;
 
             if (playerCurrentHealth + healAmount > maxPlayerHealth) {
                 playerCurrentHealth = maxPlayerHealth;
@@ -1220,7 +1400,7 @@ public class GamePanel extends JPanel {
             }
             enemyCurrentHealth -= damage;
             updateHealthBars();
-            appendToDialogue("\n " + selectedPokeKalye + " used " + move.getName() + "!");
+            appendToDialogue("\n " + pokeKalyeName + " used " + move.getName() + "!");
             System.out.println("Enemy HP: " + enemyCurrentHealth + "/" + enemyMaxHealth);
             System.out.println("Player HP: " + playerCurrentHealth + "/" + getMaxHealth(playerData));
             playBurrowSound();
@@ -1236,14 +1416,15 @@ public class GamePanel extends JPanel {
 
     private void performTaholMove(MovePool.Move move) {
         taholDmgBoost = true;
-        appendToDialogue("\n " + selectedPokeKalye + " used " + move.getName() + "!");
+        appendToDialogue("\n " + pokeKalyeName + " used " + move.getName() + "!");
         playBarkSound();
     }
 
     private void performHissMove(MovePool.Move move) {
         enemyDamageReductionCounter = 3;
         enemyDamageReductionPercentage = 0.5;
-        appendToDialogue("\n " + selectedPokeKalye + " used " + move.getName() + "!");
+        appendToDialogue("\n " + pokeKalyeName + " used " + move.getName() + "!");
+        playHissSound();
     }
 
     private void performGangUpMove(MovePool.Move move, double chance) {
@@ -1255,7 +1436,7 @@ public class GamePanel extends JPanel {
         } else if (randomValue <= 0.9) {
             additionalDamage = (int) (Math.random() * 20) + 11;
         } else {
-            additionalDamage = (int) (Math.random() * 20) + 31;
+            additionalDamage = (int) (Math.random() * 20) + 41;
         }
         int damage = move.getDamage() + additionalDamage;
 
@@ -1276,11 +1457,11 @@ public class GamePanel extends JPanel {
             updateHealthBars();
             String moveName = move.getName();
             if (damage >= 1 && damage <= 5) {
-                appendToDialogue("\n " + selectedPokeKalye + " used " + moveName.toLowerCase() + "!");
+                appendToDialogue("\n " + pokeKalyeName + " used " + moveName.toLowerCase() + "!");
             } else if (damage >= 12) {
-                appendToDialogue("\n " + selectedPokeKalye + " used " + moveName.toUpperCase() + "!");
+                appendToDialogue("\n " + pokeKalyeName + " used " + moveName.toUpperCase() + "!");
             } else if (damage >= 6 && damage <= 11) {
-                appendToDialogue("\n " + selectedPokeKalye + " used " + moveName + "!");
+                appendToDialogue("\n " + pokeKalyeName + " used " + moveName + "!");
             }
 
             System.out.println("Enemy HP: " + enemyCurrentHealth + "/" + enemyMaxHealth);
@@ -1292,7 +1473,7 @@ public class GamePanel extends JPanel {
                 showDamageLabel(enemyDamageLabel, damage, isCrit);
             }
         } else {
-            appendToDialogue("\n " + selectedPokeKalye + " missed!");
+            appendToDialogue("\n " + pokeKalyeName + " missed!");
             playMissSound();
         }
     }
@@ -1327,7 +1508,7 @@ public class GamePanel extends JPanel {
                 updateHealthBars();
                 enemyCurrentHealth -= damage;
                 updateHealthBars();
-                appendToDialogue("\n " + selectedPokeKalye + " used " + move.getName() + "!");
+                appendToDialogue("\n " + pokeKalyeName + " used " + move.getName() + "!");
                 System.out.println("Enemy HP: " + enemyCurrentHealth + "/" + enemyMaxHealth);
                 System.out.println("Player HP: " + playerCurrentHealth + "/" + getMaxHealth(playerData));
                 if (damage > 0) {
@@ -1338,7 +1519,7 @@ public class GamePanel extends JPanel {
             } else {
                 enemyCurrentHealth -= damage;
                 updateHealthBars();
-                appendToDialogue("\n " + selectedPokeKalye + " used " + move.getName() + "!");
+                appendToDialogue("\n " + pokeKalyeName + " used " + move.getName() + "!");
                 System.out.println("Enemy HP: " + enemyCurrentHealth + "/" + enemyMaxHealth);
                 if (damage > 0) {
                     animateDamageBlink(enemyImageLabel);
@@ -1443,7 +1624,7 @@ public class GamePanel extends JPanel {
             performEnemyRegularMove(move, 1.0);
             dialogueArea.append("\n Splinter is meditating.");
         } else {
-            int healAmount = (int) (Math.random() * 501) + 200;
+            int healAmount = (int) (Math.random() * 3001) + 200;
             enemyCurrentHealth += healAmount;
             enemyMeditateCooldown = (int) (Math.random() * 2);
             dialogueArea.append("\n Splinter used " + move.getName() + ".");
@@ -1737,14 +1918,17 @@ public class GamePanel extends JPanel {
         movesButton.setEnabled(inBattle);
         searchButton.setEnabled(true);
         sariSariButton.setEnabled(true);
+        areasButton.setEnabled(true);
 
         movesButton.setBackground(Color.WHITE);
         searchButton.setBackground(Color.WHITE);
         sariSariButton.setBackground(Color.WHITE);
+        areasButton.setBackground(Color.WHITE);
 
         buttonsPanel.add(movesButton);
         buttonsPanel.add(searchButton);
         buttonsPanel.add(sariSariButton);
+        buttonsPanel.add(areasButton);
 
         if (getLuck() == 0) {
             if ((double) getPlayerCurrentHealth() / getPlayerMaxHealth() <= 0.3) {
@@ -1770,7 +1954,7 @@ public class GamePanel extends JPanel {
     }
 
     int getLevelUpExperience(int level) {
-        return 100 + (level - 1) * 10;
+        return 100 + (level - 1) * 20;
     }
 
     private Random random = new Random();
@@ -1797,7 +1981,7 @@ public class GamePanel extends JPanel {
             } else if (selectedPokeKalye.equals("Big Dog")) {
                 dialogue = " What will the\n Big Dog do?";
             } else {
-                dialogue = " What will " + selectedPokeKalye + " do?";
+                dialogue = " What will " + pokeKalyeName + " do?";
             }
         }
 
@@ -1818,6 +2002,7 @@ public class GamePanel extends JPanel {
                 File burrowSoundFile = new File("media/audio/burrow.wav");
                 File missSoundFile = new File("media/audio/miss.wav");
                 File barkSoundFile = new File("media/audio/bark.wav");
+                File hissSoundFile = new File("media/audio/hiss.wav");
                 File dengueSoundFile = new File("media/audio/dengue.wav");
                 File introSoundFile = new File("media/audio/intro.wav");
 
@@ -1831,6 +2016,7 @@ public class GamePanel extends JPanel {
                 burrowSoundClip = preloadClip(burrowSoundFile);
                 missSoundClip = preloadClip(missSoundFile);
                 barkSoundClip = preloadClip(barkSoundFile);
+                hissSoundClip = preloadClip(hissSoundFile);
                 dengueSoundClip = preloadClip(dengueSoundFile);
                 introSoundClip = preloadClip(introSoundFile);
             } catch (IOException | LineUnavailableException | UnsupportedAudioFileException e) {
@@ -1849,7 +2035,7 @@ public class GamePanel extends JPanel {
     }
 
     private void playBattleMusic() {
-        if (musicEnabled && (loopingMusicClip == null || !loopingMusicClip.isRunning())) {
+        if ((loopingMusicClip == null || !loopingMusicClip.isRunning())) {
             try {
                 File musicFile = new File("media/audio/battle.wav");
                 AudioInputStream audioStream = AudioSystem.getAudioInputStream(musicFile);
@@ -1874,15 +2060,6 @@ public class GamePanel extends JPanel {
     public void resumeMusic() {
         if (inBattle && loopingMusicClip != null && !loopingMusicClip.isRunning()) {
             loopingMusicClip.start();
-        }
-    }
-
-    public void setMusicEnabled(boolean enabled) {
-        musicEnabled = enabled;
-        if (musicEnabled) {
-            resumeMusic();
-        } else {
-            pauseMusic();
         }
     }
 
@@ -2042,6 +2219,13 @@ public class GamePanel extends JPanel {
         if (barkSoundClip != null) {
             barkSoundClip.setFramePosition(0);
             barkSoundClip.start();
+        }
+    }
+
+    private void playHissSound() {
+        if (hissSoundClip != null) {
+            hissSoundClip.setFramePosition(0);
+            hissSoundClip.start();
         }
     }
 
@@ -2372,8 +2556,8 @@ public class GamePanel extends JPanel {
                     "\n Prof RP caught the\n " + enemyPokeKalyeName + " for you!",
                     "Your mother said\n \"Di mo pwede iuwi si\n " + selectedPokeKalye
                             + " sa bahay.\"",
-                    "\n Queensrow North...\n Kalye West....",
-                    "\n Pampaswerte daw yung\nShtick-O, natry mo na?"
+                    "\n Sige lang...!\n Huli lang....!",
+                    "\n Pampaswerte daw yung\n Shtick-O, natry mo na?"
             };
             dialogue = getRandomDialogueWithReuse(dialogueOptions);
         } else if (level >= 11 && level <= 15) {
@@ -2432,4 +2616,29 @@ public class GamePanel extends JPanel {
         buttonsPanel.revalidate();
         buttonsPanel.repaint();
     }
+
+    private void switchToKalsadaCentral() {
+        area = "Kalsada Central";
+    }
+
+    private void switchToKalyeWest() {
+        area = "Kalye West";
+    }
+
+    private void switchToGedliEast() {
+        area = "Gedli East";
+    }
+
+    private void switchToProfessorsLab() {
+        area = "Professor's Lab";
+    }
+
+    public String getArea() {
+        return area;
+    }
+
+    void setAreasButtonEnabled(boolean enabled) {
+        areasButton.setEnabled(enabled);
+    }
+
 }

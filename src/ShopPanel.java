@@ -33,7 +33,7 @@ public class ShopPanel extends JPanel {
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setOpaque(false);
 
-        JLabel shopLabel = new JLabel(" Manggo Lloyd's Sari-Sari Store");
+        JLabel shopLabel = new JLabel(" Mango Lloyd's Sari-Sari Store");
         shopLabel.setFont(new Font("Courier New", Font.BOLD, 17));
         shopLabel.setForeground(Color.WHITE);
         topPanel.add(shopLabel, BorderLayout.WEST);

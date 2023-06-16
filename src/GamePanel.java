@@ -91,7 +91,7 @@ public class GamePanel extends JPanel {
     private int purrCooldown = 0;
     private double critRateModifier = 0.0;
     private int critDamageModifier = 0;
-    private int earnedPesosMaxValue = 13;
+    private int earnedPesosMaxValue = 7;
     private int luck = 0;
     private JLabel luckyCatButton;
     private boolean isShopOpen = false;
@@ -565,7 +565,15 @@ public class GamePanel extends JPanel {
                 playerCurrentHealth += 5;
                 updateHealthBars();
             }
-            int earnedPesos = getRandomNumber(1, earnedPesosMaxValue);
+            int earnedPesos = 0;
+            String area = getArea();
+            if (area.equals("Kalsada Central")) {
+                earnedPesos = getRandomNumber(1, earnedPesosMaxValue);
+            } else if (area.equals("Kalye West")) {
+                earnedPesos = getRandomNumber(1, earnedPesosMaxValue + 7);
+            } else if (area.equals("Gedli East")) {
+                earnedPesos = getRandomNumber(1, earnedPesosMaxValue + 14);
+            }
             pesos += earnedPesos;
 
             int previousLuck = luck;
@@ -820,10 +828,13 @@ public class GamePanel extends JPanel {
         if (damageMultiplier > 5.0) {
             enemyMaxHealth += 20;
         }
-        this.enemyCurrentHealth = enemyMaxHealth;
-        if (enemyData.getName().equals("Professor Splinter")) {
-            enemyCurrentHealth += 5;
+        String area = getArea();
+        if (area.equals("Kalye West")) {
+            enemyMaxHealth += 20;
+        } else if (area.equals("Gedli East")) {
+            enemyMaxHealth += 50;
         }
+        this.enemyCurrentHealth = enemyMaxHealth;
         enemyHealthBar.setMaximum(enemyMaxHealth);
         enemyHealthBar.setValue(enemyCurrentHealth);
 
@@ -1285,7 +1296,13 @@ public class GamePanel extends JPanel {
     }
 
     private void performFleeMove(MovePool.Move move) {
-        boolean moveMissed = Math.random() <= 0.1;
+        boolean moveMissed = false;
+        String pokeKalye = getPokeKalyeName();
+        if (pokeKalye.equals("Puspin") || pokeKalye.equals("Puspin Boots")) {
+            moveMissed = Math.random() <= 0.1;
+        } else {
+            moveMissed = Math.random() <= 0.35;
+        }
 
         if (enemyPokeKalye.equals("Professor Splinter")) {
             appendToDialogue("\n YOU CAN'T RUN FROM ME.");

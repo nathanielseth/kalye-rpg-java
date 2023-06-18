@@ -26,7 +26,7 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 public class GamePanel extends JPanel {
-    public int playerLevel = 1;
+    public int playerLevel = 5;
     public int experience;
     private JLabel playerLabel;
     private JPanel playerPanel;
@@ -300,6 +300,16 @@ public class GamePanel extends JPanel {
         JButton gedliEastButton = new JButton("Gedli East");
         JButton professorsLabButton = new JButton("Professor's Lab");
 
+        if (getArea().equals("Kalye West")) {
+            sariSariButton.setText("Pet Shop");
+        } else if (getArea().equals("Gedli East")) {
+            sariSariButton.setText("Ukay-Ukay");
+        } else if (getArea().equals("Professor's Lab")) {
+            sariSariButton.setText("Laboratory");
+        } else {
+            sariSariButton.setText("Sari-Sari");
+        }
+
         movesButton.setBackground(Color.WHITE);
         searchButton.setBackground(Color.WHITE);
         sariSariButton.setBackground(Color.WHITE);
@@ -375,11 +385,20 @@ public class GamePanel extends JPanel {
         sariSariButton.addActionListener(e -> {
             isShopOpen = true;
             pauseMusic();
-            openShopPanel();
+            String area = getArea();
+            if (area.equals("Kalye West")) {
+                openPetShopPanel();
+            } else if (area.equals("Gedli East")) {
+                // openUkayUkay();
+            } else if (area.equals("Professor's Lab")) {
+                openLaboratory();
+            } else {
+                openShopPanel();
+            }
+
             playButtonClickSound();
             repaint();
             revalidate();
-            System.out.println(luck);
         });
         areasButton.addActionListener(new ActionListener() {
             @Override
@@ -426,6 +445,7 @@ public class GamePanel extends JPanel {
         kalsadaCentralButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                playButtonClickSound();
                 switchToKalsadaCentral();
                 restoreButtons();
                 luckyCatButton.setVisible(false);
@@ -435,6 +455,7 @@ public class GamePanel extends JPanel {
         kalyeWestButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                playButtonClickSound();
                 switchToKalyeWest();
                 restoreButtons();
                 luckyCatButton.setVisible(false);
@@ -444,6 +465,7 @@ public class GamePanel extends JPanel {
         gedliEastButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                playButtonClickSound();
                 switchToGedliEast();
                 restoreButtons();
                 luckyCatButton.setVisible(false);
@@ -453,6 +475,7 @@ public class GamePanel extends JPanel {
         professorsLabButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                playButtonClickSound();
                 switchToProfessorsLab();
                 restoreButtons();
                 luckyCatButton.setVisible(false);
@@ -692,6 +715,32 @@ public class GamePanel extends JPanel {
         JFrame currentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
         currentFrame.getContentPane().removeAll();
         currentFrame.setContentPane(shopPanel);
+        currentFrame.pack();
+        currentFrame.revalidate();
+        currentFrame.repaint();
+    }
+
+    private void openPetShopPanel() {
+        if (loopingMusicClip != null && loopingMusicClip.isRunning()) {
+            loopingMusicClip.stop();
+        }
+        PetShopPanel petShopPanel = new PetShopPanel(this);
+        JFrame currentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
+        currentFrame.getContentPane().removeAll();
+        currentFrame.setContentPane(petShopPanel);
+        currentFrame.pack();
+        currentFrame.revalidate();
+        currentFrame.repaint();
+    }
+
+    private void openLaboratory() {
+        if (loopingMusicClip != null && loopingMusicClip.isRunning()) {
+            loopingMusicClip.stop();
+        }
+        LaboratoryPanel laboratoryPanel = new LaboratoryPanel(this);
+        JFrame currentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
+        currentFrame.getContentPane().removeAll();
+        currentFrame.setContentPane(laboratoryPanel);
         currentFrame.pack();
         currentFrame.revalidate();
         currentFrame.repaint();
@@ -1964,6 +2013,16 @@ public class GamePanel extends JPanel {
         if (getPlayerCurrentHealth() > getPlayerMaxHealth()) {
             setPlayerCurrentHealth(getPlayerMaxHealth());
             updateHealthBars();
+        }
+        String area = getArea();
+        if (area.equals("Kalye West")) {
+            sariSariButton.setText("Pet Shop");
+        } else if (area.equals("Gedli East")) {
+            sariSariButton.setText("Ukay-Ukay");
+        } else if (area.equals("Professor's Lab")) {
+            sariSariButton.setText("Laboratory");
+        } else {
+            sariSariButton.setText("Sari-Sari");
         }
 
         buttonsPanel.revalidate();

@@ -52,6 +52,12 @@ public class PokeKalyeData {
         public static final PokeKalye PALAKA = new PokeKalye("Palaka", 30, MovePool.CROAK, MovePool.LICK);
         public static final PokeKalye KUTO = new PokeKalye("Kuto", 10, MovePool.SCRATCH);
         public static final PokeKalye BUBUYOG = new PokeKalye("Bubuyog", 14, MovePool.STING, MovePool.BUZZ);
+        public static final PokeKalye TRIBAL_KIP = new PokeKalye("Tribal Kip", 100, MovePool.SNEAK_ATTACK,
+                        MovePool.PURR, MovePool.KAGAT);
+        public static final PokeKalye LOLONG = new PokeKalye("Lolong", 200, MovePool.OUTRAGE, MovePool.KAGAT,
+                        MovePool.SEWER_FOCUS);
+        public static final PokeKalye THE_GOAT = new PokeKalye("THE GOAT", 500, MovePool.TADYAK, MovePool.BURROW,
+                        MovePool.QUANTUM_BITE, MovePool.SPEAR);
 
         public static class PokeKalye {
                 private final String name;

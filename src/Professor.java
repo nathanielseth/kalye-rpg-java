@@ -141,7 +141,7 @@ public class Professor extends JFrame {
         String[] dialogues = { "...",
                 "Hoy! Ikaw! Huwag ka lumabas! Deliks dito! May mga WILD na PokeKalye dito sa gedli! Kailangan mo ng sarili mong PokeKalye para sa proteksyon mo...",
                 "Ako nga pala si PROF RP! Tinatawag nila ako bilang PROFESSOR KALYE! Mapapansin mo na lately napakaraming hayup na paligoy-ligoy rito sa Queensrow...",
-                "Bilang professor, napaimbestiga ako rito dahil may mga kakaibang kaganapan talaga dito sa kalyeng to.. Kailangan mahuli na ang mga ito agad agad..",
+                "Bilang professor, napaimbestiga ako rito dahil may mga kakaibang kaganapan talaga dito sa kalyeng to.. Kailangan mahuli na ang mga ito..",
                 "Teka muna, ano ang iyong pangalan?"
         };
         currentDialogue = dialogues[dialogueIndex];

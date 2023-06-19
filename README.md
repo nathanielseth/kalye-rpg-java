@@ -18,7 +18,7 @@ The gameplay of KalyeRPG, although simple in concept, is intentionally designed 
 - Search: Engage in random encounters with enemies based on your level and the area you are in.
 - Areas: Explore various locations with distinct enemy pools and different shops. Unlock new areas as you progress through the game.
 - Laboratory: Showcase of the animals you've caught in the game, accompanied by their lore and description.
-- Luck: Lucky Cat spawns based on what you're luck value is and gives the player a random amount of health and money. Boost your luck by acquiring specific in-game items.
+- Luck: Lucky Cat spawns based on what your luck value is and gives the player a random amount of health and money. Boost your luck by acquiring specific in-game items.
 - Shops, Evolutions, Boss Fights, and more
 
 ## Disclaimer

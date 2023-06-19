@@ -9,8 +9,10 @@ import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.io.File;
@@ -26,7 +28,7 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 public class GamePanel extends JPanel {
-    public int playerLevel = 5;
+    public int playerLevel = 15;
     public int experience;
     private JLabel playerLabel;
     private JPanel playerPanel;
@@ -50,7 +52,7 @@ public class GamePanel extends JPanel {
     JLabel playerLevelLabel;
     private int enemyCurrentHealth;
     private JLabel battleStatusLabel;
-    private int pesos = 100;
+    private int pesos = 10090;
     private Search search;
     private JLabel enemyImageLabel;
     private List<JButton> moveButtons;
@@ -107,7 +109,12 @@ public class GamePanel extends JPanel {
     String area = "Kalsada Central";
     private boolean boughtWaterBowl = false;
     private boolean boughtVitamins = false;
+    private boolean boughtVest = false;
+    private boolean boughtBike = false;
+    private boolean boughtJersey = false;
     private int playerExtraLives;
+    private Set<String> caughtPokeKalyes;
+    private int defeatedEnemiesCount;
 
     void showIntroScreen() {
         this.setBackground(Color.BLACK);
@@ -147,6 +154,7 @@ public class GamePanel extends JPanel {
         this.enemyCurrentHealth = getMaxHealth(enemyData);
         this.playerCurrentHealth = getMaxHealth(playerData);
         search = new Search(this);
+        caughtPokeKalyes = new HashSet<>();
         preloadSounds();
         showIntroScreen();
         startTime = System.currentTimeMillis();
@@ -572,7 +580,9 @@ public class GamePanel extends JPanel {
 
     private void checkBattleResult() {
         if (enemyCurrentHealth <= 0) {
+            incrementDefeatedEnemiesCount();
             playEnemyDefeatedSound();
+            catchPokeKalye(enemyPokeKalye);
             int levelUpExp = getLevelUpExperience(playerLevel);
             int minExperience = 35;
             int maxExperience = 75;
@@ -637,7 +647,15 @@ public class GamePanel extends JPanel {
                         setInBattle(false);
                         restoreButtons();
                         if (boughtWaterBowl) {
-                            setPlayerCurrentHealth(getPlayerCurrentHealth() + 5);
+                            int healthToAdd = 5;
+                            int maxHealth = getPlayerMaxHealth();
+                            int currentHealth = getPlayerCurrentHealth();
+
+                            if (currentHealth + healthToAdd > maxHealth) {
+                                healthToAdd = maxHealth - currentHealth;
+                            }
+
+                            setPlayerCurrentHealth(currentHealth + healthToAdd);
                             updateHealthBars();
                         }
                     }
@@ -1582,6 +1600,9 @@ public class GamePanel extends JPanel {
             damage *= 2.5;
             taholDmgBoost = false;
         }
+        if (boughtJersey) {
+            damage *= 2;
+        }
         if (damageMultiplier > 1.0) {
             int additionalDamage = (int) (Math.random() * 10) + 1;
             damage += additionalDamage;
@@ -1725,8 +1746,6 @@ public class GamePanel extends JPanel {
             dialogueArea.append("\n Splinter used " + move.getName() + ".");
             updateHealthBars();
             playMeditateSound();
-            System.out.println("Player HP: " + playerCurrentHealth + "/" + getMaxHealth(playerData));
-            System.out.println("Enemy HP: " + enemyCurrentHealth + "/" + getMaxHealth(enemyData));
         }
     }
 
@@ -1970,11 +1989,15 @@ public class GamePanel extends JPanel {
             enemyDamageReductionCounter--;
         }
 
+        if (boughtVest) {
+            damage /= 2;
+        }
+
         if (Math.random() <= chance) {
             if (originalDamage > 0) {
                 if (playerLevel >= 5) {
                     int levelDifference = playerLevel - 6;
-                    double scalingFactor = 1.25;
+                    double scalingFactor = 2;
                     damage += (int) (levelDifference * scalingFactor);
                 }
             }
@@ -2060,7 +2083,7 @@ public class GamePanel extends JPanel {
     }
 
     int getLevelUpExperience(int level) {
-        return 100 + (level - 1) * 20;
+        return 100 + (level - 1) * 15;
     }
 
     private Random random = new Random();
@@ -2771,5 +2794,45 @@ public class GamePanel extends JPanel {
 
     public void incrementPlayerExtraLives() {
         playerExtraLives++;
+    }
+
+    public void changeYourPokeKalyeImage(JLabel newImage) {
+        yourPokeKalyeImage.setIcon(newImage.getIcon());
+    }
+
+    public void changeYourPokeKalyeImage(String imagePath) {
+        yourPokeKalyeImage.setIcon(new ImageIcon(imagePath));
+    }
+
+    public void setBoughtVest(boolean bought) {
+        boughtVest = bought;
+    }
+
+    public boolean boughtBike() {
+        return boughtBike;
+    }
+
+    public void setBoughtBike(boolean bought) {
+        boughtBike = bought;
+    }
+
+    public void setBoughtJersey(boolean bought) {
+        boughtJersey = bought;
+    }
+
+    public void catchPokeKalye(String pokeKalye) {
+        caughtPokeKalyes.add(pokeKalye);
+    }
+
+    public boolean hasCaughtPokeKalye(String pokeKalye) {
+        return caughtPokeKalyes.contains(pokeKalye);
+    }
+
+    public int getDefeatedEnemiesCount() {
+        return defeatedEnemiesCount;
+    }
+
+    public void incrementDefeatedEnemiesCount() {
+        defeatedEnemiesCount++;
     }
 }

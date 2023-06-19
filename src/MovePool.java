@@ -1,7 +1,7 @@
 public class MovePool {
     public static final Move KALMOT = new Move("Kalmot", 7, false, 1);
     public static final Move FLEE = new Move("Flee", 0, true, 0.8);
-    public static final Move PURR = new Move("Purr", 0, false, 0.99, Effect.HEAL_HP);
+    public static final Move PURR = new Move("Purr", 0, false, 1, Effect.HEAL_HP);
     public static final Move SNEAK_ATTACK = new Move("Sneak Attack", 35, false, 1.0);
     public static final Move BITE = new Move("Bite", 5, false, 1, Effect.RABIES);
     public static final Move BITE_TUTA = new Move("Bite", 4, false, 0.7);
@@ -46,7 +46,7 @@ public class MovePool {
     public static final Move DAPO_HIGAD = new Move("Dapo", 8, true, 0.5);
     public static final Move KARATE_CHOP = new Move("Karate Chop", 8, false, 0.4);
     public static final Move TADYAK = new Move("Tadyak", 30, false, 0.5);
-    public static final Move STING = new Move("Sting", 8, false, 0.65);
+    public static final Move STING = new Move("Sting", 9, false, 0.65);
     public static final Move BUZZ = new Move("Buzz", 0, false, 0.8);
 
     public static class Move {

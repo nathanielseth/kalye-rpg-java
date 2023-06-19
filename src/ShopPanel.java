@@ -137,7 +137,7 @@ public class ShopPanel extends JPanel {
                             gamePanel.playerLevelLabel.setText("LVL " + gamePanel.playerLevel);
                             break;
                         case 1: // Shtick-O
-                            gamePanel.increaseEarnedPesosMaxValue(2);
+                            gamePanel.increaseEarnedPesosMaxValue(1);
                             gamePanel.increaseLuck(10);
                             refreshShopPanel();
                             break;

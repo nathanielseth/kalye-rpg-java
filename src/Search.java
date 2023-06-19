@@ -54,7 +54,12 @@ public class Search {
                 animationTimer.start();
                 gamePanel.revalidate();
                 gamePanel.repaint();
-                int searchTime = (int) (Math.random() * 5000) + 1000;
+                int searchTime;
+                if (gamePanel.boughtBike()) {
+                    searchTime = (int) (Math.random() * 1000) + 200;
+                } else {
+                    searchTime = (int) (Math.random() * 6500) + 1000;
+                }
                 Timer timer = new Timer(searchTime, new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -145,10 +150,10 @@ public class Search {
         } else if (area.equals("Kalye West")) {
             if (level >= 1 && level <= 15) {
                 String[] veryCommonEnemies = { "Askal", "Palaka" };
-                String[] commonEnemies = { "Lamok", "Langaw", "Tuta", "Ibon" };
+                String[] commonEnemies = { "Lamok", "Langaw", "Tuta", "Ibon", "Colored Sisiw" };
                 String[] moderateEnemies = { "Kuting", "Manok", "Gagamba", "Tuko", "Daga", "Dagang Kanal", "Bubuyog" };
                 String[] rareEnemies = { "Salagubang", "Langgam", "Palaka", "Ahas", "Higad", "Tipaklong", "Ipis",
-                        "Mandarangkal", "Colored Sisiw" };
+                        "Mandarangkal" };
                 double random = Math.random();
                 if (random < 0.05) {
                     return getRandomArrayElement(rareEnemies);
@@ -168,8 +173,8 @@ public class Search {
                 String[] commonEnemies = { "Flying Ipis", "Dagang Kanal", "Bangaw",
                         "Palaka", "Tutubi", "Paro-paro" };
                 String[] moderateEnemies = { "Paniki", "Higad", "Salagubang", "Manok", "Ahas", "Tipaklong",
-                        "Colored Sisiw", "Tuko", "Bubuyog", "Mandarangkal" };
-                String[] rareEnemies = { "Kabayo", "Daga" };
+                        "Tuko", "Bubuyog", "Mandarangkal" };
+                String[] rareEnemies = { "Kabayo", "Daga", "Colored Sisiw" };
                 double random = Math.random();
                 if (random < 0.05) {
                     return getRandomArrayElement(rareEnemies);
@@ -234,6 +239,10 @@ public class Search {
         if (bossMusicClip != null && bossMusicClip.isRunning()) {
             bossMusicClip.stop();
         }
+    }
+
+    public void setBoughtBike(boolean bought) {
+        setBoughtBike(bought);
     }
 
 }

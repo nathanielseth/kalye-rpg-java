@@ -15,7 +15,6 @@ public class PetShopPanel extends JPanel {
     private Clip buttonClickSoundClip;
     private JLabel pesosLabel;
     private JPanel itemsPanel;
-    boolean rugbySoldOut = false;
 
     public PetShopPanel(GamePanel gamePanel) {
         preloadSounds();
@@ -34,7 +33,7 @@ public class PetShopPanel extends JPanel {
         topPanel.setOpaque(false);
 
         JLabel shopLabel = new JLabel(" MALU'S PET SHOP");
-        shopLabel.setFont(new Font("Courier New", Font.BOLD, 17));
+        shopLabel.setFont(new Font("Impact", Font.PLAIN, 18));
         shopLabel.setForeground(Color.WHITE);
         topPanel.add(shopLabel, BorderLayout.WEST);
 

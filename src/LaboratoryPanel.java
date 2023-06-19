@@ -15,7 +15,6 @@ public class LaboratoryPanel extends JPanel {
     private Clip buttonClickSoundClip;
     private JLabel pesosLabel;
     private JPanel itemsPanel;
-    private JScrollPane scrollPane;
 
     public LaboratoryPanel(GamePanel gamePanel) {
         preloadSounds();

@@ -50,7 +50,7 @@ public class GamePanel extends JPanel {
     JLabel playerLevelLabel;
     private int enemyCurrentHealth;
     private JLabel battleStatusLabel;
-    private int pesos = 0;
+    private int pesos = 100;
     private Search search;
     private JLabel enemyImageLabel;
     private List<JButton> moveButtons;
@@ -67,6 +67,7 @@ public class GamePanel extends JPanel {
     private static Clip koSoundClip;
     private static Clip levelUpSoundClip;
     private static Clip fleeSoundClip;
+    private static Clip reviveSoundClip;
     private static Clip lowHitSoundClip;
     private static Clip medHitSoundClip;
     private static Clip highHitSoundClip;
@@ -104,6 +105,9 @@ public class GamePanel extends JPanel {
     private int enemyDamageReductionCounter;
     private double enemyDamageReductionPercentage;
     String area = "Kalsada Central";
+    private boolean boughtWaterBowl = false;
+    private boolean boughtVitamins = false;
+    private int playerExtraLives;
 
     void showIntroScreen() {
         this.setBackground(Color.BLACK);
@@ -342,11 +346,11 @@ public class GamePanel extends JPanel {
             @Override
             public void mouseClicked(MouseEvent e) {
                 playLuckyCatSound();
-                int pesoAmount = luckyRandom(1, 40);
+                int pesoAmount = luckyRandom(1, 50);
                 increasePesos(pesoAmount);
                 luckyCatButton.setVisible(false);
                 if (Math.random() < 0.69) {
-                    int healthIncrease = luckyRandom(1, 40);
+                    int healthIncrease = luckyRandom(1, 50);
                     if (getPlayerCurrentHealth() < getPlayerMaxHealth()) {
                         setPlayerCurrentHealth(getPlayerCurrentHealth() + healthIncrease);
                     }
@@ -389,7 +393,7 @@ public class GamePanel extends JPanel {
             if (area.equals("Kalye West")) {
                 openPetShopPanel();
             } else if (area.equals("Gedli East")) {
-                // openUkayUkay();
+                openUkayUkay();
             } else if (area.equals("Professor's Lab")) {
                 openLaboratory();
             } else {
@@ -632,6 +636,10 @@ public class GamePanel extends JPanel {
                         displayAfterBattleDialogue();
                         setInBattle(false);
                         restoreButtons();
+                        if (boughtWaterBowl) {
+                            setPlayerCurrentHealth(getPlayerCurrentHealth() + 5);
+                            updateHealthBars();
+                        }
                     }
                 });
                 timer.setRepeats(false);
@@ -644,7 +652,16 @@ public class GamePanel extends JPanel {
             clearDialogue();
             enemyDamageReductionCounter = 0;
         } else if (playerCurrentHealth <= 0 && !gameOver) {
-            playerDefeat();
+            if (playerExtraLives <= 0) {
+                playerDefeat();
+                return;
+            } else {
+                playReviveSound();
+                playerExtraLives--;
+                int maxHealth = getPlayerMaxHealth();
+                setPlayerCurrentHealth(maxHealth);
+                updateHealthBars();
+            }
         }
     }
 
@@ -741,6 +758,19 @@ public class GamePanel extends JPanel {
         JFrame currentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
         currentFrame.getContentPane().removeAll();
         currentFrame.setContentPane(laboratoryPanel);
+        currentFrame.pack();
+        currentFrame.revalidate();
+        currentFrame.repaint();
+    }
+
+    private void openUkayUkay() {
+        if (loopingMusicClip != null && loopingMusicClip.isRunning()) {
+            loopingMusicClip.stop();
+        }
+        UkayPanel ukayPanel = new UkayPanel(this);
+        JFrame currentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
+        currentFrame.getContentPane().removeAll();
+        currentFrame.setContentPane(ukayPanel);
         currentFrame.pack();
         currentFrame.revalidate();
         currentFrame.repaint();
@@ -879,9 +909,9 @@ public class GamePanel extends JPanel {
         }
         String area = getArea();
         if (area.equals("Kalye West")) {
-            enemyMaxHealth += 20;
+            enemyMaxHealth += 10;
         } else if (area.equals("Gedli East")) {
-            enemyMaxHealth += 50;
+            enemyMaxHealth += 30;
         }
         this.enemyCurrentHealth = enemyMaxHealth;
         enemyHealthBar.setMaximum(enemyMaxHealth);
@@ -1139,7 +1169,6 @@ public class GamePanel extends JPanel {
     }
 
     void updateHealthBars() {
-        int playerMaxHealth = getMaxHealth(playerData);
         int playerCurrentHealth = this.playerCurrentHealth;
         int enemyMaxHealth = getMaxHealth(enemyData);
         int enemyCurrentHealth = this.enemyCurrentHealth;
@@ -1203,9 +1232,9 @@ public class GamePanel extends JPanel {
         int maxHealth = healthBar.getMaximum();
         int currentHealth = healthBar.getValue();
         double healthPercentage = (double) currentHealth / maxHealth;
-        playerData.getMaxHealth();
+        // playerData.getMaxHealth();
 
-        if (getMaxHealth(playerData) < getPlayerCurrentHealth()) {
+        if (playerMaxHealth < getPlayerCurrentHealth()) {
             playerHealthBar.setForeground(new Color(255, 82, 200));
         }
         if (healthPercentage >= 0.6) {
@@ -1398,7 +1427,7 @@ public class GamePanel extends JPanel {
 
     private void performBurrowMove(MovePool.Move move, double chance) {
         double modifiedChance = chance;
-        double playerHealthPercentage = (double) playerCurrentHealth / getMaxHealth(playerData);
+        double playerHealthPercentage = (double) playerCurrentHealth / playerMaxHealth;
         if (playerHealthPercentage <= 0.33) {
             modifiedChance += 0.1;
         }
@@ -1407,7 +1436,7 @@ public class GamePanel extends JPanel {
             int damage = move.getDamage();
             boolean hasRabiesBeforeMove = hasRabies;
 
-            int maxPlayerHealth = getMaxHealth(playerData);
+            int maxPlayerHealth = playerMaxHealth;
             if (playerCurrentHealth + 10 > maxPlayerHealth) {
                 playerCurrentHealth = maxPlayerHealth;
                 updateHealthBars();
@@ -1425,7 +1454,7 @@ public class GamePanel extends JPanel {
             updateHealthBars();
             appendToDialogue("\n " + pokeKalyeName + " used " + move.getName() + "!");
             System.out.println("Enemy HP: " + enemyCurrentHealth + "/" + enemyMaxHealth);
-            System.out.println("Player HP: " + playerCurrentHealth + "/" + getMaxHealth(playerData));
+            System.out.println("Player HP: " + playerCurrentHealth + "/" + playerMaxHealth);
             playBurrowSound();
             if (damage > 0) {
                 animateDamageBlink(enemyImageLabel);
@@ -1439,7 +1468,7 @@ public class GamePanel extends JPanel {
 
     private void performQuantumBurrowMove(MovePool.Move move, double chance) {
         double modifiedChance = chance;
-        double playerHealthPercentage = (double) playerCurrentHealth / getMaxHealth(playerData);
+        double playerHealthPercentage = (double) playerCurrentHealth / playerMaxHealth;
         if (playerHealthPercentage <= 0.33) {
             modifiedChance += 0.1;
         }
@@ -1448,7 +1477,7 @@ public class GamePanel extends JPanel {
             int damage = move.getDamage();
             boolean hasRabiesBeforeMove = hasRabies;
 
-            int maxPlayerHealth = getMaxHealth(playerData);
+            int maxPlayerHealth = playerMaxHealth;
             int healAmount = 50;
 
             if (playerCurrentHealth + healAmount > maxPlayerHealth) {
@@ -1468,7 +1497,7 @@ public class GamePanel extends JPanel {
             updateHealthBars();
             appendToDialogue("\n " + pokeKalyeName + " used " + move.getName() + "!");
             System.out.println("Enemy HP: " + enemyCurrentHealth + "/" + enemyMaxHealth);
-            System.out.println("Player HP: " + playerCurrentHealth + "/" + getMaxHealth(playerData));
+            System.out.println("Player HP: " + playerCurrentHealth + "/" + playerMaxHealth);
             playBurrowSound();
             if (damage > 0) {
                 animateDamageBlink(enemyImageLabel);
@@ -1875,7 +1904,8 @@ public class GamePanel extends JPanel {
         int damage = move.getDamage();
 
         if (Math.random() <= chance) {
-            if (!rabiesVaccinated && !hasRabies && Math.random() <= 0.2) {
+            if (!rabiesVaccinated && !hasRabies
+                    && (Math.random() <= 0.3 || (boughtVitamins && Math.random() <= 0.05))) {
                 hasRabies = true;
                 Component[] components = playerPanel.getComponents();
                 for (Component component : components) {
@@ -2081,6 +2111,7 @@ public class GamePanel extends JPanel {
                 File hissSoundFile = new File("media/audio/hiss.wav");
                 File dengueSoundFile = new File("media/audio/dengue.wav");
                 File introSoundFile = new File("media/audio/intro.wav");
+                File reviveSoundFile = new File("media/audio/revive.wav");
 
                 clickSoundClip = preloadClip(clickSoundFile);
                 koSoundClip = preloadClip(koSoundFile);
@@ -2095,6 +2126,7 @@ public class GamePanel extends JPanel {
                 hissSoundClip = preloadClip(hissSoundFile);
                 dengueSoundClip = preloadClip(dengueSoundFile);
                 introSoundClip = preloadClip(introSoundFile);
+                reviveSoundClip = preloadClip(reviveSoundFile);
             } catch (IOException | LineUnavailableException | UnsupportedAudioFileException e) {
                 e.printStackTrace();
             }
@@ -2207,6 +2239,13 @@ public class GamePanel extends JPanel {
         if (fleeSoundClip != null) {
             fleeSoundClip.setFramePosition(0);
             fleeSoundClip.start();
+        }
+    }
+
+    private void playReviveSound() {
+        if (reviveSoundClip != null) {
+            reviveSoundClip.setFramePosition(0);
+            reviveSoundClip.start();
         }
     }
 
@@ -2360,7 +2399,7 @@ public class GamePanel extends JPanel {
         if (selectedPokeKalye.equals("Langgam") && (playerLevel >= 6 || rugbied)) {
             selectedPokeKalye = "Antik";
             this.playerData = new PokeKalyeData.PokeKalye(selectedPokeKalye, 30, MovePool.getMoves(selectedPokeKalye));
-            playerMaxHealth = getMaxHealth(this.playerData);
+            playerMaxHealth += 14;
             playerLabel.setText("ANTIK");
             yourPokeKalyeImage.setIcon(new ImageIcon("media/images/AntikUser.png"));
             animateDamageBlink(yourPokeKalyeImage);
@@ -2371,7 +2410,7 @@ public class GamePanel extends JPanel {
         } else if (selectedPokeKalye.equals("Antik") && (playerLevel >= 11 || rugbied)) {
             selectedPokeKalye = "Ant-Man";
             this.playerData = new PokeKalyeData.PokeKalye(selectedPokeKalye, 0, MovePool.getMoves(selectedPokeKalye));
-            playerMaxHealth = getMaxHealth(this.playerData);
+            playerMaxHealth += 45;
             playerLabel.setText(selectedPokeKalye.toUpperCase());
             yourPokeKalyeImage.setIcon(new ImageIcon("media/images/AntManUser.png"));
             animateDamageBlink(yourPokeKalyeImage);
@@ -2382,7 +2421,7 @@ public class GamePanel extends JPanel {
         } else if (selectedPokeKalye.equals("Puspin") && (playerLevel >= 11 || rugbied)) {
             selectedPokeKalye = "Puspin Boots";
             this.playerData = new PokeKalyeData.PokeKalye(selectedPokeKalye, 0, MovePool.getMoves(selectedPokeKalye));
-            playerMaxHealth = getMaxHealth(this.playerData);
+            playerMaxHealth += 45;
             playerLabel.setText(selectedPokeKalye.toUpperCase());
             yourPokeKalyeImage.setIcon(new ImageIcon("media/images/PuspinBootsUser.png"));
             animateDamageBlink(yourPokeKalyeImage);
@@ -2392,7 +2431,7 @@ public class GamePanel extends JPanel {
         } else if (selectedPokeKalye.equals("Askal") && (playerLevel >= 11 || rugbied)) {
             selectedPokeKalye = "Big Dog";
             this.playerData = new PokeKalyeData.PokeKalye(selectedPokeKalye, 0, MovePool.getMoves(selectedPokeKalye));
-            playerMaxHealth = getMaxHealth(this.playerData);
+            playerMaxHealth += 85;
             playerLabel.setText(selectedPokeKalye.toUpperCase());
             yourPokeKalyeImage.setIcon(new ImageIcon("media/images/BigDogUser.png"));
             animateDamageBlink(yourPokeKalyeImage);
@@ -2717,4 +2756,20 @@ public class GamePanel extends JPanel {
         areasButton.setEnabled(enabled);
     }
 
+    public void incrementMaxHealth(int incrementValue) {
+        playerMaxHealth += incrementValue;
+        playerHealthBar.setMaximum(playerMaxHealth);
+    }
+
+    public void setBoughtWaterBowl(boolean bought) {
+        boughtWaterBowl = bought;
+    }
+
+    public void setBoughtVitamins(boolean bought) {
+        boughtVitamins = bought;
+    }
+
+    public void incrementPlayerExtraLives() {
+        playerExtraLives++;
+    }
 }

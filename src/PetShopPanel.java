@@ -33,7 +33,7 @@ public class PetShopPanel extends JPanel {
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setOpaque(false);
 
-        JLabel shopLabel = new JLabel(" malu-PET SHOP NI JUN-JUN");
+        JLabel shopLabel = new JLabel(" MALU'S PET SHOP");
         shopLabel.setFont(new Font("Courier New", Font.BOLD, 17));
         shopLabel.setForeground(Color.WHITE);
         topPanel.add(shopLabel, BorderLayout.WEST);
@@ -74,8 +74,8 @@ public class PetShopPanel extends JPanel {
                 "Paborito ni Puspin!",
                 "Paborito ni Askal!",
                 "Keep your pet hydrated!",
-                "Certain to make your pet STRONGER!",
-                "This is a Litter Box..?!"
+                "Increase your pet's IMMUNITY!",
+                "The Litter Box that will literally save your life!"
         };
 
         for (int i = 0; i < itemNames.length; i++) {
@@ -112,72 +112,47 @@ public class PetShopPanel extends JPanel {
                 buyButton.addActionListener(e -> {
                     playBuySound();
                     gamePanel.setPesos(gamePanel.getPesos() - price);
+
                     switch (itemIndex) {
-                        case 0: // Ice-y Tubig
-                            gamePanel.experience += 90;
-                            int levelUpExp = gamePanel.getLevelUpExperience(gamePanel.playerLevel);
-                            if (gamePanel.experience >= levelUpExp) {
-                                gamePanel.playerLevel++;
-                                gamePanel.experience -= levelUpExp;
-                                gamePanel.evolvePokeKalye();
-                                gamePanel.animateLevelUp(gamePanel.playerLevelLabel);
-                                gamePanel.playLevelUpSound();
-                            }
-                            refreshShopPanel();
-                            pesosLabel.setText("GCash: " + gamePanel.getPesos() + " pesos");
-                            gamePanel.playerExpBar.setMaximum(gamePanel.getLevelUpExperience(gamePanel.playerLevel));
-                            gamePanel.animateExpBar(gamePanel.playerExpBar, gamePanel.experience,
-                                    gamePanel.getLevelUpExperience(gamePanel.playerLevel), 600);
-                            gamePanel.playerLevelLabel.setText("LVL " + gamePanel.playerLevel);
-                            break;
-                        case 1: // Shtick-O
-                            gamePanel.increaseEarnedPesosMaxValue(2);
-                            gamePanel.increaseLuck(10);
-                            refreshShopPanel();
-                            break;
-                        case 2: // Coke Omsim
-                            int healthIncrease = 30;
-                            gamePanel.setPlayerCurrentHealth(gamePanel.getPlayerCurrentHealth() + healthIncrease);
-                            gamePanel.updateHealthBars();
-                            refreshShopPanel();
-                            break;
-                        case 3: // Rabies Vaccine
-                            gamePanel.setRabiesVaccinated(true);
-                            refreshShopPanel();
-                            break;
-                        case 4: // Rugby
-                            if (!rugbySoldOut) {
-                                gamePanel.setRugbied(true);
-                                gamePanel.evolvePokeKalye();
-                                rugbySoldOut = true;
-                                buyButton.setEnabled(false);
+                        case 0: // Sugar Cube
+                            if (gamePanel.getPokeKalyeName().equals("Langgam") ||
+                                    gamePanel.getPokeKalyeName().equals("Antik") ||
+                                    gamePanel.getPokeKalyeName().equals("Ant-Man")) {
+                                gamePanel.incrementMaxHealth(5);
+                                gamePanel.updateHealthBars();
                                 refreshShopPanel();
                             }
-                            refreshShopPanel();
                             break;
-                        case 5: // Dengue Vaccine
-                            refreshShopPanel();
-                            gamePanel.stopDengueTimer();
-                            boolean dengueCleared = gamePanel.setDengue(false);
-                            if (!dengueCleared) {
-                                gamePanel.stopDengueSound();
-                                gamePanel.removeDengueIcon();
+                        case 1: // Catnip
+                            if (gamePanel.getPokeKalyeName().equals("Puspin") ||
+                                    gamePanel.getPokeKalyeName().equals("Puspin Boots")) {
+                                gamePanel.incrementMaxHealth(8);
+                                gamePanel.updateHealthBars();
+                                refreshShopPanel();
                             }
                             break;
-                        case 6: // Bye-gon
-                            gamePanel.increaseCritRateModifier(0.15);
+                        case 2: // Pedigree
+                            if (gamePanel.getPokeKalyeName().equals("Askal") ||
+                                    gamePanel.getPokeKalyeName().equals("Big Dog")) {
+                                gamePanel.incrementMaxHealth(10);
+                                gamePanel.updateHealthBars();
+                                refreshShopPanel();
+                            }
+                            break;
+                        case 3: // Water Bowl
+                            gamePanel.setBoughtWaterBowl(true);
                             refreshShopPanel();
                             break;
-                        case 7: // Mouse Trap
-                            gamePanel.increaseCritDamageModifier(10);
+                        case 4: // Vitamins
+                            gamePanel.setBoughtVitamins(true);
                             refreshShopPanel();
                             break;
-                        case 8: // Infinity Edge
-                            gamePanel.setDamageMultiplier(gamePanel.getDamageMultiplier() + 2.0);
+                        case 5: // Litter Box
+                            gamePanel.incrementPlayerExtraLives();
                             refreshShopPanel();
                             break;
                     }
-                    // buyButton.setEnabled(false);
+
                     pesosLabel.setText("GCash: " + gamePanel.getPesos() + " pesos");
                     gamePanel.updateHealthBars();
                     refreshShopPanel();
@@ -336,7 +311,7 @@ public class PetShopPanel extends JPanel {
                 JButton buyButton = (JButton) itemPanel.getComponent(3);
                 int itemIndex = itemsPanel.getComponentZOrder(itemPanel);
 
-                if ((gamePanel.getPesos() < ((itemIndex + 1) * 10)) || (itemIndex == 4 && rugbySoldOut)) {
+                if ((gamePanel.getPesos() < ((itemIndex + 1) * 10))) {
                     buyButton.setEnabled(false);
                 } else {
                     buyButton.setEnabled(true);

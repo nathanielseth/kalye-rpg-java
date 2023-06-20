@@ -28,7 +28,7 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 public class GamePanel extends JPanel {
-    public int playerLevel = 15;
+    public int playerLevel = 1;
     public int experience;
     private JLabel playerLabel;
     private JPanel playerPanel;
@@ -52,7 +52,7 @@ public class GamePanel extends JPanel {
     JLabel playerLevelLabel;
     private int enemyCurrentHealth;
     private JLabel battleStatusLabel;
-    private int pesos = 10000;
+    private int pesos = 0;
     private Search search;
     private JLabel enemyImageLabel;
     private List<JButton> moveButtons;
@@ -94,12 +94,12 @@ public class GamePanel extends JPanel {
     private int purrCooldown = 0;
     private double critRateModifier = 0.0;
     private int critDamageModifier = 0;
-    private int earnedPesosMaxValue = 7;
-    private int luck = 0;
+    private int earnedPesosMaxValue = 10;
+    private int luck = 1;
     private JLabel luckyCatButton;
     private boolean isShopOpen = false;
-    private ImageIcon emptyIcon = new ImageIcon("media/images/empty.png");
-    private ImageIcon dengueIcon = new ImageIcon("media/images/dengue.png");
+    private ImageIcon emptyIcon = new ImageIcon("");
+    private ImageIcon dengueIcon = new ImageIcon("");
     private List<String> usedDialogues = new ArrayList<>();
     private int enemyMeditateCooldown = 0;
     private long startTime;
@@ -115,6 +115,10 @@ public class GamePanel extends JPanel {
     private int playerExtraLives;
     private Set<String> caughtPokeKalyes;
     private int defeatedEnemiesCount;
+    private JButton kalsadaCentralButton;
+    private JButton kalyeWestButton;
+    private JButton gedliEastButton;
+    private JButton professorsLabButton;
 
     void showIntroScreen() {
         this.setBackground(Color.BLACK);
@@ -310,17 +314,17 @@ public class GamePanel extends JPanel {
         this.buttonsPanel = new JPanel();
         buttonsPanel.setLayout(new GridLayout(1, 4, 10, 0));
         buttonsPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        buttonsPanel.setBackground(Color.DARK_GRAY);
+        buttonsPanel.setBackground(new Color(82, 113, 255));
 
         movesButton = new JButton("Moves");
         searchButton = new JButton("Search");
         sariSariButton = new JButton("Sari-Sari");
         areasButton = new JButton("Areas");
 
-        JButton kalsadaCentralButton = new JButton("Kalsada Central");
-        JButton kalyeWestButton = new JButton("Kalye West");
-        JButton gedliEastButton = new JButton("Gedli East");
-        JButton professorsLabButton = new JButton("Professor's Lab");
+        kalsadaCentralButton = new JButton("Kalsada Central");
+        kalyeWestButton = new JButton("Kalye West");
+        gedliEastButton = new JButton("Gedli East");
+        professorsLabButton = new JButton("Professor's Lab");
 
         if (getArea().equals("Kalye West")) {
             sariSariButton.setText("Pet Shop");
@@ -364,11 +368,11 @@ public class GamePanel extends JPanel {
             @Override
             public void mouseClicked(MouseEvent e) {
                 playLuckyCatSound();
-                int pesoAmount = luckyRandom(1, 50);
+                int pesoAmount = luckyRandom(1, 60);
                 increasePesos(pesoAmount);
                 luckyCatButton.setVisible(false);
                 if (Math.random() < 0.69) {
-                    int healthIncrease = luckyRandom(1, 50);
+                    int healthIncrease = luckyRandom(1, 60);
                     if (getPlayerCurrentHealth() < getPlayerMaxHealth()) {
                         setPlayerCurrentHealth(getPlayerCurrentHealth() + healthIncrease);
                     }
@@ -450,13 +454,13 @@ public class GamePanel extends JPanel {
                 }
 
                 if (area.equals("Kalsada Central")) {
-                    kalsadaCentralButton.setBackground(new Color(82, 113, 255));
+                    kalsadaCentralButton.setBackground(new Color(102, 255, 51));
                 } else if (area.equals("Kalye West")) {
-                    kalyeWestButton.setBackground(new Color(82, 113, 255));
+                    kalyeWestButton.setBackground(new Color(102, 255, 51));
                 } else if (area.equals("Gedli East")) {
-                    gedliEastButton.setBackground(new Color(82, 113, 255));
+                    gedliEastButton.setBackground(new Color(102, 255, 51));
                 } else if (area.equals("Professor's Lab")) {
-                    professorsLabButton.setBackground(new Color(82, 113, 255));
+                    professorsLabButton.setBackground(new Color(102, 255, 51));
                 }
                 luckyCatButton.setVisible(false);
                 buttonsPanel.revalidate();
@@ -469,6 +473,7 @@ public class GamePanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 playButtonClickSound();
                 switchToKalsadaCentral();
+                buttonsPanel.setBackground(new Color(82, 113, 255));
                 restoreButtons();
                 luckyCatButton.setVisible(false);
             }
@@ -479,6 +484,7 @@ public class GamePanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 playButtonClickSound();
                 switchToKalyeWest();
+                buttonsPanel.setBackground(Color.ORANGE);
                 restoreButtons();
                 luckyCatButton.setVisible(false);
             }
@@ -489,6 +495,7 @@ public class GamePanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 playButtonClickSound();
                 switchToGedliEast();
+                buttonsPanel.setBackground(Color.MAGENTA);
                 restoreButtons();
                 luckyCatButton.setVisible(false);
             }
@@ -499,6 +506,7 @@ public class GamePanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 playButtonClickSound();
                 switchToProfessorsLab();
+                buttonsPanel.setBackground(Color.WHITE);
                 restoreButtons();
                 luckyCatButton.setVisible(false);
             }
@@ -601,6 +609,11 @@ public class GamePanel extends JPanel {
                 minExperience = 45;
                 maxExperience = 95;
             }
+            if (enemyPokeKalye.equals("Kitty Yonarchy") || enemyPokeKalye.equals("Lolong")
+                    || enemyPokeKalye.equals("THE GOAT")) {
+                minExperience = 500;
+                maxExperience = 505;
+            }
 
             experience += getRandomNumber(minExperience, maxExperience);
             if (experience >= levelUpExp) {
@@ -617,9 +630,13 @@ public class GamePanel extends JPanel {
             if (area.equals("Kalsada Central")) {
                 earnedPesos = getRandomNumber(1, earnedPesosMaxValue);
             } else if (area.equals("Kalye West")) {
-                earnedPesos = getRandomNumber(1, earnedPesosMaxValue + 7);
+                earnedPesos = getRandomNumber(1, earnedPesosMaxValue + 10);
             } else if (area.equals("Gedli East")) {
-                earnedPesos = getRandomNumber(1, earnedPesosMaxValue + 14);
+                earnedPesos = getRandomNumber(1, earnedPesosMaxValue + 30);
+            }
+            if (enemyPokeKalye.equals("Kitty Yonarchy") || enemyPokeKalye.equals("Lolong")
+                    || enemyPokeKalye.equals("THE GOAT")) {
+                earnedPesos = 300;
             }
             pesos += earnedPesos;
 
@@ -647,6 +664,7 @@ public class GamePanel extends JPanel {
                 buttonsPanel.repaint();
                 playBossDefeat();
                 search.stopBossMusic();
+                search.stopBossMusic2();
                 victoryTimer.setRepeats(false);
                 victoryTimer.start();
             } else {
@@ -822,8 +840,27 @@ public class GamePanel extends JPanel {
         if (enemyData.getName().equals("Professor Splinter")) {
             imagePath = "media/images/ProfessorSplinter.png";
             enemyImage = new ImageIcon(imagePath);
+            sariSariButton.setEnabled(false);
             enemyImageLabel.setBounds(240, 70, 100, 150);
             enemyHealthBar.setPreferredSize(new Dimension(230, 16));
+        } else if (enemyData.getName().equals("Kitty Yonarchy")) {
+            imagePath = "media/images/yona.png";
+            enemyImage = new ImageIcon(imagePath);
+            sariSariButton.setEnabled(false);
+            enemyImageLabel.setBounds(240, 70, 100, 150);
+            enemyHealthBar.setPreferredSize(new Dimension(200, 16));
+        } else if (enemyData.getName().equals("Lolong")) {
+            imagePath = "media/images/lolong.png";
+            enemyImage = new ImageIcon(imagePath);
+            sariSariButton.setEnabled(false);
+            enemyImageLabel.setBounds(240, 70, 151, 135);
+            enemyHealthBar.setPreferredSize(new Dimension(210, 16));
+        } else if (enemyData.getName().equals("THE GOAT")) {
+            imagePath = "media/images/Goat.png";
+            enemyImage = new ImageIcon(imagePath);
+            sariSariButton.setEnabled(false);
+            enemyImageLabel.setBounds(240, 70, 100, 150);
+            enemyHealthBar.setPreferredSize(new Dimension(220, 16));
         } else {
             enemyImage = new ImageIcon(imagePath);
             enemyHealthBar.setPreferredSize(new Dimension(140, 16));
@@ -1077,6 +1114,29 @@ public class GamePanel extends JPanel {
                 case "Professor Splinter":
                     maxHealth = PokeKalyeData.PROFESSOR_SPLINTER.getMaxHealth();
                     break;
+                case "Kitty Yonarchy":
+                    maxHealth = PokeKalyeData.TRIBAL_KIP.getMaxHealth();
+                    break;
+                case "Lolong":
+                    maxHealth = PokeKalyeData.LOLONG.getMaxHealth();
+                    break;
+                case "THE GOAT":
+                    maxHealth = PokeKalyeData.THE_GOAT.getMaxHealth();
+                    break;
+                case "Butete":
+                    maxHealth = PokeKalyeData.BUTETE.getMaxHealth();
+                case "Uod":
+                    maxHealth = PokeKalyeData.UOD.getMaxHealth();
+                    break;
+                case "Suso":
+                    maxHealth = PokeKalyeData.SUSO.getMaxHealth();
+                    break;
+                case "Isda":
+                    maxHealth = PokeKalyeData.ISDA.getMaxHealth();
+                    break;
+                case "Eagul":
+                    maxHealth = PokeKalyeData.EAGUL.getMaxHealth();
+                    break;
                 default:
                     break;
             }
@@ -1190,6 +1250,30 @@ public class GamePanel extends JPanel {
                 break;
             case "Kabayo":
                 enemyData = PokeKalyeData.KABAYO;
+                break;
+            case "Kitty Yonarchy":
+                enemyData = PokeKalyeData.TRIBAL_KIP;
+                break;
+            case "Lolong":
+                enemyData = PokeKalyeData.LOLONG;
+                break;
+            case "THE GOAT":
+                enemyData = PokeKalyeData.THE_GOAT;
+                break;
+            case "Butete":
+                enemyData = PokeKalyeData.BUTETE;
+                break;
+            case "Uod":
+                enemyData = PokeKalyeData.UOD;
+                break;
+            case "Suso":
+                enemyData = PokeKalyeData.SUSO;
+                break;
+            case "Isda":
+                enemyData = PokeKalyeData.ISDA;
+                break;
+            case "Eagul":
+                enemyData = PokeKalyeData.EAGUL;
                 break;
             default:
                 enemyData = null;
@@ -1386,7 +1470,7 @@ public class GamePanel extends JPanel {
         }
 
         setMoveButtonsEnabled(false);
-        Timer timer = new Timer(2000, e -> {
+        Timer timer = new Timer(2100, e -> {
             enemyTurn();
             checkBattleResult();
             setMoveButtonsEnabled(true);
@@ -1407,7 +1491,7 @@ public class GamePanel extends JPanel {
         if (pokeKalye.equals("Puspin") || pokeKalye.equals("Puspin Boots")) {
             moveMissed = Math.random() <= 0.1;
         } else {
-            moveMissed = Math.random() <= 0.35;
+            moveMissed = Math.random() <= 0.5;
         }
 
         if (enemyPokeKalye.equals("Professor Splinter")) {
@@ -1416,10 +1500,11 @@ public class GamePanel extends JPanel {
             enemyTurn();
         } else if (!moveMissed) {
             fadeOutBattleMusic();
+            search.stopBossMusic2();
             setInBattle(false);
             searchButton.setEnabled(true);
             restoreButtons();
-            appendToDialogue("\n " + pokeKalyeName + " fled from\n the battle!");
+            appendToDialogue("\n " + pokeKalyeName + " fled!");
             playFleeUpSound();
             luckyCatButton.setVisible(false);
         } else {
@@ -1700,6 +1785,7 @@ public class GamePanel extends JPanel {
         if (enemyCurrentHealth <= 0) {
             inBattle = false;
             fadeOutBattleMusic();
+            search.stopBossMusic2();
         }
     }
 
@@ -1719,6 +1805,7 @@ public class GamePanel extends JPanel {
                     animateDamageBlink(yourPokeKalyeImage);
                     playDamageSound(damage);
                     showDamageLabel(yourPokeKalyeDamageLabel, damage, isCrit);
+                    checkBattleResult();
                 }
 
                 playerCurrentHealth -= damage;
@@ -1739,10 +1826,8 @@ public class GamePanel extends JPanel {
         }
 
         dialogueArea.append("\n Splinter used Sewer Focus!");
-        if (playerCurrentHealth <= 0) {
-            inBattle = false;
-            fadeOutBattleMusic();
-        }
+        checkBattleResult();
+
     }
 
     private void performEnemyMeditateMove(MovePool.Move move) {
@@ -1801,7 +1886,7 @@ public class GamePanel extends JPanel {
             setInBattle(false);
             searchButton.setEnabled(true);
             restoreButtons();
-            appendToDialogue("\n " + enemyPokeKalye + " fled from\n the battle!");
+            appendToDialogue("\n " + enemyPokeKalye + " fled!");
             playFleeUpSound();
             luckyCatButton.setVisible(false);
         } else {
@@ -2028,6 +2113,7 @@ public class GamePanel extends JPanel {
                 playDamageSound(damage);
                 showDamageLabel(yourPokeKalyeDamageLabel, damage, isCrit);
             }
+            checkBattleResult();
         } else {
             dialogueArea.append("\n " + enemyPokeKalye + " missed!");
             playMissSound();
@@ -2633,6 +2719,7 @@ public class GamePanel extends JPanel {
 
     public void playerVictory() {
         search.stopBossMusic();
+        search.stopBossMusic2();
         fadeOutBattleMusic();
         stopDengueTimer();
         gameCompleted = true;
@@ -2648,6 +2735,7 @@ public class GamePanel extends JPanel {
 
     public void playerDefeat() {
         search.stopBossMusic();
+        search.stopBossMusic2();
         fadeOutBattleMusic();
         stopDengueTimer();
         gameOver = true;
@@ -2705,7 +2793,7 @@ public class GamePanel extends JPanel {
                     "Your mother said\n \"Di mo pwede iuwi si\n " + selectedPokeKalye
                             + " sa bahay.\"",
                     "\n Sige lang...!\n Huli lang....!",
-                    "\n Pampaswerte daw yung\n Shtick-O, natry mo na?"
+                    "\n Pampaswerte daw yung\nShtick-O, natry mo na?"
             };
             dialogue = getRandomDialogueWithReuse(dialogueOptions);
         } else if (level >= 11 && level <= 15) {

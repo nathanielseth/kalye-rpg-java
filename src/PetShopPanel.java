@@ -19,7 +19,7 @@ public class PetShopPanel extends JPanel {
     public PetShopPanel(GamePanel gamePanel) {
         preloadSounds();
         this.gamePanel = gamePanel;
-        setBackground(new Color(255, 51, 102));
+        setBackground(Color.ORANGE);
         setLayout(new BorderLayout());
         setPreferredSize(new Dimension(600, 400));
         setOpaque(true);
@@ -35,11 +35,15 @@ public class PetShopPanel extends JPanel {
         JLabel shopLabel = new JLabel(" MALU'S PET SHOP");
         shopLabel.setFont(new Font("Impact", Font.PLAIN, 18));
         shopLabel.setForeground(Color.WHITE);
+        shopLabel.setBackground(new Color(82, 113, 255));
+        shopLabel.setOpaque(true);
         topPanel.add(shopLabel, BorderLayout.WEST);
 
         pesosLabel = new JLabel("GCash:" + gamePanel.getPesos());
         pesosLabel.setFont(new Font("Impact", Font.PLAIN, 17));
         pesosLabel.setForeground(Color.WHITE);
+        pesosLabel.setBackground(new Color(82, 113, 255));
+        pesosLabel.setOpaque(true);
         topPanel.add(pesosLabel, BorderLayout.EAST);
 
         ImageIcon shopIcon = new ImageIcon("images/gcash.png");

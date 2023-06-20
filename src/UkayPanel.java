@@ -21,7 +21,7 @@ public class UkayPanel extends JPanel {
     public UkayPanel(GamePanel gamePanel) {
         preloadSounds();
         this.gamePanel = gamePanel;
-        setBackground(new Color(82, 113, 255));
+        setBackground(Color.MAGENTA);
         setLayout(new BorderLayout());
         setPreferredSize(new Dimension(600, 400));
         setOpaque(true);
@@ -119,27 +119,31 @@ public class UkayPanel extends JPanel {
                         switch (itemIndex) {
                             case 0: // Ben10 Brip
                                 gamePanel.increaseEarnedPesosMaxValue(10);
+                                playItemBoughtSound("ben10");
                                 break;
                             case 1: // ML Shirt
                                 gamePanel.increaseEarnedPesosMaxValue(20);
+                                playItemBoughtSound("ml");
                                 break;
                             case 2: // Cock Outfit
                                 gamePanel.changeYourPokeKalyeImage("media/images/manok1.png");
+                                playItemBoughtSound("manok");
                                 break;
                             case 3: // Bakal Vest
                                 gamePanel.setBoughtVest(true);
                                 break;
                             case 4: // Trinx Bike
                                 gamePanel.setBoughtBike(true);
+                                playItemBoughtSound("bike");
                                 break;
                             case 5: // Tatum Jersey
                                 gamePanel.changeYourPokeKalyeImage(
                                         "media/images/tatum.png");
                                 gamePanel.setBoughtJersey(true);
                                 gamePanel.increaseEarnedPesosMaxValue(50);
+                                playItemBoughtSound("tatum");
                                 break;
                         }
-
                         pesosLabel.setText("GCash: " + gamePanel.getPesos() + " pesos");
                         refreshShopPanel();
                     }

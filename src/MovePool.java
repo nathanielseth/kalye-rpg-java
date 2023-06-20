@@ -48,6 +48,8 @@ public class MovePool {
     public static final Move TADYAK = new Move("Tadyak", 30, false, 0.5);
     public static final Move STING = new Move("Sting", 9, false, 0.65);
     public static final Move BUZZ = new Move("Buzz", 0, false, 0.8);
+    public static final Move DURA = new Move("Dura", 5, false, 0.8);
+    public static final Move MIGHTY_PECK = new Move("Mighty Peck", 20, false, 0.7);
 
     public static class Move {
         private final String name;
@@ -170,11 +172,25 @@ public class MovePool {
             case "Professor Splinter":
                 return new Move[] { NGATNGAT_PROFESSOR_SPLINTER, MEDITATE, SEWER_FOCUS, RAT_ATTACK };
             case "Palaka":
-                return new Move[] { CROAK };
-            case "Kuto":
-                return new Move[] { SCRATCH };
+                return new Move[] { CROAK, LICK };
+            case "Butete":
+                return new Move[] { DURA };
+            case "Uod":
+                return new Move[] { DAPO, SLITHER };
+            case "Suso":
+                return new Move[] { DAPO, SIT_AND_WAIT };
+            case "Isda":
+                return new Move[] { SIT_AND_WAIT, DURA };
+            case "Eagul":
+                return new Move[] { MIGHTY_PECK, LIPAD, KALMOT };
             case "Bubuyog":
                 return new Move[] { STING, BUZZ };
+            case "Kitty Yonarchy":
+                return new Move[] { SNEAK_ATTACK, PURR, KAGAT };
+            case "Lolong":
+                return new Move[] { OUTRAGE, KAGAT, SEWER_FOCUS };
+            case "THE GOAT":
+                return new Move[] { TADYAK, BURROW, QUANTUM_BITE, SPEAR };
             default:
                 System.out.print("Unknown Poke");
                 return new Move[0];

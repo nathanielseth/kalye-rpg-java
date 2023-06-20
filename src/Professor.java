@@ -68,7 +68,7 @@ public class Professor extends JFrame {
         professorImageLabel.setPreferredSize(new Dimension(205, scaledImage.getHeight(null)));
         containerPanel.add(professorImageLabel, BorderLayout.LINE_START);
 
-        continueButton = new JButton("CONTINUE (PRESS ENTER)");
+        continueButton = new JButton("CONTINUE");
         continueButton.setEnabled(false);
         add(continueButton, BorderLayout.SOUTH);
 

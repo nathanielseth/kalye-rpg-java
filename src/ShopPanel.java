@@ -137,19 +137,18 @@ public class ShopPanel extends JPanel {
                             gamePanel.playerLevelLabel.setText("LVL " + gamePanel.playerLevel);
                             break;
                         case 1: // Shtick-O
-                            gamePanel.increaseEarnedPesosMaxValue(1);
+                            gamePanel.increaseEarnedPesosMaxValue(2);
                             gamePanel.increaseLuck(10);
-                            refreshShopPanel();
+                            playItemBoughtSound("shtick");
                             break;
                         case 2: // Coke Omsim
                             int healthIncrease = 30;
                             gamePanel.setPlayerCurrentHealth(gamePanel.getPlayerCurrentHealth() + healthIncrease);
                             gamePanel.updateHealthBars();
-                            refreshShopPanel();
+                            playItemBoughtSound("coke");
                             break;
                         case 3: // Rabies Vaccine
                             gamePanel.setRabiesVaccinated(true);
-                            refreshShopPanel();
                             break;
                         case 4: // Rugby
                             if (!rugbySoldOut) {
@@ -162,7 +161,6 @@ public class ShopPanel extends JPanel {
                             refreshShopPanel();
                             break;
                         case 5: // Dengue Vaccine
-                            refreshShopPanel();
                             gamePanel.stopDengueTimer();
                             boolean dengueCleared = gamePanel.setDengue(false);
                             if (!dengueCleared) {
@@ -172,12 +170,10 @@ public class ShopPanel extends JPanel {
                             break;
                         case 6: // Bye-gon
                             gamePanel.increaseCritRateModifier(0.15);
-                            refreshShopPanel();
                             break;
                         case 7: // Lato Lato
-                            gamePanel.increaseCritDamageModifier(10);
+                            gamePanel.increaseCritDamageModifier(20);
                             playItemBoughtSound("latolato");
-                            refreshShopPanel();
                             break;
                         case 8: // Infinity Edge
                             gamePanel.setDamageMultiplier(gamePanel.getDamageMultiplier() + 2.0);
@@ -373,19 +369,30 @@ public class ShopPanel extends JPanel {
     }
 
     private void playItemBoughtSound(String itemName) {
-        try {
-            String soundFilePath = "media/audio/Bought/" + itemName + ".wav";
-            File soundFile = new File(soundFilePath);
-            if (soundFile.exists()) {
+        String soundFilePath = "media/audio/Bought/" + itemName + ".wav";
+        File soundFile = new File(soundFilePath);
+
+        if (soundFile.exists()) {
+            try {
                 AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
                 Clip clip = AudioSystem.getClip();
                 clip.open(audioStream);
-                clip.start();
-            } else {
-                System.out.println("Sound file not found: " + soundFilePath);
+                Thread soundThread = new Thread(() -> {
+                    try {
+                        clip.start();
+                        Thread.sleep(clip.getMicrosecondLength() / 100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } finally {
+                        clip.close();
+                    }
+                });
+                soundThread.start();
+            } catch (LineUnavailableException | IOException | UnsupportedAudioFileException e) {
+                e.printStackTrace();
             }
-        } catch (LineUnavailableException | IOException | UnsupportedAudioFileException e) {
-            e.printStackTrace();
+        } else {
+            System.out.println("File not found: " + soundFilePath);
         }
     }
 }

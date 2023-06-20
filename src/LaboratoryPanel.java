@@ -33,19 +33,14 @@ public class LaboratoryPanel extends JPanel {
                 JPanel topPanel = new JPanel(new BorderLayout());
                 topPanel.setOpaque(false);
 
-                JLabel labLabel = new JLabel("Laboratory");
-                labLabel.setFont(new Font("Courier New", Font.BOLD, 17));
-                labLabel.setForeground(Color.WHITE);
-                topPanel.add(labLabel, BorderLayout.WEST);
+                // JLabel labLabel = new JLabel("Laboratory");
+                // labLabel.setFont(new Font("Courier New", Font.BOLD, 17));
+                // labLabel.setForeground(Color.WHITE);
+                // topPanel.add(labLabel, BorderLayout.WEST);
 
-                pesosLabel = new JLabel("GCash:" + gamePanel.getPesos());
-                pesosLabel.setFont(new Font("Impact", Font.PLAIN, 17));
-                pesosLabel.setForeground(Color.WHITE);
-                topPanel.add(pesosLabel, BorderLayout.EAST);
-
-                ImageIcon labIcon = new ImageIcon("images/pokedex.png");
-                JLabel labImageLabel = new JLabel(labIcon);
-                topPanel.add(labImageLabel);
+                // ImageIcon labIcon = new ImageIcon("images/pokedex.png");
+                // JLabel labImageLabel = new JLabel(labIcon);
+                // topPanel.add(labImageLabel);
 
                 JPanel imagePanel = new JPanel();
                 imagePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
@@ -105,7 +100,6 @@ public class LaboratoryPanel extends JPanel {
                         frame.pack();
                         frame.revalidate();
                         frame.repaint();
-                        refreshShopPanel();
                 });
 
                 add(contentPanel, BorderLayout.CENTER);
@@ -162,8 +156,8 @@ public class LaboratoryPanel extends JPanel {
                                 "Moveset: Bite, Tahol, Spear\r\n" +
                                 "\r\n" +
                                 "The infamous canine of the Kalye, Askal dominates the kalye with\r\n" +
-                                "sheer numbers. This creature's non-stop barking, especially at night,\r\n" +
-                                "strikes fear into the hearts of its foes.");
+                                "sheer numbers. This creature's non-stop barking, especially at\r\n" +
+                                "night, strikes fear into the hearts of many.");
 
                 pokeKalyeDescriptions.put("Big Dog", "BIG DOG #006\r\n" +
                                 "Nature: Tenacious Fighter\r\n" +
@@ -178,9 +172,9 @@ public class LaboratoryPanel extends JPanel {
                                 "Nature: Survivor\r\n" +
                                 "Moveset: Kagat, Burrow\r\n" +
                                 "\r\n" +
-                                "A diminutive yet resilient PokeKalye, cunningly navigates the Kalye\r\n" +
+                                "A small yet impeccable PokeKalye, cunningly navigates the Kalye\r\n" +
                                 "with the sole purpose of survival. Although initially frail, Langgam\r\n" +
-                                "relies on its burrowing tactics to grow into a formidable force.\r\n" +
+                                "relies on its burrowing tactics to grow into a formidable force.\r\n\r\n" +
                                 "Legend has it that Langgam played a pivotal role in safeguarding\r\n" +
                                 "the multiverse from an immense multiversal threat.");
 
@@ -420,9 +414,11 @@ public class LaboratoryPanel extends JPanel {
                                 "venomous Sting strike is considered one of the most oppressive attacks in the \r\n" +
                                 "meta of PokeKalyes, capable of paralyzing opponents with a potent stinger.");
 
+                pokeKalyeDescriptions.put("Butete", "BUTETE #034\r\n");
+
                 pokeKalyeDescriptions.put("Palaka", "PALAKA #035\r\n" +
                                 "Nature: Tenacious Pesky\r\n" +
-                                "Moveset: Lick, Croak\r\n" +
+                                "Moveset: Lick, Croak, Dura\r\n" +
                                 "\r\n" +
                                 "Legend has it that when rainfall blesses the kalyes, Palaka undergoes a remarkable\r\n"
                                 +
@@ -434,6 +430,11 @@ public class LaboratoryPanel extends JPanel {
                                 "renowned kalye theorists, who ponder if Palaka's very skin harbors\r\n" +
                                 "a natural PokeKalye repellent.");
 
+                pokeKalyeDescriptions.put("Uod", "UOD #036\r\n"); // nature: harmless
+                pokeKalyeDescriptions.put("Suso", "SUSO #037\r\n"); // nature: pesky
+                pokeKalyeDescriptions.put("Isda", "ISDA #038\r\n"); // nature: splash
+                pokeKalyeDescriptions.put("Eagul", "EAGUL #039\r\n"); // nature: strong fighter
+
                 String[] pokekalyes = { "Kuting", "Puspin", "Puspin Boots", "Tuta", "Askal", "Big Dog", "Langgam",
                                 "Antik",
                                 "Ant-Man",
@@ -441,11 +442,13 @@ public class LaboratoryPanel extends JPanel {
                                 "Colored Sisiw", "Salagubang",
                                 "Langaw", "Bangaw", "Tuko", "Manok", "Gagamba", "Paniki", "Tutubi", "Ahas", "Higad",
                                 "Paro-paro",
-                                "Tipaklong", "Mandarangkal", "Kabayo", "Palaka", "Kuto", "Bubuyog", "Tribal Kip",
+                                "Tipaklong", "Mandarangkal", "Kabayo", "Butete", "Palaka", "Uod", "Suso", "Isda",
+                                "Eagul",
+                                "Kuto", "Bubuyog", "Tribal Kip",
                                 "Lolong", "THE GOAT" };
 
                 for (String pokeKalye : pokekalyes) {
-                        if (gamePanel.hasCaughtPokeKalye(pokeKalye)) {
+                        if (gamePanel.hasCaughtPokeKalye(pokeKalye) && gamePanel.getLevel() < 24) {
                                 JPanel itemPanel = new JPanel(new BorderLayout());
                                 itemPanel.setBorder(BorderFactory.createLineBorder(Color.WHITE));
                                 itemPanel.setOpaque(true);
@@ -455,7 +458,20 @@ public class LaboratoryPanel extends JPanel {
                                 itemLabel.setHorizontalAlignment(SwingConstants.CENTER);
                                 itemPanel.add(itemLabel, BorderLayout.NORTH);
 
-                                ImageIcon itemIcon = new ImageIcon("media/images/" + pokeKalye + "2.png");
+                                String imagePath;
+                                if (pokeKalye.equals("Kitty Yonarchy")) {
+                                        imagePath = "media/images/yona.png";
+                                } else if (pokeKalye.equals("Lolong")) {
+                                        imagePath = "media/images/lolong.png";
+                                } else if (pokeKalye.equals("THE GOAT")) {
+                                        imagePath = "media/images/Goat.png";
+                                } else if (pokeKalye.equals("Langgam") || pokeKalye.equals("Puspin")
+                                                || pokeKalye.equals("Askal")) {
+                                        imagePath = "media/images/" + pokeKalye + "User.png";
+                                } else {
+                                        imagePath = "media/images/" + pokeKalye + "2.png";
+                                }
+                                ImageIcon itemIcon = new ImageIcon(imagePath);
                                 JLabel itemImage = new JLabel(itemIcon);
                                 itemImage.setHorizontalAlignment(SwingConstants.CENTER);
                                 itemPanel.add(itemImage, BorderLayout.CENTER);
@@ -480,7 +496,6 @@ public class LaboratoryPanel extends JPanel {
                                 itemPanel.add(detailsButton, BorderLayout.SOUTH);
 
                                 String itemDescription = pokeKalyeDescriptions.get(pokeKalye);
-                                itemPanel.setToolTipText(itemDescription);
 
                                 detailsButton.addActionListener((ActionEvent e) -> {
                                         playButtonClickSound();
@@ -511,15 +526,19 @@ public class LaboratoryPanel extends JPanel {
         }
 
         private void playMusic(String filepath) {
-                try {
-                        AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File(filepath));
-                        musicClip = AudioSystem.getClip();
-                        musicClip.open(audioInputStream);
-                        musicClip.loop(Clip.LOOP_CONTINUOUSLY);
-                        musicClip.start();
-                } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
-                        e.printStackTrace();
-                }
+                Thread musicThread = new Thread(() -> {
+                        try {
+                                AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File(filepath));
+                                musicClip = AudioSystem.getClip();
+                                musicClip.open(audioInputStream);
+                                musicClip.loop(Clip.LOOP_CONTINUOUSLY);
+                                musicClip.start();
+                        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+                                e.printStackTrace();
+                        }
+                });
+
+                musicThread.start();
         }
 
         private void stopMusic() {
@@ -562,18 +581,19 @@ public class LaboratoryPanel extends JPanel {
                 });
         }
 
-        public void refreshShopPanel() {
-                pesosLabel.setText("PokeKalye Caught: " + gamePanel.getPesos());
-        }
-
         private void playCrySound(String soundPath) {
-                try {
-                        AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File(soundPath));
-                        Clip clip = AudioSystem.getClip();
-                        clip.open(audioInputStream);
-                        clip.start();
-                } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
-                        e.printStackTrace();
-                }
+                Thread crySoundThread = new Thread(() -> {
+                        try {
+                                AudioInputStream audioInputStream = AudioSystem
+                                                .getAudioInputStream(new File(soundPath));
+                                Clip clip = AudioSystem.getClip();
+                                clip.open(audioInputStream);
+                                clip.start();
+                        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+                                e.printStackTrace();
+                        }
+                });
+
+                crySoundThread.start();
         }
 }

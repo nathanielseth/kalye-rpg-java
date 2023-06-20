@@ -12,12 +12,14 @@ public class Search {
     private String searchingText = "Searching";
     private Clip searchClip;
     private Clip bossMusicClip;
+    private Clip bossMusic2Clip;
 
     public Search(GamePanel gamePanel) {
         this.gamePanel = gamePanel;
         currentlySearching = false;
         loadSearchSound();
         loadBossMusic();
+        loadBossMusic2();
     }
 
     private void loadSearchSound() {
@@ -100,7 +102,7 @@ public class Search {
 
             @Override
             protected void done() {
-                gamePanel.enableSearchButton(true);
+                // gamePanel.enableSearchButton(true);
             }
         };
         searchWorker.execute();
@@ -108,7 +110,7 @@ public class Search {
 
     private void playSearchSound() {
         try {
-            if (gamePanel.getLevel() == 20) {
+            if (gamePanel.getLevel() == 24) {
                 playBossMusic();
             } else {
                 searchClip.setFramePosition(0);
@@ -132,8 +134,10 @@ public class Search {
             if (level >= 1 && level <= 10) {
                 String[] veryCommonEnemies = { "Ipis", "Daga" };
                 String[] commonEnemies = { "Lamok", "Langaw", "Tuta", "Ibon" };
-                String[] moderateEnemies = { "Kuting", "Manok", "Gagamba", "Butiki", "Kuto", "Paro-paro", "Bubuyog" };
-                String[] rareEnemies = { "Langgam", "Ahas", "Higad", "Tipaklong", "Askal" };
+                String[] moderateEnemies = { "Kuting", "Manok", "Gagamba", "Butiki", "Kuto",
+                        "Paro-paro", "Bubuyog",
+                        "Uod", "Suso", "Butete" };
+                String[] rareEnemies = { "Langgam", "Isda", "Ahas", "Higad", "Tipaklong", "Askal" };
                 double random = Math.random();
                 if (random < 0.08) {
                     return getRandomArrayElement(rareEnemies);
@@ -144,6 +148,9 @@ public class Search {
                 } else {
                     return getRandomArrayElement(veryCommonEnemies);
                 }
+            } else if (level == 11) {
+                playBossMusic2();
+                return "Kitty Yonarchy";
             } else {
                 return null;
             }
@@ -152,8 +159,9 @@ public class Search {
                 String[] veryCommonEnemies = { "Askal", "Palaka" };
                 String[] commonEnemies = { "Lamok", "Langaw", "Tuta", "Ibon", "Colored Sisiw" };
                 String[] moderateEnemies = { "Kuting", "Manok", "Gagamba", "Tuko", "Daga", "Dagang Kanal", "Bubuyog" };
-                String[] rareEnemies = { "Salagubang", "Langgam", "Palaka", "Ahas", "Higad", "Tipaklong", "Ipis",
-                        "Mandarangkal" };
+                String[] rareEnemies = { "Salagubang", "Langgam", "Palaka", "Ahas", "Higad",
+                        "Tipaklong", "Ipis",
+                        "Mandarangkal", "Isda", "Eagul", "Antik" };
                 double random = Math.random();
                 if (random < 0.05) {
                     return getRandomArrayElement(rareEnemies);
@@ -164,19 +172,25 @@ public class Search {
                 } else {
                     return getRandomArrayElement(veryCommonEnemies);
                 }
+            } else if (level == 16) {
+                playBossMusic2();
+                return "Lolong";
             } else {
                 return null;
             }
         } else if (area.equals("Gedli East")) {
-            if (level >= 10 && level <= 19) {
+            if (level >= 10 && level <= 19 || level >= 21 && level <= 23) {
                 String[] veryCommonEnemies = { "Askal", "Puspin" };
                 String[] commonEnemies = { "Flying Ipis", "Dagang Kanal", "Bangaw",
                         "Palaka", "Tutubi", "Paro-paro" };
                 String[] moderateEnemies = { "Paniki", "Higad", "Salagubang", "Manok", "Ahas", "Tipaklong",
-                        "Tuko", "Bubuyog", "Mandarangkal" };
+                        "Tuko", "Bubuyog", "Mandarangkal", "Eagul" };
                 String[] rareEnemies = { "Kabayo", "Daga", "Colored Sisiw" };
+                String[] ultraRareEnemies = { "Ant-Man", "Big Dog", "Puspin Boots" };
                 double random = Math.random();
-                if (random < 0.05) {
+                if (random < 0.01) {
+                    return getRandomArrayElement(ultraRareEnemies);
+                } else if (random < 0.05) {
                     return getRandomArrayElement(rareEnemies);
                 } else if (random < 0.5) {
                     return getRandomArrayElement(moderateEnemies);
@@ -185,11 +199,14 @@ public class Search {
                 } else {
                     return getRandomArrayElement(veryCommonEnemies);
                 }
+            } else if (level == 20) {
+                playBossMusic2();
+                return "THE GOAT";
             } else {
                 return null;
             }
         } else if (area.equals("Professor's Lab")) {
-            if (level >= 20) {
+            if (level >= 24) {
                 return "Professor Splinter";
             } else {
                 return null;
@@ -229,7 +246,8 @@ public class Search {
     private void playBossMusic() {
         try {
             bossMusicClip.setFramePosition(0);
-            bossMusicClip.loop(Clip.LOOP_CONTINUOUSLY);
+            Thread bossMusicThread = new Thread(() -> bossMusicClip.loop(Clip.LOOP_CONTINUOUSLY));
+            bossMusicThread.start();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -238,6 +256,33 @@ public class Search {
     public void stopBossMusic() {
         if (bossMusicClip != null && bossMusicClip.isRunning()) {
             bossMusicClip.stop();
+        }
+    }
+
+    private void loadBossMusic2() {
+        try {
+            File soundFile = new File("media/audio/bossMusic2.wav");
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(soundFile);
+            bossMusic2Clip = AudioSystem.getClip();
+            bossMusic2Clip.open(audioInputStream);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void playBossMusic2() {
+        try {
+            bossMusic2Clip.setFramePosition(0);
+            Thread bossMusic2Thread = new Thread(() -> bossMusic2Clip.loop(Clip.LOOP_CONTINUOUSLY));
+            bossMusic2Thread.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void stopBossMusic2() {
+        if (bossMusic2Clip != null && bossMusic2Clip.isRunning()) {
+            bossMusic2Clip.stop();
         }
     }
 

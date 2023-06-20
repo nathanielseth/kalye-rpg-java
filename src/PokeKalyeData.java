@@ -25,7 +25,7 @@ public class PokeKalyeData {
         public static final PokeKalye LAMOK = new PokeKalye("Lamok", 9, MovePool.DAPO_LAMOK, MovePool.SUCK);
         public static final PokeKalye BUTIKI = new PokeKalye("Butiki", 10, MovePool.LICK, MovePool.SIT_AND_WAIT);
         public static final PokeKalye IBON = new PokeKalye("Ibon", 18, MovePool.PECK, MovePool.POOP);
-        public static final PokeKalye COLORED_SISIW = new PokeKalye("Colored\n Sisiw", 60, MovePool.PECK);
+        public static final PokeKalye COLORED_SISIW = new PokeKalye("Colored Sisiw", 60, MovePool.PECK);
         public static final PokeKalye SALAGUBANG = new PokeKalye("Salagubang", 60, MovePool.HARDEN, MovePool.KUROT);
         public static final PokeKalye DAGANG_KANAL = new PokeKalye("Dagang Kanal", 50, MovePool.KAGAT_DAGANG_KANAL,
                         MovePool.SQUEAK_KANAL);
@@ -45,18 +45,26 @@ public class PokeKalyeData {
         public static final PokeKalye TIPAKLONG = new PokeKalye("Tipaklong", 19, MovePool.DAPO, MovePool.SCRATCH);
         public static final PokeKalye MANDARANGKAL = new PokeKalye("Mandarangkal", 14, MovePool.KARATE_CHOP,
                         MovePool.DAPO);
-        public static final PokeKalye KABAYO = new PokeKalye("Kabayo", 100, MovePool.TADYAK, MovePool.FLEE_LANGAW);
+        public static final PokeKalye KABAYO = new PokeKalye("Kabayo", 100, MovePool.TADYAK, MovePool.FLEE_LANGAW,
+                        MovePool.DURA);
         public static final PokeKalye PROFESSOR_SPLINTER = new PokeKalye("Professor Splinter", 10000,
                         MovePool.NGATNGAT_PROFESSOR_SPLINTER,
                         MovePool.MEDITATE, MovePool.SEWER_FOCUS, MovePool.RAT_ATTACK);
-        public static final PokeKalye PALAKA = new PokeKalye("Palaka", 30, MovePool.CROAK, MovePool.LICK);
+        public static final PokeKalye BUTETE = new PokeKalye("Butete", 9, MovePool.DURA);
+        public static final PokeKalye PALAKA = new PokeKalye("Palaka", 30, MovePool.CROAK, MovePool.LICK,
+                        MovePool.DURA);
         public static final PokeKalye KUTO = new PokeKalye("Kuto", 10, MovePool.SCRATCH);
         public static final PokeKalye BUBUYOG = new PokeKalye("Bubuyog", 14, MovePool.STING, MovePool.BUZZ);
-        public static final PokeKalye TRIBAL_KIP = new PokeKalye("Tribal Kip", 100, MovePool.SNEAK_ATTACK,
-                        MovePool.PURR, MovePool.KAGAT);
-        public static final PokeKalye LOLONG = new PokeKalye("Lolong", 200, MovePool.OUTRAGE, MovePool.KAGAT,
+        public static final PokeKalye UOD = new PokeKalye("Uod", 9, MovePool.DAPO, MovePool.SLITHER);
+        public static final PokeKalye SUSO = new PokeKalye("Suso", 18, MovePool.DAPO, MovePool.SIT_AND_WAIT);
+        public static final PokeKalye ISDA = new PokeKalye("Isda", 14, MovePool.SIT_AND_WAIT, MovePool.DURA);
+        public static final PokeKalye EAGUL = new PokeKalye("Eagul", 50, MovePool.MIGHTY_PECK, MovePool.LIPAD,
+                        MovePool.KALMOT);
+        public static final PokeKalye TRIBAL_KIP = new PokeKalye("Kitty Yonarchy", 100, MovePool.SNEAK_ATTACK,
+                        MovePool.PURR, MovePool.KAGAT_SNAKE, MovePool.KALMOT);
+        public static final PokeKalye LOLONG = new PokeKalye("Lolong", 500, MovePool.OUTRAGE, MovePool.KAGAT_SNAKE,
                         MovePool.SEWER_FOCUS);
-        public static final PokeKalye THE_GOAT = new PokeKalye("THE GOAT", 500, MovePool.TADYAK, MovePool.BURROW,
+        public static final PokeKalye THE_GOAT = new PokeKalye("THE GOAT", 1000, MovePool.TADYAK, MovePool.BURROW,
                         MovePool.QUANTUM_BITE, MovePool.SPEAR);
 
         public static class PokeKalye {

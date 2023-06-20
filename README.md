@@ -1,6 +1,6 @@
 # KalyeRPG
 
-KalyeRPG is a satirical game inspired by the Pokémon series, but with a unique twist- taking  place in the lively environment of the "kalye" (philippine street). The project is developed in compliance with the requirements of my college programming class.
+KalyeRPG is a Java Swing GUI game inspired by the Pokémon series, but with a unique twist- taking  place in the lively environment of the "kalye" (philippine street). The project is developed in compliance with the requirements of my college programming class.
 
 ## Key Highlights
 
@@ -22,4 +22,4 @@ The gameplay of KalyeRPG, although simple in concept, is intentionally designed 
 - Shops, Evolutions, Boss Fights, and more
 
 ## Disclaimer
-I do not own all the animal images used in the game. KalyeRPG embraces a "taglish" (Tagalog-English) approach intentionally, adding a touch of local flavor and humor to the gameplay experience.
+I do not own all the animal sounds and images used in the game. The game embraces a "taglish" (Tagalog-English) approach intentionally.

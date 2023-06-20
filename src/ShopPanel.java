@@ -174,8 +174,9 @@ public class ShopPanel extends JPanel {
                             gamePanel.increaseCritRateModifier(0.15);
                             refreshShopPanel();
                             break;
-                        case 7: // Mouse Trap
+                        case 7: // Lato Lato
                             gamePanel.increaseCritDamageModifier(10);
+                            playItemBoughtSound("latolato");
                             refreshShopPanel();
                             break;
                         case 8: // Infinity Edge
@@ -369,5 +370,22 @@ public class ShopPanel extends JPanel {
             }
         }
         return false;
+    }
+
+    private void playItemBoughtSound(String itemName) {
+        try {
+            String soundFilePath = "media/audio/Bought/" + itemName + ".wav";
+            File soundFile = new File(soundFilePath);
+            if (soundFile.exists()) {
+                AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+                Clip clip = AudioSystem.getClip();
+                clip.open(audioStream);
+                clip.start();
+            } else {
+                System.out.println("Sound file not found: " + soundFilePath);
+            }
+        } catch (LineUnavailableException | IOException | UnsupportedAudioFileException e) {
+            e.printStackTrace();
+        }
     }
 }

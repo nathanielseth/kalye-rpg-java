@@ -76,7 +76,7 @@ public class UkayPanel extends JPanel {
                 "Sabungan na!",
                 "Matigas to...",
                 "Masarap ipang bike-to-school!",
-                "\"At the end of the day, we all want to win, so everybody has to sacrifice when you want to be a part of something special\""
+                "\"At the end of the day, we all want to win.\" -JT"
         };
 
         for (int i = 0; i < itemNames.length; i++) {
@@ -118,10 +118,10 @@ public class UkayPanel extends JPanel {
 
                         switch (itemIndex) {
                             case 0: // Ben10 Brip
-                                gamePanel.increaseEarnedPesosMaxValue(3);
+                                gamePanel.increaseEarnedPesosMaxValue(10);
                                 break;
                             case 1: // ML Shirt
-                                gamePanel.increaseEarnedPesosMaxValue(10);
+                                gamePanel.increaseEarnedPesosMaxValue(20);
                                 break;
                             case 2: // Cock Outfit
                                 gamePanel.changeYourPokeKalyeImage("media/images/manok1.png");
@@ -319,5 +319,22 @@ public class UkayPanel extends JPanel {
             }
         }
         return false;
+    }
+
+    private void playItemBoughtSound(String itemName) {
+        try {
+            String soundFilePath = "media/audio/Bought/" + itemName + ".wav";
+            File soundFile = new File(soundFilePath);
+            if (soundFile.exists()) {
+                AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+                Clip clip = AudioSystem.getClip();
+                clip.open(audioStream);
+                clip.start();
+            } else {
+                System.out.println("Sound file not found: " + soundFilePath);
+            }
+        } catch (LineUnavailableException | IOException | UnsupportedAudioFileException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -58,7 +58,7 @@ public class Search {
                 if (gamePanel.boughtBike()) {
                     searchTime = (int) (Math.random() * 1000) + 200;
                 } else {
-                    searchTime = (int) (Math.random() * 6500) + 1000;
+                    searchTime = (int) (Math.random() * 5000) + 800;
                 }
                 Timer timer = new Timer(searchTime, new ActionListener() {
                     @Override

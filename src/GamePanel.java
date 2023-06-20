@@ -52,7 +52,7 @@ public class GamePanel extends JPanel {
     JLabel playerLevelLabel;
     private int enemyCurrentHealth;
     private JLabel battleStatusLabel;
-    private int pesos = 10090;
+    private int pesos = 10000;
     private Search search;
     private JLabel enemyImageLabel;
     private List<JButton> moveButtons;
@@ -142,6 +142,16 @@ public class GamePanel extends JPanel {
         });
         timer.setRepeats(false);
         timer.start();
+        if (selectedPokeKalye.equals("Langgam")) {
+            catchPokeKalye("Puspin");
+            catchPokeKalye("Askal");
+        } else if (selectedPokeKalye.equals("Puspin")) {
+            catchPokeKalye("Langgam");
+            catchPokeKalye("Askal");
+        } else if (selectedPokeKalye.equals("Askal")) {
+            catchPokeKalye("Puspin");
+            catchPokeKalye("Langgam");
+        }
     }
 
     public GamePanel(String selectedPokeKalye, String pokeKalyeName) {

@@ -138,7 +138,7 @@ public class Professor extends JFrame {
     }
 
     private void displayDialogue() {
-        String[] dialogues = { "...",
+        String[] dialogues = { ". . .",
                 "Hoy! Ikaw! Huwag ka lumabas! Deliks dito! May mga WILD na PokeKalye dito sa gedli! Kailangan mo ng sarili mong PokeKalye para sa proteksyon mo...",
                 "Ako nga pala si PROF RP! Tinatawag nila ako bilang PROFESSOR KALYE! Mapapansin mo na lately napakaraming hayup na paligoy-ligoy rito sa Queensrow...",
                 "Bilang professor, napaimbestiga ako rito dahil may mga kakaibang kaganapan talaga dito sa kalyeng to.. Kailangan mahuli na ang mga ito..",
@@ -167,7 +167,7 @@ public class Professor extends JFrame {
         JPanel namePanel = new JPanel();
         nameTextField = new JTextField();
         nameTextField.setColumns(20);
-        nameTextField.setFont(new Font("Courier New", Font.BOLD, 24));
+        nameTextField.setFont(new Font("Montserrat", Font.BOLD, 24));
         nameTextField.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
         nameTextField.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent evt) {
@@ -285,7 +285,7 @@ public class Professor extends JFrame {
             g2d.fillRect(x + arrowPosition + arrowSize, y + height / 2, width - arrowPosition - arrowSize, height / 2);
 
             g2d.setColor(Color.BLACK);
-            g2d.setFont(new Font("Courier New", Font.BOLD, 18));
+            g2d.setFont(new Font("Montserrat", Font.BOLD, 16));
             java.awt.FontMetrics fm = g2d.getFontMetrics();
             int textX = x + 20;
             int textY = y + 30;

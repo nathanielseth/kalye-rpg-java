@@ -94,12 +94,12 @@ public class GamePanel extends JPanel {
     private int purrCooldown = 0;
     private double critRateModifier = 0.0;
     private int critDamageModifier = 0;
-    private int earnedPesosMaxValue = 10;
+    private int earnedPesosMaxValue = 15;
     private int luck = 1;
     private JLabel luckyCatButton;
     private boolean isShopOpen = false;
     private ImageIcon emptyIcon = new ImageIcon("");
-    private ImageIcon dengueIcon = new ImageIcon("");
+    private ImageIcon dengueIcon = new ImageIcon("media/images/dengue.png");
     private List<String> usedDialogues = new ArrayList<>();
     private int enemyMeditateCooldown = 0;
     private long startTime;
@@ -894,6 +894,10 @@ public class GamePanel extends JPanel {
         return selectedPokeKalye;
     }
 
+    public String getPokeKalyeCustomName() {
+        return pokeKalyeName;
+    }
+
     public void enableSearchButton() {
         searchButton.setEnabled(true);
     }
@@ -1308,7 +1312,7 @@ public class GamePanel extends JPanel {
     private void animateHealthBar(JProgressBar healthBar, int currentHealth, int maxHealth, int duration) {
         int startValue = healthBar.getValue();
         int endValue = currentHealth;
-        int totalFrames = duration / 35;
+        int totalFrames = duration / 40;
         double increment = (double) (endValue - startValue) / totalFrames;
 
         int delay = duration / totalFrames;
@@ -2262,9 +2266,14 @@ public class GamePanel extends JPanel {
     }
 
     private void playBattleMusic() {
-        if ((loopingMusicClip == null || !loopingMusicClip.isRunning())) {
+        if (loopingMusicClip == null || !loopingMusicClip.isRunning()) {
             try {
-                File musicFile = new File("media/audio/battle.wav");
+                File musicFile;
+                if (playerLevel >= 15) {
+                    musicFile = new File("media/audio/battle2.wav");
+                } else {
+                    musicFile = new File("media/audio/battle.wav");
+                }
                 AudioInputStream audioStream = AudioSystem.getAudioInputStream(musicFile);
                 loopingMusicClip = AudioSystem.getClip();
                 loopingMusicClip.open(audioStream);
@@ -2384,7 +2393,7 @@ public class GamePanel extends JPanel {
             new Thread(() -> {
                 lowHitSoundClip.start();
                 try {
-                    Thread.sleep(lowHitSoundClip.getMicrosecondLength() / 1000);
+                    Thread.sleep(lowHitSoundClip.getMicrosecondLength() / 100);
                     Thread.sleep(200);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -2403,7 +2412,7 @@ public class GamePanel extends JPanel {
             new Thread(() -> {
                 medHitSoundClip.start();
                 try {
-                    Thread.sleep(medHitSoundClip.getMicrosecondLength() / 1000);
+                    Thread.sleep(medHitSoundClip.getMicrosecondLength() / 100);
                     Thread.sleep(200);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -2422,7 +2431,7 @@ public class GamePanel extends JPanel {
             new Thread(() -> {
                 highHitSoundClip.start();
                 try {
-                    Thread.sleep(highHitSoundClip.getMicrosecondLength() / 1000);
+                    Thread.sleep(highHitSoundClip.getMicrosecondLength() / 100);
                     Thread.sleep(200);
                 } catch (InterruptedException e) {
                     e.printStackTrace();

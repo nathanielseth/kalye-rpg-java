@@ -69,7 +69,7 @@ public class SplashScreen {
     }
 
     private void launchGame() {
-        Professor.main(null);
+        MainMenu.main(null);
     }
 
     private void playAudio(String audioPath) {

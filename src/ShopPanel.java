@@ -94,7 +94,7 @@ public class ShopPanel extends JPanel {
             itemLabel.setHorizontalAlignment(SwingConstants.CENTER);
             itemPanel.add(itemLabel, BorderLayout.NORTH);
 
-            int price = getItemPrice(i); // Get the price from getItemPrice()
+            int price = getItemPrice(i);
             JLabel itemPrice = new JLabel(price + " pesos");
             itemPrice.setHorizontalAlignment(SwingConstants.CENTER);
             itemPanel.add(itemPrice, BorderLayout.SOUTH);
@@ -106,6 +106,10 @@ public class ShopPanel extends JPanel {
 
             JButton buyButton = new JButton("BUY");
             itemPanel.add(buyButton, BorderLayout.EAST);
+
+            if (gamePanel.playerLevel >= 24) {
+                buyButton.setEnabled(false);
+            }
 
             String itemDescription = itemDescriptions[i];
             itemPanel.setToolTipText(itemDescription);
@@ -280,16 +284,31 @@ public class ShopPanel extends JPanel {
         return clip;
     }
 
-    private void playMusic(String musicFilePath) {
-        try {
-            File musicFile = new File(musicFilePath);
-            AudioInputStream audioStream = AudioSystem.getAudioInputStream(musicFile);
-            musicClip = AudioSystem.getClip();
-            musicClip.open(audioStream);
-            musicClip.loop(Clip.LOOP_CONTINUOUSLY);
-        } catch (LineUnavailableException | IOException | UnsupportedAudioFileException e) {
-            e.printStackTrace();
-        }
+    private void playMusic(String filepath) {
+        Thread musicThread = new Thread(() -> {
+            try {
+
+                int playerLevel = gamePanel.getLevel();
+                if (playerLevel >= 24) {
+                    AudioInputStream audioInputStream = AudioSystem
+                            .getAudioInputStream(new File("media/audio/sariEmpty.wav"));
+                    musicClip = AudioSystem.getClip();
+                    musicClip.open(audioInputStream);
+                } else {
+                    AudioInputStream audioInputStream = AudioSystem
+                            .getAudioInputStream(new File(filepath));
+                    musicClip = AudioSystem.getClip();
+                    musicClip.open(audioInputStream);
+                }
+
+                musicClip.loop(Clip.LOOP_CONTINUOUSLY);
+                musicClip.start();
+            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+                e.printStackTrace();
+            }
+        });
+
+        musicThread.start();
     }
 
     private void stopMusic() {

@@ -25,7 +25,7 @@ public class PokeKalyeData {
         public static final PokeKalye LAMOK = new PokeKalye("Lamok", 9, MovePool.DAPO_LAMOK, MovePool.SUCK);
         public static final PokeKalye BUTIKI = new PokeKalye("Butiki", 10, MovePool.LICK, MovePool.SIT_AND_WAIT);
         public static final PokeKalye IBON = new PokeKalye("Ibon", 18, MovePool.PECK, MovePool.POOP);
-        public static final PokeKalye COLORED_SISIW = new PokeKalye("Colored Sisiw", 60, MovePool.PECK);
+        public static final PokeKalye COLORED_SISIW = new PokeKalye("Colored Sisiw", 30, MovePool.PECK);
         public static final PokeKalye SALAGUBANG = new PokeKalye("Salagubang", 60, MovePool.HARDEN, MovePool.KUROT);
         public static final PokeKalye DAGANG_KANAL = new PokeKalye("Dagang Kanal", 50, MovePool.KAGAT_DAGANG_KANAL,
                         MovePool.SQUEAK_KANAL);

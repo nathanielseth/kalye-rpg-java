@@ -82,11 +82,11 @@ public class Search {
                         gamePanel.setEnemyImage(enemyPokeKalye);
                         String dialogue;
                         if (enemyPokeKalye.length() > 8) {
-                            dialogue = " A " + enemyPokeKalye + "!\n What will " + gamePanel.getPokeKalyeName()
+                            dialogue = " A " + enemyPokeKalye + "!\n What will " + gamePanel.getPokeKalyeCustomName()
                                     + " do?";
                         } else {
                             dialogue = " " + enemyPokeKalye + " has appeared!\n What will "
-                                    + gamePanel.getPokeKalyeName() + " do?";
+                                    + gamePanel.getPokeKalyeCustomName() + " do?";
                         }
                         gamePanel.setDialogueText(dialogue);
 
@@ -110,7 +110,7 @@ public class Search {
 
     private void playSearchSound() {
         try {
-            if (gamePanel.getLevel() == 24) {
+            if (gamePanel.getLevel() == 24 && gamePanel.getArea().equals("Professor's Lab")) {
                 playBossMusic();
             } else {
                 searchClip.setFramePosition(0);

@@ -46,7 +46,7 @@ public class PokeKalyeChooser extends JFrame {
                 "<html><p style='text-align:center; font-family:\"Impact\"; font-size:22px; color:white; letter-spacing:800em;'>CHOOSE YOUR POKEKALYE !</p></html>",
                 JLabel.CENTER);
 
-        pokeKalyeChooserLabel.setFont(new Font("Courier New", Font.PLAIN, 24));
+        pokeKalyeChooserLabel.setFont(new Font("Montserrat", Font.PLAIN, 24));
         pokeKalyeChooserLabel.setForeground(Color.WHITE);
         pokeKalyeChooserLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
@@ -188,7 +188,7 @@ public class PokeKalyeChooser extends JFrame {
 
         selectedPokeKalyeLabel = new JLabel();
         selectedPokeKalyeLabel.setForeground(Color.WHITE);
-        selectedPokeKalyeLabel.setFont(new Font("Courier New", Font.BOLD, 16));
+        selectedPokeKalyeLabel.setFont(new Font("Montserrat", Font.BOLD, 13));
         selectedPokeKalyeLabel.setHorizontalAlignment(SwingConstants.LEFT);
         selectedPokeKalyeLabel.setVerticalAlignment(SwingConstants.BOTTOM);
         Container contentPane = getContentPane();

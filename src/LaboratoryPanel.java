@@ -57,6 +57,9 @@ public class LaboratoryPanel extends JPanel {
                 scrollPane.setPreferredSize(new Dimension(600, 300));
                 scrollPane.setViewportView(createPokeKalyePanel());
 
+                JScrollBar verticalScrollBar = scrollPane.getVerticalScrollBar();
+                verticalScrollBar.setUnitIncrement(45);
+
                 JPanel contentPanel = new JPanel();
                 contentPanel.setLayout(new BorderLayout());
                 contentPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -71,6 +74,15 @@ public class LaboratoryPanel extends JPanel {
                 pesosLabel.setFont(new Font("Impact", Font.PLAIN, 17));
                 pesosLabel.setForeground(Color.WHITE);
                 topPanel.add(pesosLabel, BorderLayout.EAST);
+
+                int playerLevel = gamePanel.getLevel();
+                if (playerLevel >= 24) {
+                        pesosLabel.setText("get out.");
+                        shopLabel.setText("^@*#$(*#@*%%???");
+                        shopLabel.setFont(new Font("Courier New", Font.PLAIN, 18));
+                        pesosLabel.setFont(new Font("Courier New", Font.PLAIN, 18));
+
+                }
 
                 ImageIcon shopIcon = new ImageIcon("images/gcash.png");
                 JLabel shopImageLabel = new JLabel(shopIcon);
@@ -414,7 +426,11 @@ public class LaboratoryPanel extends JPanel {
                                 "venomous Sting strike is considered one of the most oppressive attacks in the \r\n" +
                                 "meta of PokeKalyes, capable of paralyzing opponents with a potent stinger.");
 
-                pokeKalyeDescriptions.put("Butete", "BUTETE #034\r\n");
+                pokeKalyeDescriptions.put("Butete", "BUTETE #034\r\n" +
+                                "Nature: Harmless\r\n" +
+                                "Moveset: Dura\r\n" +
+                                "\r\n" +
+                                "This playful PokeKalye enjoys nothing more than surprising unsuspecting\r\nnetizens in the kalye with its sneaky Dura move.");
 
                 pokeKalyeDescriptions.put("Palaka", "PALAKA #035\r\n" +
                                 "Nature: Tenacious Pesky\r\n" +
@@ -430,10 +446,87 @@ public class LaboratoryPanel extends JPanel {
                                 "renowned kalye theorists, who ponder if Palaka's very skin harbors\r\n" +
                                 "a natural PokeKalye repellent.");
 
-                pokeKalyeDescriptions.put("Uod", "UOD #036\r\n"); // nature: harmless
-                pokeKalyeDescriptions.put("Suso", "SUSO #037\r\n"); // nature: pesky
-                pokeKalyeDescriptions.put("Isda", "ISDA #038\r\n"); // nature: splash
-                pokeKalyeDescriptions.put("Eagul", "EAGUL #039\r\n"); // nature: strong fighter
+                pokeKalyeDescriptions.put("Uod", "UOD #036\r\n" +
+                                "Nature: Harmless\r\n" +
+                                "Moveset: Slither, Dapo\r\n" +
+                                "\r\n" +
+                                "Its dark and sinister nature hides beneath its harmless exterior.\r\n" +
+                                "Legends speak of the when the surgence of PokeKalyes occured,\r\n" +
+                                "Uod thrived in the shadows as more and more of their kind emerged.\r\n" +
+                                "They feasted on the lifeless corpses of fallen PokeKalyes,\r\n" +
+                                "fueling their growth and insatiable hunger.\r\n\r\n" +
+                                "Uod's true intentions remain a mystery, leaving many to wonder\r\n" +
+                                "what lies beneath its seemingly innocent facade.");
+
+                pokeKalyeDescriptions.put("Suso", "SUSO #037\r\n" +
+                                "Nature: Pesky\r\n" +
+                                "Moveset: Dapo, Stare\r\n" +
+                                "\r\n" +
+                                "Suso is the epitome of mediocrity in the PokeKalye landscape.\n" +
+                                "It is a miracle that this species has managed to survive,\n" +
+                                "given its apparent worthlessness. Suso's harder-than-bakal shell\n" +
+                                "might give the impression of being formidable, but in reality,\n" +
+                                "it is nothing more than a mid-tier PokeKalye, forever stuck in\n\n" +
+                                "the realm of insignificance.");
+
+                pokeKalyeDescriptions.put("Isda", "ISDA #038\r\n" +
+                                "Nature: Splash\r\n" +
+                                "Moveset: Dura, Stare\r\n" +
+                                "\r\n" +
+                                "Isda, definitely one of the PokeKalyes of Queensrow.\r\n" +
+                                "But have you wondered, how did this majestic creature end up here?\r\n" +
+                                "Did it take a wrong turn at the Pasig River? Was it bored of its waterlogged\r\n" +
+                                "life and decided to seek adventure in the Kalyes? We may never know.");
+
+                pokeKalyeDescriptions.put("Eagul", "EAGUL #039\r\n" +
+                                "Nature: Strong Fighter\r\n" +
+                                "Moveset: Mighty Peck, Lipad, Kalmot\r\n" +
+                                "\r\n" +
+                                "Eagul possesses the most majestic wings to soar high above the kalyes.\r\n" +
+                                "So majestic, in fact, its presumed majesticalness supposedly led the\r\n" +
+                                "gullible kalye people to form ridiculous cults and religions centered around Eagul.\r\n"
+                                +
+                                "When the kalye folks were in dire need, they turned to Eagul as their hope.\r\n\r\n" +
+                                "The Professor noted and wisely warns,\n" +
+                                "'Stay away from Eagul worshippers' or risk being dragged into their laughable fanaticism");
+
+                pokeKalyeDescriptions.put("Kitty Yonarchy", "KITTY YONARCHY #040\r\n" +
+                                "Nature: Legendary\r\n" +
+                                "Moveset: Kalmot, Kagat, Sneak Attack, Purr\r\n" +
+                                "\r\n" +
+                                "Is this seemingly adorable PokeKalye truly as harmless as she appears?\r\n" +
+                                "Kitty Yonarchy, the Legendary Tribal Kitty and the sister of Puspin Boots.\r\n" +
+                                "Ruling with an iron paw, she reigns supreme as the head of the table in Kalsada Central,\r\n"
+                                +
+                                "exuding authority and power. Trained by the same master as Puspin Boots, she possesses\r\n"
+                                +
+                                "formidable skills and is one of the most feared PokeKalyes in all of Queensrow.");
+
+                pokeKalyeDescriptions.put("Lolong", "LOLONG #041\r\n" +
+                                "Nature: Legendary\r\n" +
+                                "Moveset: Kagat, Outrage, Sewer Focus\r\n" +
+                                "\r\n" +
+                                "The mighty and the undisputed ruler of the Kalye West, Lolong.\r\n" +
+                                "Deep within the dark recesses of the Kalye West sewers, he claims his throne.\r\n" +
+                                "Legend has it that Lolong feasts upon six Batang Pasaways every day, devouring\r\n" +
+                                "their mischievous souls to fuel his own immense power.\r\n" +
+                                "When he unleashes his fearsome attack, 'Sewer Focus,' the ground trembles\r\n" +
+                                "as if a magnitude six earthquake has just struck, leaving the kalye people\r\n" +
+                                "trembling in their slippers.");
+
+                pokeKalyeDescriptions.put("THE GOAT", "THE GOAT #042\r\n" +
+                                "Nature: Legendary\r\n" +
+                                "Moveset: Tadyak, Spear, Quantum Bite, Burrow\r\n" +
+                                "\r\n" +
+                                "Its presence is shrouded in mystery, visible only to those who have transcended \r\n" +
+                                "the ordinary perception of the kalye realm.\r\n" +
+                                "Until recently, no one had ever seen, until you.\r\n\r\n" +
+                                "Rumors abound of an unknown animal that underwent a miraculous transformation\r\n" +
+                                "upon exposure to a mysterious virus lurking within the kalye's depths.\r\n" +
+                                "This convergence gave birth to this very creature.\r\n"
+                                +
+                                "Speculations arise that THE GOAT may have been the catalyst behind the surge of\r\n" +
+                                "PokeKalyes around the globe, the architect of their very existence.");
 
                 String[] pokekalyes = { "Kuting", "Puspin", "Puspin Boots", "Tuta", "Askal", "Big Dog", "Langgam",
                                 "Antik",
@@ -442,9 +535,9 @@ public class LaboratoryPanel extends JPanel {
                                 "Colored Sisiw", "Salagubang",
                                 "Langaw", "Bangaw", "Tuko", "Manok", "Gagamba", "Paniki", "Tutubi", "Ahas", "Higad",
                                 "Paro-paro",
-                                "Tipaklong", "Mandarangkal", "Kabayo", "Butete", "Palaka", "Uod", "Suso", "Isda",
-                                "Eagul",
-                                "Kuto", "Bubuyog", "Tribal Kip",
+                                "Tipaklong", "Mandarangkal", "Kabayo",
+                                "Kuto", "Bubuyog", "Butete", "Palaka", "Uod", "Suso", "Isda",
+                                "Eagul", "Kitty Yonarchy",
                                 "Lolong", "THE GOAT" };
 
                 for (String pokeKalye : pokekalyes) {
@@ -528,9 +621,20 @@ public class LaboratoryPanel extends JPanel {
         private void playMusic(String filepath) {
                 Thread musicThread = new Thread(() -> {
                         try {
-                                AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File(filepath));
-                                musicClip = AudioSystem.getClip();
-                                musicClip.open(audioInputStream);
+
+                                int playerLevel = gamePanel.getLevel();
+                                if (playerLevel >= 24) {
+                                        AudioInputStream audioInputStream = AudioSystem
+                                                        .getAudioInputStream(new File("media/audio/evil.wav"));
+                                        musicClip = AudioSystem.getClip();
+                                        musicClip.open(audioInputStream);
+                                } else {
+                                        AudioInputStream audioInputStream = AudioSystem
+                                                        .getAudioInputStream(new File(filepath));
+                                        musicClip = AudioSystem.getClip();
+                                        musicClip.open(audioInputStream);
+                                }
+
                                 musicClip.loop(Clip.LOOP_CONTINUOUSLY);
                                 musicClip.start();
                         } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {

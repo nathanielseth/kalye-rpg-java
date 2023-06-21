@@ -2,9 +2,11 @@
 
 KalyeRPG is a Java Swing GUI game inspired by the Pokémon series, but with a unique twist- taking  place in the lively environment of the "kalye" (philippine street). The project is developed in compliance with the requirements of my college programming class.
 
+[![Download Latest Release](https://img.shields.io/badge/Download-Latest%20Release-blue.svg)](https://github.com/nathanielseth/KalyeRPG/releases/tag/release_0_3_0)
+
 ## Key Highlights
 
-**PokeKalyes**: The game features over 30 different pokekalyes (street animals). 
+**PokeKalyes**: The game features over 40 different pokekalyes (street animals). 
 
 **Original Soundtrack**: The game's original soundtracks are composed by [andresntlcs](https://github.com/andresntlcs) and myself.
 
@@ -22,4 +24,6 @@ The gameplay of KalyeRPG, although simple in concept, is intentionally designed 
 - Shops, Evolutions, Boss Fights, and more
 
 ## Disclaimer
-I do not own all the animal sounds and images used in the game. The game embraces a "taglish" (Tagalog-English) approach intentionally.
+I do not own all the animal sounds and images used in the game.
+
+

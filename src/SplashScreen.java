@@ -30,28 +30,22 @@ public class SplashScreen {
         playAudio("media/audio/splashTheme.wav");
         Timer timer = new Timer(7500, e -> {
             splashFrame.dispose();
-            showSecondSplash();
+            loadMainMenu();
         });
         timer.setRepeats(false);
         timer.start();
         splashFrame.setVisible(true);
     }
 
-    private void showSecondSplash() {
-        SwingUtilities.invokeLater(() -> {
+    private void loadMainMenu() {
+        new Thread(() -> {
             try {
-                JFrame splashFrame = createSplashFrame("media/images/Warning.png", 300, 300);
-                Timer timer = new Timer(900, e -> {
-                    splashFrame.dispose();
-                    launchGame();
-                });
-                timer.setRepeats(false);
-                timer.start();
-                splashFrame.setVisible(true);
-            } catch (IOException ex) {
-                ex.printStackTrace();
+                MainMenu mainMenu = new MainMenu();
+                mainMenu.setVisible(true);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        });
+        }).start();
     }
 
     private JFrame createSplashFrame(String imagePath, int width, int height) throws IOException {
@@ -66,10 +60,6 @@ public class SplashScreen {
         splashFrame.setSize(new Dimension(width, height));
         splashFrame.setLocationRelativeTo(null);
         return splashFrame;
-    }
-
-    private void launchGame() {
-        MainMenu.main(null);
     }
 
     private void playAudio(String audioPath) {

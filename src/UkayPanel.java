@@ -122,11 +122,11 @@ public class UkayPanel extends JPanel {
 
                         switch (itemIndex) {
                             case 0: // Ben10 Brip
-                                gamePanel.increaseEarnedPesosMaxValue(10);
+                                gamePanel.increaseEarnedPesosMaxValue(5);
                                 playItemBoughtSound("ben10");
                                 break;
                             case 1: // ML Shirt
-                                gamePanel.increaseEarnedPesosMaxValue(20);
+                                gamePanel.increaseEarnedPesosMaxValue(10);
                                 playItemBoughtSound("ml");
                                 break;
                             case 2: // Cock Outfit
@@ -144,7 +144,7 @@ public class UkayPanel extends JPanel {
                                 gamePanel.changeYourPokeKalyeImage(
                                         "media/images/tatum.png");
                                 gamePanel.setBoughtJersey(true);
-                                gamePanel.increaseEarnedPesosMaxValue(50);
+                                gamePanel.increaseEarnedPesosMaxValue(30);
                                 playItemBoughtSound("tatum");
                                 break;
                         }

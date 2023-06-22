@@ -94,7 +94,7 @@ public class GamePanel extends JPanel {
     private int purrCooldown = 0;
     private double critRateModifier = 0.0;
     private int critDamageModifier = 0;
-    private int earnedPesosMaxValue = 15;
+    private int earnedPesosMaxValue = 10;
     private int luck = 1;
     private JLabel luckyCatButton;
     private boolean isShopOpen = false;
@@ -368,11 +368,11 @@ public class GamePanel extends JPanel {
             @Override
             public void mouseClicked(MouseEvent e) {
                 playLuckyCatSound();
-                int pesoAmount = luckyRandom(1, 60);
+                int pesoAmount = luckyRandom(1, 30);
                 increasePesos(pesoAmount);
                 luckyCatButton.setVisible(false);
                 if (Math.random() < 0.69) {
-                    int healthIncrease = luckyRandom(1, 60);
+                    int healthIncrease = luckyRandom(1, 30);
                     if (getPlayerCurrentHealth() < getPlayerMaxHealth()) {
                         setPlayerCurrentHealth(getPlayerCurrentHealth() + healthIncrease);
                     }
@@ -624,6 +624,10 @@ public class GamePanel extends JPanel {
                 playLevelUpSound();
                 playerCurrentHealth += 5;
                 updateHealthBars();
+                if (playerLevel == 5 || playerLevel == 10 || playerLevel == 11 || playerLevel == 15
+                        || playerLevel == 20) {
+                    animateLevelUp(areasButton);
+                }
             }
             int earnedPesos = 0;
             String area = getArea();
@@ -632,7 +636,7 @@ public class GamePanel extends JPanel {
             } else if (area.equals("Kalye West")) {
                 earnedPesos = getRandomNumber(1, earnedPesosMaxValue + 10);
             } else if (area.equals("Gedli East")) {
-                earnedPesos = getRandomNumber(1, earnedPesosMaxValue + 30);
+                earnedPesos = getRandomNumber(1, earnedPesosMaxValue + 20);
             }
             if (enemyPokeKalye.equals("Kitty Yonarchy") || enemyPokeKalye.equals("Lolong")
                     || enemyPokeKalye.equals("THE GOAT")) {
@@ -951,19 +955,19 @@ public class GamePanel extends JPanel {
         int enemyHpIncrease = getLevel() - 1;
         enemyMaxHealth += enemyHpIncrease;
 
-        if (getLevel() >= 6) {
-            int levelDifference = getLevel() - 6;
-            int healthIncrease = levelDifference * 3;
+        if (getLevel() >= 5) {
+            int levelDifference = getLevel() - 5;
+            int healthIncrease = levelDifference * 2;
             enemyMaxHealth += healthIncrease;
         }
         if (playerLevel >= 10) {
             int levelDifference = playerLevel - 10;
-            int healthIncrease = levelDifference * 10;
+            int healthIncrease = levelDifference * 12;
             enemyMaxHealth += healthIncrease;
         }
         if (playerLevel >= 15) {
             int levelDifference = playerLevel - 10;
-            int healthIncrease = levelDifference * 30;
+            int healthIncrease = levelDifference * 45;
             enemyMaxHealth += healthIncrease;
         }
         if (damageMultiplier > 1.0) {
@@ -978,9 +982,9 @@ public class GamePanel extends JPanel {
         }
         String area = getArea();
         if (area.equals("Kalye West")) {
-            enemyMaxHealth += 10;
+            enemyMaxHealth += 5;
         } else if (area.equals("Gedli East")) {
-            enemyMaxHealth += 40;
+            enemyMaxHealth += 30;
         }
         this.enemyCurrentHealth = enemyMaxHealth;
         enemyHealthBar.setMaximum(enemyMaxHealth);
@@ -1493,9 +1497,9 @@ public class GamePanel extends JPanel {
         boolean moveMissed = false;
         String pokeKalye = getPokeKalyeName();
         if (pokeKalye.equals("Puspin") || pokeKalye.equals("Puspin Boots")) {
-            moveMissed = Math.random() <= 0.1;
+            moveMissed = Math.random() <= 0.2;
         } else {
-            moveMissed = Math.random() <= 0.5;
+            moveMissed = Math.random() <= 0.6;
         }
 
         if (enemyPokeKalye.equals("Professor Splinter")) {
@@ -1519,7 +1523,9 @@ public class GamePanel extends JPanel {
     }
 
     private void performPurrMove(MovePool.Move move, double chance) {
-        int maxHealAmount = 81;
+        double maxHealPercentage = 0.99;
+        int maxHealAmount = (int) (playerMaxHealth * maxHealPercentage);
+
         int healAmount = (int) (Math.random() * maxHealAmount) + 1;
 
         double modifiedChance = chance * (1 - healAmount / (double) maxHealAmount);
@@ -1594,7 +1600,11 @@ public class GamePanel extends JPanel {
             boolean hasRabiesBeforeMove = hasRabies;
 
             int maxPlayerHealth = playerMaxHealth;
-            int healAmount = 50;
+            int minHealAmount = 30;
+            int maxHealAmount = 60;
+            int baseHealAmount = (int) (Math.random() * (maxHealAmount - minHealAmount + 1)) + minHealAmount;
+            int additionalHealAmount = (int) (playerMaxHealth * 0.1);
+            int healAmount = baseHealAmount + additionalHealAmount;
 
             if (playerCurrentHealth + healAmount > maxPlayerHealth) {
                 playerCurrentHealth = maxPlayerHealth;
@@ -1694,10 +1704,6 @@ public class GamePanel extends JPanel {
 
         damage *= damageMultiplier;
 
-        if (taholDmgBoost) {
-            damage *= 2.5;
-            taholDmgBoost = false;
-        }
         if (boughtJersey) {
             damage *= 2;
         }
@@ -1713,6 +1719,11 @@ public class GamePanel extends JPanel {
         if (isCrit) {
             damage += critDamageModifier;
             damage *= 2;
+        }
+
+        if (taholDmgBoost) {
+            damage *= 3;
+            taholDmgBoost = false;
         }
 
         if (Math.random() <= chance) {
@@ -1824,11 +1835,11 @@ public class GamePanel extends JPanel {
                     e.printStackTrace();
                 }
             } else {
-                dialogueArea.append("\n Splinter's Sewer Focus missed!");
+                dialogueArea.append("\n Sewer Focus missed!");
             }
         }
 
-        dialogueArea.append("\n Splinter used Sewer Focus!");
+        dialogueArea.append("\n " + enemyPokeKalye + " used Sewer Focus!");
         checkBattleResult();
 
     }
@@ -1838,7 +1849,7 @@ public class GamePanel extends JPanel {
             performEnemyRegularMove(move, 1.0);
             dialogueArea.append("\n Splinter is meditating.");
         } else {
-            int healAmount = (int) (Math.random() * 3001) + 200;
+            int healAmount = (int) (Math.random() * 5001) + 200;
             enemyCurrentHealth += healAmount;
             enemyMeditateCooldown = (int) (Math.random() * 2);
             dialogueArea.append("\n Splinter used " + move.getName() + ".");
@@ -2088,9 +2099,15 @@ public class GamePanel extends JPanel {
         if (Math.random() <= chance) {
             if (originalDamage > 0) {
                 if (playerLevel >= 6) {
-                    int levelDifference = playerLevel - 7;
-                    double scalingFactor = 4;
+                    int levelDifference = playerLevel - 6;
+                    double scalingFactor = 2;
                     damage += (int) (levelDifference * scalingFactor);
+
+                    if (playerLevel >= 15) {
+                        levelDifference = playerLevel - 15;
+                        scalingFactor = 3;
+                        damage += (int) (levelDifference * scalingFactor);
+                    }
                 }
             }
             playerCurrentHealth -= damage;
@@ -2176,7 +2193,7 @@ public class GamePanel extends JPanel {
     }
 
     int getLevelUpExperience(int level) {
-        return 100 + (level - 1) * 30;
+        return 100 + (level - 1) * 15;
     }
 
     private Random random = new Random();
@@ -2373,9 +2390,9 @@ public class GamePanel extends JPanel {
     private void playDamageSound(int damage) {
         if (damage >= 1 && damage <= 5) {
             playLowHitSound();
-        } else if (damage >= 6 && damage <= 11) {
+        } else if (damage >= 6 && damage <= 12) {
             playMedHitSound();
-        } else if (damage >= 12) {
+        } else if (damage >= 13) {
             playHighHitSound();
         }
     }
@@ -2386,8 +2403,8 @@ public class GamePanel extends JPanel {
             new Thread(() -> {
                 lowHitSoundClip.start();
                 try {
-                    Thread.sleep(lowHitSoundClip.getMicrosecondLength() / 100);
-                    Thread.sleep(100);
+                    Thread.sleep(lowHitSoundClip.getMicrosecondLength() / 50);
+                    Thread.sleep(1);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 } finally {
@@ -2405,8 +2422,8 @@ public class GamePanel extends JPanel {
             new Thread(() -> {
                 medHitSoundClip.start();
                 try {
-                    Thread.sleep(medHitSoundClip.getMicrosecondLength() / 100);
-                    Thread.sleep(100);
+                    Thread.sleep(medHitSoundClip.getMicrosecondLength() / 50);
+                    Thread.sleep(1);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 } finally {
@@ -2424,8 +2441,8 @@ public class GamePanel extends JPanel {
             new Thread(() -> {
                 highHitSoundClip.start();
                 try {
-                    Thread.sleep(highHitSoundClip.getMicrosecondLength() / 100);
-                    Thread.sleep(100);
+                    Thread.sleep(highHitSoundClip.getMicrosecondLength() / 50);
+                    Thread.sleep(1);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 } finally {
@@ -2562,9 +2579,18 @@ public class GamePanel extends JPanel {
         }
     }
 
-    void animateLevelUp(JLabel label) {
-        Color originalColor = label.getForeground();
-        Color highlightColor = Color.YELLOW;
+    void animateLevelUp(JComponent component) {
+        Color originalBackground = component.getBackground();
+        Color highlightBackground = Color.YELLOW;
+        Color originalForeground;
+        Color highlightForeground = Color.YELLOW;
+
+        if (component instanceof JLabel) {
+            originalForeground = ((JLabel) component).getForeground();
+        } else {
+            originalForeground = component.getForeground();
+        }
+
         int animationDuration = 1000;
         int animationInterval = 110;
         int numIterations = animationDuration / animationInterval;
@@ -2578,13 +2604,22 @@ public class GamePanel extends JPanel {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         if (iteration % 2 == 0) {
-                            label.setForeground(highlightColor);
+                            component.setBackground(highlightBackground);
+                            if (component instanceof JLabel) {
+                                ((JLabel) component).setForeground(highlightForeground);
+                            }
                         } else {
-                            label.setForeground(originalColor);
+                            component.setBackground(originalBackground);
+                            if (component instanceof JLabel) {
+                                ((JLabel) component).setForeground(originalForeground);
+                            }
                         }
                         iteration++;
                         if (iteration >= numIterations) {
-                            label.setForeground(originalColor);
+                            component.setBackground(originalBackground);
+                            if (component instanceof JLabel) {
+                                ((JLabel) component).setForeground(originalForeground);
+                            }
                             ((Timer) e.getSource()).stop();
                         }
                     }
@@ -2798,7 +2833,7 @@ public class GamePanel extends JPanel {
                     "\n Pampaswerte daw yung\nShtick-O, natry mo na?"
             };
             dialogue = getRandomDialogueWithReuse(dialogueOptions);
-        } else if (level >= 11 && level <= 15) {
+        } else if (level >= 11 && level <= 16) {
             String[] dialogueOptions = {
                     "\n " + enemyPokeKalyeName + " has been caught!",
                     "\n Let me just get these\n PokeKalyes to my Lab!",
@@ -2808,8 +2843,10 @@ public class GamePanel extends JPanel {
                     "NO!\n WHY ARE YOU CATCHING THEM?\n THEY'RE ALL MINE!"
             };
             dialogue = getNextSequentialDialogue(dialogueOptions, level - 11);
-        } else if (level >= 16 && level <= 19) {
+        } else if (level >= 16 && level <= 23) {
             dialogue = "\n " + enemyPokeKalyeName + " has been caught!";
+        } else if (level == 24) {
+            dialogue = "You cannot stop me.";
         } else {
             dialogue = "";
         }

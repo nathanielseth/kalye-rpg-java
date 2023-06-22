@@ -112,7 +112,7 @@ public class Search {
 
     private void playSearchSound() {
         try {
-            if (gamePanel.getLevel() == 24 && gamePanel.getArea().equals("Professor's Lab")) {
+            if (gamePanel.getLevel() >= 24 && gamePanel.getArea().equals("Professor's Lab")) {
                 playBossMusic();
             } else {
                 searchClip.setFramePosition(0);

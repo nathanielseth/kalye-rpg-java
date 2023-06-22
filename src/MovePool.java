@@ -6,7 +6,7 @@ public class MovePool {
     public static final Move BITE = new Move("Bite", 5, false, 1, Effect.RABIES);
     public static final Move BITE_TUTA = new Move("Bite", 4, false, 0.7);
     public static final Move TAHOL = new Move("Tahol", 0, true, 1, Effect.MULTIPLY_DAMAGE);
-    public static final Move SPEAR = new Move("Spear", 11, false, 1);
+    public static final Move SPEAR = new Move("Spear", 10, false, 0.9);
     public static final Move OUTRAGE = new Move("Outrage", 45, false, 0.8);
     public static final Move KAGAT = new Move("Kagat", 5, false, 1);
     public static final Move BURROW = new Move("Burrow", 3, true, 0.75, Effect.DODGE_NEXT_MOVE);

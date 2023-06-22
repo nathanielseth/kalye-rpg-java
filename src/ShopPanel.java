@@ -16,6 +16,7 @@ public class ShopPanel extends JPanel {
     private JLabel pesosLabel;
     private JPanel itemsPanel;
     boolean rugbySoldOut = false;
+    private boolean isSoundPlaying = false;
 
     public ShopPanel(GamePanel gamePanel) {
         preloadSounds();
@@ -146,7 +147,7 @@ public class ShopPanel extends JPanel {
                             playItemBoughtSound("shtick");
                             break;
                         case 2: // Coke Omsim
-                            int healthIncrease = 30;
+                            int healthIncrease = 40;
                             gamePanel.setPlayerCurrentHealth(gamePanel.getPlayerCurrentHealth() + healthIncrease);
                             gamePanel.updateHealthBars();
                             playItemBoughtSound("coke");
@@ -173,10 +174,10 @@ public class ShopPanel extends JPanel {
                             }
                             break;
                         case 6: // Bye-gon
-                            gamePanel.increaseCritRateModifier(0.15);
+                            gamePanel.increaseCritRateModifier(0.10);
                             break;
                         case 7: // Lato Lato
-                            gamePanel.increaseCritDamageModifier(20);
+                            gamePanel.increaseCritDamageModifier(10);
                             playItemBoughtSound("latolato");
                             break;
                         case 8: // Infinity Edge
@@ -396,17 +397,14 @@ public class ShopPanel extends JPanel {
                 AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
                 Clip clip = AudioSystem.getClip();
                 clip.open(audioStream);
-                Thread soundThread = new Thread(() -> {
-                    try {
-                        clip.start();
-                        Thread.sleep(clip.getMicrosecondLength() / 100);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } finally {
+
+                clip.addLineListener(event -> {
+                    if (event.getType() == LineEvent.Type.STOP) {
                         clip.close();
                     }
                 });
-                soundThread.start();
+
+                clip.start();
             } catch (LineUnavailableException | IOException | UnsupportedAudioFileException e) {
                 e.printStackTrace();
             }
@@ -414,4 +412,5 @@ public class ShopPanel extends JPanel {
             System.out.println("File not found: " + soundFilePath);
         }
     }
+
 }

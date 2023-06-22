@@ -953,7 +953,7 @@ public class GamePanel extends JPanel {
 
         if (getLevel() >= 6) {
             int levelDifference = getLevel() - 6;
-            int healthIncrease = levelDifference * 2;
+            int healthIncrease = levelDifference * 3;
             enemyMaxHealth += healthIncrease;
         }
         if (playerLevel >= 10) {
@@ -980,7 +980,7 @@ public class GamePanel extends JPanel {
         if (area.equals("Kalye West")) {
             enemyMaxHealth += 10;
         } else if (area.equals("Gedli East")) {
-            enemyMaxHealth += 30;
+            enemyMaxHealth += 40;
         }
         this.enemyCurrentHealth = enemyMaxHealth;
         enemyHealthBar.setMaximum(enemyMaxHealth);
@@ -1525,9 +1525,8 @@ public class GamePanel extends JPanel {
         double modifiedChance = chance * (1 - healAmount / (double) maxHealAmount);
 
         if (Math.random() <= modifiedChance) {
-            int maxPlayerHealth = getMaxHealth(playerData);
-            if (playerCurrentHealth + healAmount > maxPlayerHealth) {
-                playerCurrentHealth = maxPlayerHealth;
+            if (playerCurrentHealth + healAmount > playerMaxHealth) {
+                playerCurrentHealth = playerMaxHealth;
             } else {
                 playerCurrentHealth += healAmount;
             }
@@ -1973,14 +1972,8 @@ public class GamePanel extends JPanel {
 
     private void performEnemyPurrMove(MovePool.Move move) {
         int healAmount = (int) (Math.random() * 30) + 1;
-        int maxEnemyHealth = getMaxHealth(enemyData);
-        if (enemyCurrentHealth + healAmount > maxEnemyHealth) {
-            enemyCurrentHealth = maxEnemyHealth;
-            updateHealthBars();
-        } else {
-            enemyCurrentHealth += healAmount;
-            updateHealthBars();
-        }
+        enemyCurrentHealth += healAmount;
+        updateHealthBars();
         dialogueArea.append("\n " + enemyPokeKalye + " used " + move.getName() + "!");
         System.out.println("Player HP: " + playerCurrentHealth + "/" + getMaxHealth(playerData));
         System.out.println("Enemy HP: " + enemyCurrentHealth + "/" + getMaxHealth(enemyData));
@@ -2073,7 +2066,7 @@ public class GamePanel extends JPanel {
         }
         boolean isCrit = Math.random() <= critChance;
         if (playerLevel <= 10 && playerCurrentHealth <= 0.3 * getMaxHealth(playerData)) {
-            chance -= 0.2;
+            chance -= 0.1;
         }
         if (isCrit) {
             if (damageMultiplier > 1.0) {
@@ -2094,9 +2087,9 @@ public class GamePanel extends JPanel {
 
         if (Math.random() <= chance) {
             if (originalDamage > 0) {
-                if (playerLevel >= 5) {
-                    int levelDifference = playerLevel - 6;
-                    double scalingFactor = 2;
+                if (playerLevel >= 6) {
+                    int levelDifference = playerLevel - 7;
+                    double scalingFactor = 4;
                     damage += (int) (levelDifference * scalingFactor);
                 }
             }
@@ -2183,7 +2176,7 @@ public class GamePanel extends JPanel {
     }
 
     int getLevelUpExperience(int level) {
-        return 100 + (level - 1) * 15;
+        return 100 + (level - 1) * 30;
     }
 
     private Random random = new Random();
@@ -2394,7 +2387,7 @@ public class GamePanel extends JPanel {
                 lowHitSoundClip.start();
                 try {
                     Thread.sleep(lowHitSoundClip.getMicrosecondLength() / 100);
-                    Thread.sleep(200);
+                    Thread.sleep(100);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 } finally {
@@ -2413,7 +2406,7 @@ public class GamePanel extends JPanel {
                 medHitSoundClip.start();
                 try {
                     Thread.sleep(medHitSoundClip.getMicrosecondLength() / 100);
-                    Thread.sleep(200);
+                    Thread.sleep(100);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 } finally {
@@ -2432,7 +2425,7 @@ public class GamePanel extends JPanel {
                 highHitSoundClip.start();
                 try {
                     Thread.sleep(highHitSoundClip.getMicrosecondLength() / 100);
-                    Thread.sleep(200);
+                    Thread.sleep(100);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 } finally {

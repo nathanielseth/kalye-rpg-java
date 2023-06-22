@@ -248,7 +248,7 @@ public class Professor extends JFrame {
 
     private void finishTypingAnimation() {
         currentCharIndex = currentDialogue.length();
-        typingTimer = null; // Reset the timer
+        typingTimer = null;
         dialoguePanel.setDialogue(currentDialogue);
         dialoguePanel.repaint();
     }

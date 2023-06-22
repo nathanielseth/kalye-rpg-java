@@ -57,10 +57,12 @@ public class Search {
                 gamePanel.revalidate();
                 gamePanel.repaint();
                 int searchTime;
-                if (gamePanel.boughtBike()) {
-                    searchTime = (int) (Math.random() * 1000) + 200;
+                if (gamePanel.getLevel() >= 24) {
+                    searchTime = 13000;
+                } else if (gamePanel.boughtBike()) {
+                    searchTime = (int) (Math.random() * 1000) + 100;
                 } else {
-                    searchTime = (int) (Math.random() * 5000) + 800;
+                    searchTime = (int) (Math.random() * 5000) + 900;
                 }
                 Timer timer = new Timer(searchTime, new ActionListener() {
                     @Override
@@ -261,7 +263,7 @@ public class Search {
 
     private void loadBossMusic2() {
         try {
-            File soundFile = new File("media/audio/bossMusic2.wav");
+            File soundFile = new File("media/audio/battle2.wav");
             AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(soundFile);
             bossMusic2Clip = AudioSystem.getClip();
             bossMusic2Clip.open(audioInputStream);

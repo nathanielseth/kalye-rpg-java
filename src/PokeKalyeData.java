@@ -60,11 +60,11 @@ public class PokeKalyeData {
         public static final PokeKalye ISDA = new PokeKalye("Isda", 14, MovePool.SIT_AND_WAIT, MovePool.DURA);
         public static final PokeKalye EAGUL = new PokeKalye("Eagul", 50, MovePool.MIGHTY_PECK, MovePool.LIPAD,
                         MovePool.KALMOT);
-        public static final PokeKalye TRIBAL_KIP = new PokeKalye("Kitty Yonarchy", 100, MovePool.SNEAK_ATTACK,
+        public static final PokeKalye TRIBAL_KIP = new PokeKalye("Kitty Yonarchy", 200, MovePool.SNEAK_ATTACK,
                         MovePool.PURR, MovePool.KAGAT_SNAKE, MovePool.KALMOT);
-        public static final PokeKalye LOLONG = new PokeKalye("Lolong", 500, MovePool.OUTRAGE, MovePool.KAGAT_SNAKE,
+        public static final PokeKalye LOLONG = new PokeKalye("Lolong", 1000, MovePool.OUTRAGE, MovePool.KAGAT_SNAKE,
                         MovePool.SEWER_FOCUS);
-        public static final PokeKalye THE_GOAT = new PokeKalye("THE GOAT", 1000, MovePool.TADYAK, MovePool.BURROW,
+        public static final PokeKalye THE_GOAT = new PokeKalye("THE GOAT", 3000, MovePool.TADYAK, MovePool.BURROW,
                         MovePool.QUANTUM_BITE, MovePool.SPEAR);
 
         public static class PokeKalye {

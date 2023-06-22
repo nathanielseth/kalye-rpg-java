@@ -125,7 +125,7 @@ public class PetShopPanel extends JPanel {
                             if (gamePanel.getPokeKalyeName().equals("Langgam") ||
                                     gamePanel.getPokeKalyeName().equals("Antik") ||
                                     gamePanel.getPokeKalyeName().equals("Ant-Man")) {
-                                gamePanel.incrementMaxHealth(5);
+                                gamePanel.incrementMaxHealth(20);
                                 gamePanel.updateHealthBars();
                                 refreshShopPanel();
                             }
@@ -133,7 +133,7 @@ public class PetShopPanel extends JPanel {
                         case 1: // Catnip
                             if (gamePanel.getPokeKalyeName().equals("Puspin") ||
                                     gamePanel.getPokeKalyeName().equals("Puspin Boots")) {
-                                gamePanel.incrementMaxHealth(8);
+                                gamePanel.incrementMaxHealth(20);
                                 gamePanel.updateHealthBars();
                                 refreshShopPanel();
                             }
@@ -141,7 +141,7 @@ public class PetShopPanel extends JPanel {
                         case 2: // Pedigree
                             if (gamePanel.getPokeKalyeName().equals("Askal") ||
                                     gamePanel.getPokeKalyeName().equals("Big Dog")) {
-                                gamePanel.incrementMaxHealth(10);
+                                gamePanel.incrementMaxHealth(25);
                                 gamePanel.updateHealthBars();
                                 refreshShopPanel();
                             }

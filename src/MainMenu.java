@@ -1,5 +1,7 @@
 import javax.sound.sampled.*;
 import javax.swing.*;
+import javax.swing.border.Border;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
@@ -14,6 +16,22 @@ public class MainMenu extends JFrame {
 
   private List<Clip> audioClips;
   private JLabel randomStringLabel;
+
+  private class InitializationWorker extends SwingWorker<Void, Void> {
+    @Override
+    protected Void doInBackground() throws Exception {
+      preloadAudio("media/audio/hover.wav");
+      preloadAudio("media/audio/click.wav");
+      preloadAudio("media/audio/nilalangaw.wav");
+      playSound("media/audio/nilalangaw.wav", true);
+      return null;
+    }
+
+    @Override
+    protected void done() {
+      startBlinkingAnimation();
+    }
+  }
 
   private final String[] randomStrings = {
       "Best Game !", "Arats na !", "by nathanielseth.dev", "Ingat sa RABIES!",
@@ -34,6 +52,9 @@ public class MainMenu extends JFrame {
     JPanel contentPane = new JPanel(new BorderLayout());
     contentPane.setBackground(new Color(82, 113, 255));
     setContentPane(contentPane);
+
+    Border frameBorder = BorderFactory.createLineBorder(Color.WHITE, 1);
+    contentPane.setBorder(frameBorder);
 
     ImageIcon logoImage = new ImageIcon("media/images/pokekals.png");
     JLabel logoLabel = new JLabel(logoImage);
@@ -78,11 +99,8 @@ public class MainMenu extends JFrame {
 
     setVisible(true);
     audioClips = new ArrayList<>();
-    preloadAudio("media/audio/hover.wav");
-    preloadAudio("media/audio/click.wav");
-    preloadAudio("media/audio/nilalangaw.wav");
-    playSound("media/audio/nilalangaw.wav", true);
-    startBlinkingAnimation();
+    InitializationWorker worker = new InitializationWorker();
+    worker.execute();
   }
 
   private void startBlinkingAnimation() {

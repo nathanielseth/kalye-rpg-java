@@ -33,15 +33,6 @@ public class LaboratoryPanel extends JPanel {
                 JPanel topPanel = new JPanel(new BorderLayout());
                 topPanel.setOpaque(false);
 
-                // JLabel labLabel = new JLabel("Laboratory");
-                // labLabel.setFont(new Font("Courier New", Font.BOLD, 17));
-                // labLabel.setForeground(Color.WHITE);
-                // topPanel.add(labLabel, BorderLayout.WEST);
-
-                // ImageIcon labIcon = new ImageIcon("images/pokedex.png");
-                // JLabel labImageLabel = new JLabel(labIcon);
-                // topPanel.add(labImageLabel);
-
                 JPanel imagePanel = new JPanel();
                 imagePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
                 imagePanel.setOpaque(false);
@@ -138,9 +129,9 @@ public class LaboratoryPanel extends JPanel {
                                 "Moveset: Kalmot, Flee, Purr\r\n" +
                                 "\r\n" +
                                 "Typically minding its own business, Puspin may seem docile and\r\n" +
-                                "nonchalant, but do not be fooled. This PokeKalye demands respect.\r\n\r\n" +
-                                "Due to the abundance of Daga in Queensrow, Puspins have grown plump\r\n" +
-                                "and chonky, making them irritable when provoked.");
+                                "nonchalant, but do not be fooled. This PokeKalye is a menace.\r\n\r\n" +
+                                "Due to the abundance of Daga in Queensrow, Puspins have grown\r\n" +
+                                "plump and chonky, making them irritable when provoked.");
 
                 pokeKalyeDescriptions.put("Puspin Boots", "PUSPIN BOOTS #003\r\n" +
                                 "Nature: Playful Fighter\r\n" +
@@ -358,7 +349,8 @@ public class LaboratoryPanel extends JPanel {
                                 "Higad, a PokeKalye of eerie nature, possesses a unique and powerful Dapo\r\n" +
                                 "that sets it apart from others. Legends and folklore suggest that Higad was\r\n" +
                                 "spawned by Satan himself, leading to various theories about its name. Some\r\n" +
-                                "claim that \"Higad\" means \"he hates God\", emphasizing its malevolent origin.\r\n" +
+                                "claim that \"Higad\" means \"he hates God\", emphasizing its malevolent origin.\r\n\r\n"
+                                +
                                 "With its sinister presence, Higad strikes fear into the hearts of onlookers.\r\n" +
                                 "Its Dapo is renowned as the strongest, capable of inflicting devastating\r\n" +
                                 "effects on its foes.");
@@ -379,9 +371,9 @@ public class LaboratoryPanel extends JPanel {
                                 "strongest legs in the game. Despite this remarkable attribute, Tipaklong's\r\n" +
                                 "intellectual capabilities seem to hinder its utilization of such power. Its\r\n" +
                                 "low IQ often leads to amusing situations where Tipaklong rarely harnesses the\r\n" +
-                                "full potential of its potent leg game. Nonetheless, with its agility and\r\n" +
-                                "precise strikes, Tipaklong remains a formidable force to reckon with\r\n" +
-                                "in the kalyes.");
+                                "full potential of its potent leg game.\r\n\r\n" +
+                                "Nonetheless, with its agility and precise strikes, Tipaklong\r\n" +
+                                "remains a formidable force to reckon with in the kalyes.");
 
                 pokeKalyeDescriptions.put("Mandarangkal", "MANDARANGKAL #030\r\n" +
                                 "Nature: Strong\r\n" +
@@ -462,11 +454,11 @@ public class LaboratoryPanel extends JPanel {
                                 "Nature: Pesky\r\n" +
                                 "Moveset: Dapo, Stare\r\n" +
                                 "\r\n" +
-                                "Suso is the epitome of mediocrity in the PokeKalye landscape.\n" +
-                                "It is a miracle that this species has managed to survive,\n" +
-                                "given its apparent worthlessness. Suso's harder-than-bakal shell\n" +
-                                "might give the impression of being formidable, but in reality,\n" +
-                                "it is nothing more than a mid-tier PokeKalye, forever stuck in\n\n" +
+                                "Suso is the epitome of mediocrity in the PokeKalye landscape.\r\n" +
+                                "It is a miracle that this species has managed to survive,\r\n" +
+                                "given its apparent worthlessness. Suso's harder-than-bakal shell\r\n" +
+                                "might give the impression of being formidable, but in reality,\r\n" +
+                                "it is nothing more than a mid-tier PokeKalye, forever stuck in\r\n" +
                                 "the realm of insignificance.");
 
                 pokeKalyeDescriptions.put("Isda", "ISDA #038\r\n" +
@@ -488,7 +480,7 @@ public class LaboratoryPanel extends JPanel {
                                 +
                                 "When the kalye folks were in dire need, they turned to Eagul as their hope.\r\n\r\n" +
                                 "The Professor noted and wisely warns,\n" +
-                                "'Stay away from Eagul worshippers' or risk being dragged into their laughable fanaticism");
+                                "\"Stay away from Eagul worshippers or risk being dragged into their laughable fanaticism\"");
 
                 pokeKalyeDescriptions.put("Kitty Yonarchy", "KITTY YONARCHY #040\r\n" +
                                 "Nature: Legendary\r\n" +
@@ -518,7 +510,7 @@ public class LaboratoryPanel extends JPanel {
                                 "Nature: Legendary\r\n" +
                                 "Moveset: Tadyak, Spear, Quantum Bite, Burrow\r\n" +
                                 "\r\n" +
-                                "Its presence is shrouded in mystery, visible only to those who have transcended \r\n" +
+                                "Its presence is shrouded in mystery, visible only to those who have transcended\r\n" +
                                 "the ordinary perception of the kalye realm.\r\n" +
                                 "Until recently, no one had ever seen, until you.\r\n\r\n" +
                                 "Rumors abound of an unknown animal that underwent a miraculous transformation\r\n" +

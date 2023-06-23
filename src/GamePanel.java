@@ -624,7 +624,7 @@ public class GamePanel extends JPanel {
                 playLevelUpSound();
                 playerCurrentHealth += 5;
                 updateHealthBars();
-                if (playerLevel == 5 || playerLevel == 10 || playerLevel == 11 || playerLevel == 15
+                if (playerLevel == 5 || playerLevel == 10 || playerLevel == 11 || playerLevel == 16
                         || playerLevel == 20) {
                     animateLevelUp(areasButton);
                 }
@@ -853,31 +853,27 @@ public class GamePanel extends JPanel {
             sariSariButton.setEnabled(false);
             enemyImageLabel.setBounds(240, 70, 100, 150);
             enemyHealthBar.setPreferredSize(new Dimension(200, 16));
+            playCrySound("Kitty Yonarchy");
         } else if (enemyData.getName().equals("Lolong")) {
             imagePath = "media/images/lolong.png";
             enemyImage = new ImageIcon(imagePath);
             sariSariButton.setEnabled(false);
             enemyImageLabel.setBounds(240, 70, 151, 135);
             enemyHealthBar.setPreferredSize(new Dimension(210, 16));
+            playCrySound("Lolong");
         } else if (enemyData.getName().equals("THE GOAT")) {
             imagePath = "media/images/Goat.png";
             enemyImage = new ImageIcon(imagePath);
             sariSariButton.setEnabled(false);
             enemyImageLabel.setBounds(240, 70, 100, 150);
             enemyHealthBar.setPreferredSize(new Dimension(220, 16));
+            playCrySound("THE GOAT");
         } else {
             enemyImage = new ImageIcon(imagePath);
             enemyHealthBar.setPreferredSize(new Dimension(140, 16));
 
             playBattleMusic();
-            String cryPath = "media/audio/Cries/" + enemyPokeKalye + "Cry.wav";
-            try {
-                Clip clip = AudioSystem.getClip();
-                clip.open(AudioSystem.getAudioInputStream(new File(cryPath)));
-                clip.start();
-            } catch (Exception e) {
-                System.err.println("Error playing audio: " + e.getMessage());
-            }
+            playCrySound(enemyPokeKalye);
         }
 
         enemyImageLabel.setIcon(enemyImage);
@@ -1504,6 +1500,7 @@ public class GamePanel extends JPanel {
 
         if (enemyPokeKalye.equals("Professor Splinter")) {
             appendToDialogue("\n YOU CAN'T RUN FROM ME.");
+            updateHealthBars();
             playMissSound();
             enemyTurn();
         } else if (!moveMissed) {
@@ -1517,14 +1514,15 @@ public class GamePanel extends JPanel {
             luckyCatButton.setVisible(false);
         } else {
             appendToDialogue("\n " + pokeKalyeName + ", flee pa more!");
+            updateHealthBars();
             playMissSound();
             enemyTurn();
         }
     }
 
     private void performPurrMove(MovePool.Move move, double chance) {
-        double maxHealPercentage = 0.99;
-        int maxHealAmount = (int) (playerMaxHealth * maxHealPercentage);
+        double maxHealPercentage = 1.0;
+        int maxHealAmount = (int) ((playerMaxHealth + 10) * maxHealPercentage);
 
         int healAmount = (int) (Math.random() * maxHealAmount) + 1;
 
@@ -1559,16 +1557,16 @@ public class GamePanel extends JPanel {
             boolean hasRabiesBeforeMove = hasRabies;
 
             int maxPlayerHealth = playerMaxHealth;
-            if (playerCurrentHealth + 10 > maxPlayerHealth) {
+            if (playerCurrentHealth + 15 > maxPlayerHealth) {
                 playerCurrentHealth = maxPlayerHealth;
                 updateHealthBars();
             } else {
-                playerCurrentHealth += 10;
+                playerCurrentHealth += 15;
                 updateHealthBars();
             }
 
             if (hasRabiesBeforeMove) {
-                damage += 3;
+                damage += 5;
                 playerCurrentHealth -= 3;
                 updateHealthBars();
             }
@@ -1982,7 +1980,7 @@ public class GamePanel extends JPanel {
     }
 
     private void performEnemyPurrMove(MovePool.Move move) {
-        int healAmount = (int) (Math.random() * 30) + 1;
+        int healAmount = (int) (Math.random() * 50) + 1;
         enemyCurrentHealth += healAmount;
         updateHealthBars();
         dialogueArea.append("\n " + enemyPokeKalye + " used " + move.getName() + "!");
@@ -2972,4 +2970,16 @@ public class GamePanel extends JPanel {
     public void incrementDefeatedEnemiesCount() {
         defeatedEnemiesCount++;
     }
+
+    private void playCrySound(String cryName) {
+        String cryPath = "media/audio/Cries/" + cryName + "Cry.wav";
+        try {
+            Clip clip = AudioSystem.getClip();
+            clip.open(AudioSystem.getAudioInputStream(new File(cryPath)));
+            clip.start();
+        } catch (Exception e) {
+            System.err.println("Error playing audio: " + e.getMessage());
+        }
+    }
+
 }

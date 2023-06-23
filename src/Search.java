@@ -59,6 +59,7 @@ public class Search {
                 int searchTime;
                 if (gamePanel.getLevel() >= 24) {
                     searchTime = 13000;
+                    gamePanel.sariSariButton.setEnabled(false);
                 } else if (gamePanel.boughtBike()) {
                     searchTime = (int) (Math.random() * 1000) + 100;
                 } else {

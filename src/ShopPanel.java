@@ -144,7 +144,9 @@ public class ShopPanel extends JPanel {
                         case 1: // Shtick-O
                             gamePanel.increaseEarnedPesosMaxValue(2);
                             gamePanel.increaseLuck(10);
-                            playItemBoughtSound("shtick");
+                            if (gamePanel.getLuck() >= 100) {
+                                playItemBoughtSound("shtick");
+                            }
                             break;
                         case 2: // Coke Omsim
                             int healthIncrease = 40;

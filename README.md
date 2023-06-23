@@ -2,7 +2,7 @@
 
 KalyeRPG is a Java Swing GUI game inspired by the Pokémon series, but with a unique twist- taking  place in the lively environment of the "kalye" (philippine street). The project is developed in compliance with the requirements of my college programming class.
 
-[![Download Latest Release](https://img.shields.io/badge/Download-Latest%20Release-blue.svg)](https://github.com/nathanielseth/KalyeRPG/releases/tag/release_0_3_0)
+[![Download Latest Release](https://img.shields.io/badge/Download-Latest%20Release-blue.svg)](https://github.com/nathanielseth/KalyeRPG/releases/tag/release_0_3_1)
 
 ## Key Highlights
 
